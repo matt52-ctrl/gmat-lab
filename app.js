@@ -227,7 +227,7 @@ function renderChrome(){
   const inTest = S.run && LOCKED.includes(S.run.phase);
   const nav = $('#tabs'); nav.hidden = !!inTest;
   const due = S.dbStatus === 'ok' ? dueErrors().length : 0;
-  const tabs = [['today','Today'],['coach','Coach'],['diagnostic','Diagnostic'],['practice','Practice'],['retests','Retests', due],['errors','Error log'],['mastery','Mastery'],['mocks','Mocks'],['profile','Profile'],['settings','Settings']];
+  const tabs = [['today','Today'],['coach','Coach'],['learn','Learn'],['diagnostic','Diagnostic'],['practice','Practice'],['retests','Retests', due],['errors','Error log'],['mastery','Mastery'],['mocks','Mocks'],['profile','Profile'],['settings','Settings']];
   nav.innerHTML = tabs.map(([k,l,b]) => `<button data-act="tab" data-arg="${k}" ${S.tab === k && !S.run ? 'aria-current="page"' : ''}>${l}${b ? ` <span class="badge">${b}</span>` : ''}</button>`).join('');
   let msg = '';
   if (S.dbStatus === 'absent') msg = dbErrorText({ code:'no_storage' });
@@ -329,7 +329,9 @@ function solutionHTML(q){
   if (q.altMethod) rows.push(['Another route', inline(q.altMethod)]);
   if (q.trap) rows.push(['The trap', inline(q.trap)]);
   if (q.solution) rows.push(['Every option', inline(q.solution)]);
+  const L = lessonOf(q.topic);
   return `<div class="sol"><dl>${rows.map(([k,v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl>
+    ${L ? `<details class="more"><summary>Theory: ${esc(q.topic)}</summary><div class="stack" style="margin-top:8px"><p class="muted">${inline(L.summary)}</p><div><p class="eyebrow">Key ideas</p><ul class="answer">${L.ideas.map(x => `<li>${inline(x)}</li>`).join('')}</ul></div><div><p class="eyebrow">Traps</p><ul class="answer">${L.traps.map(x => `<li>${inline(x)}</li>`).join('')}</ul></div></div></details>` : ''}
     <p class="fine">Expected time ≈ ${fmtTime(expOf(q))} · ${esc(q.topic || '')}${q.subtopic ? ' · ' + esc(q.subtopic) : ''} · level ${q.difficulty || '—'}${q.set === 'generated' ? ' · written by Claude on request, not hand-checked' : ''} · <button class="linkbtn" data-act="report">Report a problem</button></p>
     <div id="report-box" hidden><label class="lab" for="report-note">What looks wrong?</label><textarea id="report-note" rows="2"></textarea><div class="row" style="margin-top:8px"><button class="btn small" data-act="reportsend">Send report</button><button class="btn small ghost" data-act="reportcancel">Cancel</button></div></div></div>`;
 }
@@ -713,12 +715,13 @@ function planCard(nx){
   if (nx) return `<div class="card next"><p class="eyebrow">Next step · ${fmtDate(today())}</p><h1>${esc(nx.title)}</h1><p class="muted">${esc(nx.why)}</p></div>`;
   const min = todayMinutes(), p = GMATPlanner.plan(plannerCtx(min)), [first, ...rest] = p.items;
   const btn = (it, cls) => it.act ? `<button class="btn ${cls}" data-act="${it.act}" ${it.arg ? `data-arg="${esc(it.arg)}"` : ''}>${CTA[it.id] || 'Start'}</button>` : '';
+  const theory = (it, cls) => it.topic && lessonOf(it.topic) ? `<button class="btn ghost ${cls}" data-act="lesson" data-arg="${esc(it.topic)}">Theory</button>` : '';
   return `<div class="card next">
     <div class="row" style="justify-content:space-between"><p class="eyebrow">Today · ${fmtDate(today())} · plan for ${min} min</p>
       <div class="seg" role="group" aria-label="Time you have today">${MINUTES.map(m => `<button data-act="setmin" data-v="${m}" aria-pressed="${m === min}">${m}′</button>`).join('')}</div></div>
     <h1>${esc(first.title)}</h1><p class="muted">${esc(first.why)}</p>
-    ${first.act ? `<div class="row" style="margin-top:16px">${btn(first, 'primary')}${first.minutes ? `<span class="fine mono">~${first.minutes} min</span>` : ''}</div>` : ''}
-    ${rest.length ? `<ol class="plan">${rest.map(it => `<li><div><b>${esc(it.title)}</b><span class="fine">${esc(it.why)}</span></div><span class="mono fine">${it.minutes ? '~' + it.minutes + ' min' : ''}</span>${btn(it, 'small')}</li>`).join('')}</ol>` : ''}
+    ${first.act ? `<div class="row" style="margin-top:16px">${btn(first, 'primary')}${theory(first, '')}${first.minutes ? `<span class="fine mono">~${first.minutes} min</span>` : ''}</div>` : ''}
+    ${rest.length ? `<ol class="plan">${rest.map(it => `<li><div><b>${esc(it.title)}</b><span class="fine">${esc(it.why)}</span></div><span class="mono fine">${it.minutes ? '~' + it.minutes + ' min' : ''}</span><span class="row" style="gap:6px;flex-wrap:nowrap">${theory(it, 'small')}${btn(it, 'small')}</span></li>`).join('')}</ol>` : ''}
     <p class="fine" style="margin-top:12px">Built from your answers, times, confidence and error log. <button class="linkbtn" data-act="tab" data-arg="coach">Ask the coach why</button></p>
   </div>`;
 }
@@ -787,7 +790,8 @@ VIEWS.coach = function(){
   const fresh = cp && cp.updatedAt && daysBetween(String(cp.updatedAt).slice(0, 10), today()) <= 9;
   return `<section><h1>Coach</h1><p class="muted" style="max-width:70ch">Answers from your own data: every answer, time, confidence rating and logged error. It runs in this page, with no AI and no cost, and updates as you practise.</p></section>
   <section class="card stack"><div class="chips" role="group" aria-label="Questions for the coach">${GMATPlanner.QUESTIONS.map(([k, l]) => `<button class="chip" data-act="coachq" data-v="${k}" aria-pressed="${k === key}">${esc(l)}</button>`).join('')}</div>
-    <h2>${esc(a.title)}</h2><ul class="answer">${a.lines.map(l => `<li>${esc(l)}</li>`).join('')}</ul></section>
+    <h2>${esc(a.title)}</h2><ul class="answer">${a.lines.map(l => `<li>${esc(l)}</li>`).join('')}</ul>
+    ${key === 'weakness' ? (() => { const ts = GMATPlanner.topicWeights(ctx).filter(t => t.n > 0 && (t.status <= 2 || t.recentErr) && lessonOf(t.topic)).slice(0, 3); return ts.length ? `<div class="row">${ts.map(t => `<button class="btn small" data-act="lesson" data-arg="${esc(t.topic)}">Study ${esc(t.topic)}</button>`).join('')}</div>` : ''; })() : ''}</section>
   <section class="grid2">
     <div class="stack"><h2>Where your practice goes</h2><p class="muted">Coach sets draw topics in proportion to these weights: weak topics come up most, strong ones now and then so they stay sharp.</p>
       ${w.length ? `<div class="box scroll"><table class="tbl"><thead><tr><th>Topic</th><th>Status</th><th>Weight</th><th class="num">Unseen</th></tr></thead><tbody>${w.map(t => `<tr><td>${esc(t.topic)}</td><td><span class="status st${t.status}"></span>${STATUS[t.status]}</td><td><div class="wbar" role="img" aria-label="weight ${t.weight.toFixed(2)}"><span style="width:${Math.round(t.weight / maxW * 100)}%"></span></div></td><td class="num">${t.unseen}</td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">Nothing to weigh yet. Take the diagnostic first.</p>'}</div>
@@ -886,7 +890,7 @@ VIEWS.mastery = function(){
     const counts = STATUS.map((_,i) => rows.filter(r => r.m.status === i).length);
     return `<section><div class="row" style="justify-content:space-between"><h2>${sec}</h2><span class="fine">${counts.map((c,i) => c ? `${STATUS[i]} ${c}` : '').filter(Boolean).join(' · ')}</span></div>
       <div class="box scroll"><table class="tbl"><thead><tr><th>Topic</th><th>Status</th><th class="num">Questions</th><th class="num">Accuracy</th><th class="num">Timed</th><th class="num">Time vs expected</th><th class="num">Last seen</th></tr></thead><tbody>
-      ${rows.map(({t,m}) => `<tr><td>${esc(t)}</td><td><span class="status st${m.status}"></span>${STATUS[m.status]}</td><td class="num">${m.n || '—'}</td><td class="num">${pct(m.acc)}</td><td class="num">${pct(m.tacc)}</td><td class="num">${m.ratio ? m.ratio.toFixed(2) + '×' : '—'}</td><td class="num">${m.last ? fmtDate(m.last) : '—'}</td></tr>`).join('')}
+      ${rows.map(({t,m}) => `<tr><td>${lessonOf(t) ? `<button class="linkbtn" data-act="lesson" data-arg="${esc(t)}">${esc(t)}</button>` : esc(t)}</td><td><span class="status st${m.status}"></span>${STATUS[m.status]}</td><td class="num">${m.n || '—'}</td><td class="num">${pct(m.acc)}</td><td class="num">${pct(m.tacc)}</td><td class="num">${m.ratio ? m.ratio.toFixed(2) + '×' : '—'}</td><td class="num">${m.last ? fmtDate(m.last) : '—'}</td></tr>`).join('')}
       </tbody></table></div></section>`;
   }).join('');
   return `<section><h1>Mastery</h1><p class="muted" style="max-width:70ch">The full topic list for the current GMAT, with your status on each. A topic is never marked mastered after a few right answers: it needs accuracy, speed, harder levels and retention after a week.</p>
@@ -1156,7 +1160,9 @@ async function generate(){
 
 /* ------------------------------------------------------------------ actions */
 const ACTIONS = {
-  tab(el){ const t = el.dataset.arg; if (S.run){ if (LOCKED.includes(S.run.phase)) return; endRun(t); return; } S.tab = t; try { history.replaceState(null, '', '#' + t); } catch(e){} render(); window.scrollTo(0,0); },
+  lesson(el){ S.ui.lesson = el.dataset.arg; if (S.run){ if (LOCKED.includes(S.run.phase)) return; endRun('learn'); return; } S.tab = 'learn'; try { history.replaceState(null, '', '#learn'); } catch(e){} render(); window.scrollTo(0,0); },
+  lessonback(){ S.ui.lesson = null; render(); window.scrollTo(0,0); },
+  tab(el){ const t = el.dataset.arg; if (t === 'learn') S.ui.lesson = null; if (S.run){ if (LOCKED.includes(S.run.phase)) return; endRun(t); return; } S.tab = t; try { history.replaceState(null, '', '#' + t); } catch(e){} render(); window.scrollTo(0,0); },
   startBlock(el){ startBlock(el.dataset.arg); },
   restartBlock(el){ for (const s of diagSessions(el.dataset.arg).filter(s => s.status === 'active')) write('sessions/' + s.id, 'update', { status:'abandoned' }); startBlock(el.dataset.arg); },
   openResults(el){ openResults(el.dataset.arg); },
@@ -1282,6 +1288,7 @@ document.addEventListener('change', e => {
 });
 document.addEventListener('input', e => {
   const el = e.target;
+  if (el.id === 'kb-search'){ const q = el.value.trim().toLowerCase(); $$('[data-kb]').forEach(n => { n.hidden = !!q && !n.dataset.kb.includes(q); }); return; }
   if (el.id === 'calc-in'){ const out = $('#calc-out'); const v = el.value.trim(); if (!v){ out.textContent = '='; return; } try { const r = calc(v); out.textContent = isFinite(r) ? '= ' + (Math.round(r*1e8)/1e8).toLocaleString('en-US', { maximumFractionDigits: 8 }) : '= —'; } catch(_){ out.textContent = '= …'; } return; }
   if (el.closest('form[data-dirty]')) S.ui.dirty = true;
 });
@@ -1299,8 +1306,55 @@ function makeSample(){
   f.json = async (prompt, opts) => (await load()).json(key, prompt, opts);
   return f;
 }
+/* ------------------------------------------------------------------ knowledge base: lessons and guides in knowledge/*.json */
+function loadKnowledge(){
+  const get = f => fetch('knowledge/' + f, { cache:'no-cache' }).then(r => { if (!r.ok) throw 0; return r.json(); });
+  get('index.json').then(ix => Promise.all([Promise.all(ix.lessons.map(get)), get(ix.guides)]))
+    .then(([files, guides]) => { const byTopic = {}; for (const l of files.flat()) byTopic[l.topic] = l; S.kb = { byTopic, guides }; if (!S.run) render(); })
+    .catch(() => { S.kb = { byTopic: {}, guides: [], error: true }; if (!S.run && S.tab === 'learn') render(); });
+}
+function lessonOf(topic){ return S.kb && S.kb.byTopic[topic] || null; }
+VIEWS.learn = function(){
+  if (!S.kb) return `<section><h1>Learn</h1><p class="muted">Loading the lessons…</p></section>`;
+  if (S.kb.error) return `<section><h1>Learn</h1><p class="banner">The lessons could not be loaded. Check your connection and reload the page.</p></section>`;
+  if (S.ui.lesson) return S.ui.lesson.startsWith('guide:') ? guideView(S.ui.lesson.slice(6)) : lessonView(S.ui.lesson);
+  const diagDone = BLOCKS.every(b => blockDone(b.key));
+  const row = l => { const m = mastery(l.topic); return `<li data-kb="${esc((l.topic + ' ' + l.summary + ' ' + l.ideas.join(' ') + ' ' + l.traps.join(' ')).toLowerCase())}"><button class="lrow" data-act="lesson" data-arg="${esc(l.topic)}"><span><span class="status st${m.status}"></span><b>${esc(l.topic)}</b></span><span class="fine">${inline(l.summary)}</span></button></li>`; };
+  return `<section><h1>Learn</h1><p class="muted" style="max-width:70ch">Theory, methods and traps for every topic of the GMAT Focus, plus how the exam works. Written once and always here: no AI needed. The dot shows your mastery of each topic.</p>
+    ${diagDone ? '' : '<p class="banner">Tip: take the diagnostic before studying the lessons, so it measures where you really start.</p>'}
+    <div style="max-width:420px"><label class="lab" for="kb-search">Search</label><input id="kb-search" type="text" autocomplete="off" placeholder="e.g. remainder, assumption, median"></div></section>
+    <section><h2>How the exam works</h2><ul class="lessons">${S.kb.guides.map(g => `<li data-kb="${esc((g.title + ' ' + g.points.join(' ')).toLowerCase())}"><button class="lrow" data-act="lesson" data-arg="guide:${esc(g.id)}"><span><b>${esc(g.title)}</b></span><span class="fine">${esc(g.points[0])}</span></button></li>`).join('')}</ul></section>
+    ${SECTIONS.map(sec => `<section><h2>${sec}</h2><ul class="lessons">${SYLLABUS[sec].map(t => lessonOf(t)).filter(Boolean).map(row).join('')}</ul></section>`).join('')}`;
+};
+function lessonView(topic){
+  const L = lessonOf(topic);
+  if (!L){ S.ui.lesson = null; return VIEWS.learn(); }
+  const all = SECTIONS.flatMap(sec => SYLLABUS[sec]).filter(t => lessonOf(t)), i = all.indexOf(topic);
+  const m = mastery(topic), avail = practicePool().filter(q => q.topic === topic).length;
+  const list = (title, arr, tag) => arr && arr.length ? `<div class="stack" style="gap:6px"><h3>${title}</h3><${tag} class="answer">${arr.map(x => `<li>${inline(x)}</li>`).join('')}</${tag}></div>` : '';
+  return `<section class="stack"><div class="row"><button class="btn small ghost" data-act="lessonback">← All lessons</button></div>
+    <p class="eyebrow">${esc(L.section)}</p><h1>${esc(L.topic)}</h1><p class="muted" style="max-width:70ch">${inline(L.summary)}</p>
+    <p class="fine"><span class="status st${m.status}"></span>${STATUS[m.status]}${m.n ? ` · ${pct(m.acc)} right in ${m.n} question${m.n === 1 ? '' : 's'}` : ''}</p></section>
+  <section class="card stack" style="max-width:820px">
+    ${list('Key ideas', L.ideas, 'ul')}
+    ${L.formulas.length ? `<div class="stack" style="gap:6px"><h3>Formulas</h3><ul class="answer mono">${L.formulas.map(x => `<li>${inline(x)}</li>`).join('')}</ul></div>` : ''}
+    ${list('Method', L.method, 'ol')}
+    ${list('Traps', L.traps, 'ul')}
+    ${list('Shortcuts', L.shortcuts, 'ul')}
+    ${L.example ? `<div class="panel stack"><p class="eyebrow">Example</p><p>${inline(L.example.q)}</p><details class="more"><summary>Show the solution</summary><p style="margin-top:8px">${inline(L.example.a)}</p></details></div>` : ''}
+  </section>
+  <section class="row">${avail ? `<button class="btn primary" data-act="startsmart" data-arg="learn|${esc(topic)}|${Math.min(5, avail)}">Practice ${esc(topic)}</button>` : '<span class="fine">No practice questions on this topic yet: the daily review adds them.</span>'}
+    ${i > 0 ? `<button class="btn ghost" data-act="lesson" data-arg="${esc(all[i - 1])}">← ${esc(all[i - 1])}</button>` : ''}${i < all.length - 1 ? `<button class="btn ghost" data-act="lesson" data-arg="${esc(all[i + 1])}">${esc(all[i + 1])} →</button>` : ''}</section>`;
+}
+function guideView(id){
+  const g = S.kb.guides.find(x => x.id === id);
+  if (!g){ S.ui.lesson = null; return VIEWS.learn(); }
+  return `<section class="stack"><div class="row"><button class="btn small ghost" data-act="lessonback">← All lessons</button></div><p class="eyebrow">How the exam works</p><h1>${esc(g.title)}</h1></section>
+    <section class="card" style="max-width:820px"><ul class="answer">${g.points.map(x => `<li>${inline(x)}</li>`).join('')}</ul></section>`;
+}
 function boot(){
   const h = location.hash.slice(1); if (VIEWS[h]) S.tab = h;
+  loadKnowledge();
   S.sample = makeSample();
   GMATStore.onStatus(onSyncStatus);
   render();

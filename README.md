@@ -18,6 +18,8 @@ The **Today** tab shows a plan for the time you have (15 minutes to 2 hours): un
 
 The **Coach** tab answers "What should I study today?", "What is my main weakness?", "Am I improving?", "Which mistakes do I repeat?", "Am I ready for a mock?", "What is my level?" and "How should I spread this week's hours?" from your own data. It runs in the page (`planner.js`), with no AI and no cost. It never turns GMAT Lab's own questions into a GMAT score: only official practice exams give one.
 
+The **Learn** tab holds the GMAT knowledge built into the app: a lesson for each of the 40 topics (key ideas, formulas, method, traps, shortcuts and a worked example) and guides on the exam format, pacing, bookmarks and answer changes, reading arguments and passages, and Data Sufficiency. The same theory opens inside every solution and next to weak topics in the plan. No chatbot, no AI calls: it is written into the app (`knowledge/`).
+
 **Coach sets** (from the plan, or "Let the coach pick" in Practice) are adaptive: weak topics come up most and strong ones now and then, and each question is harder after a right answer and easier after a wrong one.
 
 **GMAT simulation** (Mocks tab) follows the real GMAT Focus format: three 45-minute sections (Quant 21, Verbal 23, Data Insights 20 questions) in the order you choose, one optional 10-minute break after the first or second section, question-by-question adaptive difficulty starting from a middle level, no going back, bookmarks and up to 3 answer changes per section at the end, calculator only in Data Insights, no confidence ratings and no feedback until the end, reading passages with their questions together. It uses only questions you have never seen, so it opens once every section has enough. It does not produce a GMAT score: only official practice exams can.
@@ -49,6 +51,7 @@ The **Coach** tab answers "What should I study today?", "What is my main weaknes
 | `store.js` | Browser storage, backups, GitHub sync |
 | `coach.js` | Optional Claude coach and question generator (loaded only when used) |
 | `questions/` | Question bank |
+| `knowledge/` | Lessons for every topic and exam guides |
 | `tools/validate-questions.js` | Question file checks |
 | `tests/` | Unit tests: `node --test tests/*.test.js` |
 | `vendor/anthropic-sdk.js` | Anthropic JS SDK, browser bundle |

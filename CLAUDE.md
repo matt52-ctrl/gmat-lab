@@ -11,6 +11,7 @@ Static GMAT training app served by GitHub Pages. No build step, no dependencies 
 
 - `index.html` – markup and CSS. `app.js` – UI: views, test engine, debrief, analytics. `store.js` – `window.GMATStore`: localStorage, backup import/export, GitHub sync. `planner.js` – `window.GMATPlanner`: the rule-based coach (today's plan, topic weights, answers on the Coach tab) and the adaptive engine used by coach sets and the GMAT simulation (`levelAfter`, `nextAdaptive`, `examReadiness`); pure functions, no DOM. `coach.js` – optional Claude calls through `vendor/anthropic-sdk.js` with the student's own API key.
 - `app.js` talks to storage only through `GMATStore.open()` → `db.doc(path).set|update|delete` and `db.collection(name).onSnapshot`. Collections: `bank`, `sessions`, `errors`, `mocks`, `profile`, `studylog`. The `bank` collection is `questions/*.json` merged with local overrides (generated questions, `flagged` reports).
+- `knowledge/` – the built-in GMAT knowledge: one lesson per SYLLABUS topic (`quant.json`, `di.json`, `verbal.json`: `topic`, `section`, `summary`, `ideas`, `formulas`, `method`, `traps`, `shortcuts`, optional `example {q, a}`) and exam guides (`guides.json`: `id`, `title`, `points`). Shown on the Learn tab, inside every solution (“Theory: …”) and from the plan. Same inline markup as questions. `tests/knowledge.test.js` requires one complete lesson per topic.
 - Checks (run them before every commit): `node tools/validate-questions.js` and `node --test tests/*.test.js`. To try the app: `python3 -m http.server`, then a browser.
 
 ## Progress file
@@ -45,6 +46,8 @@ Runs every night in GitHub Actions (`.github/workflows/daily-review.yml`, 03:17 
    Focus topics get extra weight in the app's plan for 9 days, matched by exact topic name. Commit to `gmat-progress` in the progress repo ("Review YYYY-MM-DD"); if the push is rejected, fetch, re-apply, push again.
 5. Commit new questions to a branch of `gmat-lab`, open a pull request to `main`, wait for the Checks job to pass, merge it. The deploy publishes them.
 6. Tell the student in a few lines, in Italian: what changed, the focus, what to do today.
+
+When the same kind of error keeps coming back on a topic (3+ times), add it to that topic's `traps` in `knowledge/*.json`, in general terms and without personal data, in the same pull request as the questions. Keep lessons accurate and original; never copy official material, and never use a diagnostic question as an example.
 
 ## Question format
 
