@@ -1,0 +1,850 @@
+[
+ {
+  "id": "vr01",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "RC",
+  "topic": "RC · Main idea",
+  "subtopic": "Primary purpose",
+  "skill": "Whole-passage scope",
+  "difficulty": 3,
+  "expectedSec": 160,
+  "stem": "The primary purpose of the passage is to",
+  "choices": [
+   "argue that cool roofs are more effective than trees in every city",
+   "recommend that arid cities stop planting trees",
+   "compare the cost of watering trees in humid and in arid cities",
+   "describe how urban heat islands form",
+   "explain why the cooling provided by a widely used strategy depends on local conditions"
+  ],
+  "answer": 4,
+  "hints": [
+   "What question does the passage keep returning to after the first paragraph?",
+   "Summarize each paragraph in a few words: problem, trees, climate matters, what to do.",
+   "Key idea: the primary purpose must cover the whole passage, not one paragraph.",
+   "Eliminate options that are too narrow (one paragraph) or too strong (every city, stop planting)."
+  ],
+  "method": "P1 problem → P2 trees cool (shade + transpiration) → P3 but the benefit depends on climate and water → P4 implications. The purpose is E.",
+  "trap": "D is accurate but covers only the first paragraph; A and B overstate the last paragraph.",
+  "passage": {
+   "title": "Cooling the city",
+   "text": "On a summer afternoon, the center of a large city can be several degrees warmer than the countryside around it. This “urban heat island” arises largely because pavement and roofs absorb sunlight and release the heat slowly, and because cities have few surfaces from which water can evaporate. Evaporation matters because turning water into vapor consumes heat: a wet field stays cooler than a dry parking lot in the same sun.\n\nPlanting trees is the most popular response. A tree cools its surroundings in two ways. Its canopy shades the ground and the walls of nearby buildings, keeping them from absorbing sunlight in the first place, and its leaves release water vapor, a process known as transpiration, which cools the surrounding air much as sweating cools the skin. Studies of neighborhoods with dense tree cover have found afternoon air temperatures noticeably lower than in comparable neighborhoods without it.\n\nYet the benefit is not the same everywhere. In humid cities, rain usually supplies all the water that trees need, but the moist air limits how much additional cooling transpiration can provide; most of a tree's value there comes from its shade. In arid cities the situation is reversed. Dry air allows transpiration to cool powerfully, but only if the trees are watered, and irrigation draws on water supplies that are often already strained. A tree that is not watered in such a climate may survive, but it closes the pores in its leaves to conserve water and delivers little more than shade.\n\nNone of this means that arid cities should stop planting trees. It does mean that the choice of species and the siting of each tree deserve as much attention as the number planted. In the driest cities, reflective “cool roofs,” which bounce sunlight back before it can be absorbed, can supply cooling that requires no water at all, leaving the available water for the trees that shade the streets where people walk."
+  },
+  "diagnosis": [
+   {
+    "why": "Cool roofs appear only in the last paragraph, and only for the driest cities, as a complement to trees.",
+    "type": "Trap"
+   },
+   {
+    "why": "The author says the opposite: 'None of this means that arid cities should stop planting trees.'",
+    "type": "Reading"
+   },
+   {
+    "why": "The passage discusses water supplies, not costs, and does not compare costs.",
+    "type": "Reading"
+   },
+   {
+    "why": "Heat islands are explained only in the first paragraph, as background; the rest of the passage is about how well trees cool.",
+    "type": "Interpretation"
+   },
+   null
+  ],
+  "solution": "E is correct: the passage introduces tree planting as the main response to heat islands and then shows that its cooling depends on climate and water. A: Cool roofs appear only in the last paragraph, and only for the driest cities, as a complement to trees. B: The author says the opposite: 'None of this means that arid cities should stop planting trees.' C: The passage discusses water supplies, not costs, and does not compare costs. D: Heat islands are explained only in the first paragraph, as background; the rest of the passage is about how well trees cool."
+ },
+ {
+  "id": "vr02",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "RC",
+  "topic": "RC · Detail",
+  "subtopic": "Detail across paragraphs",
+  "skill": "Locating the line",
+  "difficulty": 3,
+  "expectedSec": 75,
+  "stem": "According to the passage, transpiration cools the air around a tree because",
+  "choices": [
+   "the tree's leaves reflect sunlight away from the ground",
+   "moist air holds less heat than dry air",
+   "turning water into vapor consumes heat",
+   "the tree's canopy blocks warm wind coming off the pavement",
+   "the tree absorbs heat that the pavement would otherwise release"
+  ],
+  "answer": 2,
+  "hints": [
+   "Find where the passage defines transpiration.",
+   "The cooling mechanism behind evaporation is stated in the first paragraph.",
+   "Key idea: detail questions are answered by a specific line; do not rely on general knowledge.",
+   "Connect paragraph 2 (transpiration releases water vapor) with paragraph 1 (why evaporation cools)."
+  ],
+  "method": "Paragraph 2: leaves release water vapor (transpiration). Paragraph 1: turning water into vapor consumes heat. Answer C.",
+  "trap": "B twists a statement from paragraph 3 about humid air into a new claim.",
+  "passage": {
+   "title": "Cooling the city",
+   "text": "On a summer afternoon, the center of a large city can be several degrees warmer than the countryside around it. This “urban heat island” arises largely because pavement and roofs absorb sunlight and release the heat slowly, and because cities have few surfaces from which water can evaporate. Evaporation matters because turning water into vapor consumes heat: a wet field stays cooler than a dry parking lot in the same sun.\n\nPlanting trees is the most popular response. A tree cools its surroundings in two ways. Its canopy shades the ground and the walls of nearby buildings, keeping them from absorbing sunlight in the first place, and its leaves release water vapor, a process known as transpiration, which cools the surrounding air much as sweating cools the skin. Studies of neighborhoods with dense tree cover have found afternoon air temperatures noticeably lower than in comparable neighborhoods without it.\n\nYet the benefit is not the same everywhere. In humid cities, rain usually supplies all the water that trees need, but the moist air limits how much additional cooling transpiration can provide; most of a tree's value there comes from its shade. In arid cities the situation is reversed. Dry air allows transpiration to cool powerfully, but only if the trees are watered, and irrigation draws on water supplies that are often already strained. A tree that is not watered in such a climate may survive, but it closes the pores in its leaves to conserve water and delivers little more than shade.\n\nNone of this means that arid cities should stop planting trees. It does mean that the choice of species and the siting of each tree deserve as much attention as the number planted. In the driest cities, reflective “cool roofs,” which bounce sunlight back before it can be absorbed, can supply cooling that requires no water at all, leaving the available water for the trees that shade the streets where people walk."
+  },
+  "diagnosis": [
+   {
+    "why": "Reflecting sunlight is what cool roofs do; the passage credits the canopy with shade, not reflection.",
+    "type": "Reading"
+   },
+   {
+    "why": "The passage says moist air limits how much transpiration can cool; it never says moist air holds less heat.",
+    "type": "Trap"
+   },
+   null,
+   {
+    "why": "Wind is not mentioned.",
+    "type": "Reading"
+   },
+   {
+    "why": "The passage does not say that trees absorb heat from the pavement.",
+    "type": "Reading"
+   }
+  ],
+  "solution": "C is correct: the first paragraph states that 'turning water into vapor consumes heat', and transpiration is the release of water vapor from leaves. A: Reflecting sunlight is what cool roofs do; the passage credits the canopy with shade, not reflection. B: The passage says moist air limits how much transpiration can cool; it never says moist air holds less heat. D: Wind is not mentioned. E: The passage does not say that trees absorb heat from the pavement."
+ },
+ {
+  "id": "vr03",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "RC",
+  "topic": "RC · Inference",
+  "subtopic": "Inference from a contrast",
+  "skill": "Staying within the text",
+  "difficulty": 4,
+  "expectedSec": 95,
+  "stem": "It can be inferred from the passage that a tree planted in an arid city",
+  "choices": [
+   "should be replaced by a cool roof wherever possible",
+   "provides substantially more cooling when it is watered than when it is not",
+   "cools the air mainly through its shade even when it is watered",
+   "provides less shade than a tree of the same size in a humid city",
+   "will die if it is not watered"
+  ],
+  "answer": 1,
+  "hints": [
+   "What does the passage say about trees in dry cities, watered and unwatered?",
+   "Compare 'cools powerfully… only if the trees are watered' with 'little more than shade'.",
+   "Key idea: an inference must follow from the text with no new assumptions.",
+   "Look for the option that restates the contrast between watered and unwatered trees."
+  ],
+  "method": "Paragraph 3: in arid cities transpiration cools powerfully only if trees are watered; unwatered trees give little more than shade. So watering makes a large difference.",
+  "trap": "E turns 'may survive' into its opposite; C swaps the humid-city case with the arid one.",
+  "passage": {
+   "title": "Cooling the city",
+   "text": "On a summer afternoon, the center of a large city can be several degrees warmer than the countryside around it. This “urban heat island” arises largely because pavement and roofs absorb sunlight and release the heat slowly, and because cities have few surfaces from which water can evaporate. Evaporation matters because turning water into vapor consumes heat: a wet field stays cooler than a dry parking lot in the same sun.\n\nPlanting trees is the most popular response. A tree cools its surroundings in two ways. Its canopy shades the ground and the walls of nearby buildings, keeping them from absorbing sunlight in the first place, and its leaves release water vapor, a process known as transpiration, which cools the surrounding air much as sweating cools the skin. Studies of neighborhoods with dense tree cover have found afternoon air temperatures noticeably lower than in comparable neighborhoods without it.\n\nYet the benefit is not the same everywhere. In humid cities, rain usually supplies all the water that trees need, but the moist air limits how much additional cooling transpiration can provide; most of a tree's value there comes from its shade. In arid cities the situation is reversed. Dry air allows transpiration to cool powerfully, but only if the trees are watered, and irrigation draws on water supplies that are often already strained. A tree that is not watered in such a climate may survive, but it closes the pores in its leaves to conserve water and delivers little more than shade.\n\nNone of this means that arid cities should stop planting trees. It does mean that the choice of species and the siting of each tree deserve as much attention as the number planted. In the driest cities, reflective “cool roofs,” which bounce sunlight back before it can be absorbed, can supply cooling that requires no water at all, leaving the available water for the trees that shade the streets where people walk."
+  },
+  "diagnosis": [
+   {
+    "why": "The author warns against giving up trees; cool roofs complement them.",
+    "type": "Trap"
+   },
+   null,
+   {
+    "why": "When watered, the tree's transpiration 'cools powerfully'; shade is what it is reduced to when it is not watered.",
+    "type": "Logic"
+   },
+   {
+    "why": "Nothing suggests that the same tree gives less shade in a dry climate.",
+    "type": "Reading"
+   },
+   {
+    "why": "The passage says an unwatered tree 'may survive'.",
+    "type": "Reading"
+   }
+  ],
+  "solution": "B is correct: watered, the tree cools powerfully through transpiration; unwatered, it 'delivers little more than shade'. A: The author warns against giving up trees; cool roofs complement them. C: When watered, the tree's transpiration 'cools powerfully'; shade is what it is reduced to when it is not watered. D: Nothing suggests that the same tree gives less shade in a dry climate. E: The passage says an unwatered tree 'may survive'."
+ },
+ {
+  "id": "vr04",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "RC",
+  "topic": "RC · Function/Structure",
+  "subtopic": "Why a detail is mentioned",
+  "skill": "Function in context",
+  "difficulty": 4,
+  "expectedSec": 85,
+  "stem": "The author mentions reflective “cool roofs” in the final paragraph primarily in order to",
+  "choices": [
+   "suggest that humid cities rely too heavily on trees",
+   "give an example of a strategy that has already replaced tree planting in arid cities",
+   "point to a measure that can complement tree planting where water is scarce",
+   "show that urban heat islands can be eliminated without trees",
+   "illustrate how pavement absorbs sunlight"
+  ],
+  "answer": 2,
+  "hints": [
+   "Read the sentence around 'cool roofs' and the sentence before it.",
+   "What problem of arid cities do cool roofs solve?",
+   "Key idea: function questions ask why the author includes something, not what it is.",
+   "Note the phrase 'leaving the available water for the trees'."
+  ],
+  "method": "Last paragraph: keep planting, but plan carefully; cool roofs cool without water, so the scarce water can go to trees. They complement trees.",
+  "trap": "D overstates the role of cool roofs; the passage keeps trees for shading streets.",
+  "passage": {
+   "title": "Cooling the city",
+   "text": "On a summer afternoon, the center of a large city can be several degrees warmer than the countryside around it. This “urban heat island” arises largely because pavement and roofs absorb sunlight and release the heat slowly, and because cities have few surfaces from which water can evaporate. Evaporation matters because turning water into vapor consumes heat: a wet field stays cooler than a dry parking lot in the same sun.\n\nPlanting trees is the most popular response. A tree cools its surroundings in two ways. Its canopy shades the ground and the walls of nearby buildings, keeping them from absorbing sunlight in the first place, and its leaves release water vapor, a process known as transpiration, which cools the surrounding air much as sweating cools the skin. Studies of neighborhoods with dense tree cover have found afternoon air temperatures noticeably lower than in comparable neighborhoods without it.\n\nYet the benefit is not the same everywhere. In humid cities, rain usually supplies all the water that trees need, but the moist air limits how much additional cooling transpiration can provide; most of a tree's value there comes from its shade. In arid cities the situation is reversed. Dry air allows transpiration to cool powerfully, but only if the trees are watered, and irrigation draws on water supplies that are often already strained. A tree that is not watered in such a climate may survive, but it closes the pores in its leaves to conserve water and delivers little more than shade.\n\nNone of this means that arid cities should stop planting trees. It does mean that the choice of species and the siting of each tree deserve as much attention as the number planted. In the driest cities, reflective “cool roofs,” which bounce sunlight back before it can be absorbed, can supply cooling that requires no water at all, leaving the available water for the trees that shade the streets where people walk."
+  },
+  "diagnosis": [
+   {
+    "why": "Humid cities are not discussed in the final paragraph.",
+    "type": "Reading"
+   },
+   {
+    "why": "Nothing says cool roofs have replaced tree planting anywhere.",
+    "type": "Reading"
+   },
+   null,
+   {
+    "why": "The passage never claims heat islands can be eliminated, and it keeps trees for shading streets.",
+    "type": "Trap"
+   },
+   {
+    "why": "Cool roofs reflect sunlight; they are not an illustration of absorption.",
+    "type": "Reading"
+   }
+  ],
+  "solution": "C is correct: cool roofs cool without water, 'leaving the available water for the trees': they work alongside trees in the driest cities. A: Humid cities are not discussed in the final paragraph. B: Nothing says cool roofs have replaced tree planting anywhere. D: The passage never claims heat islands can be eliminated, and it keeps trees for shading streets. E: Cool roofs reflect sunlight; they are not an illustration of absorption."
+ },
+ {
+  "id": "vr05",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "RC",
+  "topic": "RC · Main idea",
+  "subtopic": "Primary purpose",
+  "skill": "Whole-passage scope",
+  "difficulty": 4,
+  "expectedSec": 160,
+  "stem": "The primary purpose of the passage is to",
+  "choices": [
+   "explain the conditions under which a pricing method that seems likely to lose money can succeed",
+   "recommend pay-what-you-want pricing to most businesses",
+   "criticize sellers who use pay-what-you-want pricing",
+   "argue that customers are more generous than economists assume",
+   "describe a single experiment in detail"
+  ],
+  "answer": 0,
+  "hints": [
+   "What expectation does the first paragraph challenge?",
+   "Paragraphs 2 and 3 answer two questions: why customers pay, and when the method works.",
+   "Key idea: the primary purpose is what the whole passage sets out to do.",
+   "Test each option against the last paragraph, which states the author's overall view."
+  ],
+  "method": "P1 expectation vs findings → P2 why (social motives) → P3 when it works → P4 verdict: a real but narrow strategy. Answer A.",
+  "trap": "B ignores the word 'narrow'; D contradicts 'rather than by generosity alone'.",
+  "passage": {
+   "title": "Pay what you want",
+   "text": "When a restaurant or a band lets customers decide how much to pay, most observers expect the business to be exploited: why pay anything when nothing is required? Field experiments with “pay-what-you-want” pricing have repeatedly found that this expectation is too pessimistic. In several studies the great majority of customers paid something, and a sizable minority paid close to what the seller would normally have charged.\n\nResearchers explain this behavior mainly by social motives rather than by generosity alone. Many customers appear to care about treating the seller fairly, and many care about how they will be seen by the seller or by other customers. These motives are strongest when the exchange is personal. In one experiment, customers who paid the owner of a café directly paid considerably more, on average, than customers who dropped their money into an anonymous box, even though the food and service were identical.\n\nThe same research suggests when the method is likely to succeed. It works best when the seller's cost of serving one more customer is low, because even modest payments then cover that cost; when customers can see the person they are paying; and when the product has a familiar reference price, which gives customers a sense of what a fair payment would be. Where these conditions are absent—where each unit is expensive to produce, where payment is anonymous, or where customers have no idea what the product is worth—sellers have fared poorly.\n\nPay-what-you-want pricing, in other words, is neither a charitable gesture nor a gimmick doomed to fail. It is a pricing strategy with a narrow but real field of application. Sellers who adopt it outside that field should not be surprised when their customers behave as the skeptics predicted."
+  },
+  "diagnosis": [
+   null,
+   {
+    "why": "The author calls the method's field of application 'narrow'.",
+    "type": "Reading"
+   },
+   {
+    "why": "The author criticizes only its use outside the right conditions, and defends the method within them.",
+    "type": "Reading"
+   },
+   {
+    "why": "The passage explains payments by social motives 'rather than by generosity alone'.",
+    "type": "Trap"
+   },
+   {
+    "why": "The café experiment is one piece of evidence, not the subject of the passage.",
+    "type": "Interpretation"
+   }
+  ],
+  "solution": "A is correct: the passage answers the skeptics' expectation by showing why customers pay and when the method works. B: The author calls the method's field of application 'narrow'. C: The author criticizes only its use outside the right conditions, and defends the method within them. D: The passage explains payments by social motives 'rather than by generosity alone'. E: The café experiment is one piece of evidence, not the subject of the passage."
+ },
+ {
+  "id": "vr06",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "RC",
+  "topic": "RC · Detail",
+  "subtopic": "Specific detail",
+  "skill": "Comparisons in a line",
+  "difficulty": 3,
+  "expectedSec": 70,
+  "stem": "According to the passage, in the café experiment, customers who paid anonymously",
+  "choices": [
+   "paid less, on average, than customers who paid the owner directly",
+   "were more likely than the other customers to return to the café",
+   "paid nothing at all",
+   "received different food and service from the other customers",
+   "paid more than the café's usual prices"
+  ],
+  "answer": 0,
+  "hints": [
+   "Find the café experiment in the second paragraph.",
+   "Which group paid more?",
+   "Key idea: restate the line in your own words, then match it.",
+   "'Considerably more, on average' — for the direct payers."
+  ],
+  "method": "Paragraph 2: direct payment → considerably more on average; anonymous box → less. Answer A.",
+  "trap": "C exaggerates a comparison into an absolute claim.",
+  "passage": {
+   "title": "Pay what you want",
+   "text": "When a restaurant or a band lets customers decide how much to pay, most observers expect the business to be exploited: why pay anything when nothing is required? Field experiments with “pay-what-you-want” pricing have repeatedly found that this expectation is too pessimistic. In several studies the great majority of customers paid something, and a sizable minority paid close to what the seller would normally have charged.\n\nResearchers explain this behavior mainly by social motives rather than by generosity alone. Many customers appear to care about treating the seller fairly, and many care about how they will be seen by the seller or by other customers. These motives are strongest when the exchange is personal. In one experiment, customers who paid the owner of a café directly paid considerably more, on average, than customers who dropped their money into an anonymous box, even though the food and service were identical.\n\nThe same research suggests when the method is likely to succeed. It works best when the seller's cost of serving one more customer is low, because even modest payments then cover that cost; when customers can see the person they are paying; and when the product has a familiar reference price, which gives customers a sense of what a fair payment would be. Where these conditions are absent—where each unit is expensive to produce, where payment is anonymous, or where customers have no idea what the product is worth—sellers have fared poorly.\n\nPay-what-you-want pricing, in other words, is neither a charitable gesture nor a gimmick doomed to fail. It is a pricing strategy with a narrow but real field of application. Sellers who adopt it outside that field should not be surprised when their customers behave as the skeptics predicted."
+  },
+  "diagnosis": [
+   null,
+   {
+    "why": "Returning customers are not mentioned.",
+    "type": "Reading"
+   },
+   {
+    "why": "The passage says they paid less, not that they paid nothing.",
+    "type": "Trap"
+   },
+   {
+    "why": "The food and service were identical.",
+    "type": "Reading"
+   },
+   {
+    "why": "Nothing is said about the café's usual prices.",
+    "type": "Reading"
+   }
+  ],
+  "solution": "A is correct: the passage says customers who paid the owner directly 'paid considerably more, on average' than those who used the anonymous box. B: Returning customers are not mentioned. C: The passage says they paid less, not that they paid nothing. D: The food and service were identical. E: Nothing is said about the café's usual prices."
+ },
+ {
+  "id": "vr07",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "RC",
+  "topic": "RC · Application",
+  "subtopic": "Applying criteria",
+  "skill": "Checking every condition",
+  "difficulty": 5,
+  "expectedSec": 105,
+  "stem": "Based on the passage, which of the following businesses would be best suited to pay-what-you-want pricing?",
+  "choices": [
+   "A furniture maker that builds each table to order from costly hardwoods",
+   "An online shop that sells a new kind of software, with payment made through an anonymous web form",
+   "A small bakery whose owner serves each customer at the counter and sells bread at prices that customers know well",
+   "A self-service parking garage that collects payment through an unattended machine",
+   "A dealer in rare antiques that have no established market price"
+  ],
+  "answer": 2,
+  "hints": [
+   "List the three conditions the passage gives for success.",
+   "Low cost per extra customer; personal payment; familiar reference price.",
+   "Key idea: application questions ask you to apply the passage's criteria to new cases.",
+   "Check each business against all three conditions."
+  ],
+  "method": "Conditions (paragraph 3): low extra cost, visible seller, reference price. Only the bakery meets all three.",
+  "trap": "B and D each fail on anonymity, which the café experiment shows lowers payments.",
+  "passage": {
+   "title": "Pay what you want",
+   "text": "When a restaurant or a band lets customers decide how much to pay, most observers expect the business to be exploited: why pay anything when nothing is required? Field experiments with “pay-what-you-want” pricing have repeatedly found that this expectation is too pessimistic. In several studies the great majority of customers paid something, and a sizable minority paid close to what the seller would normally have charged.\n\nResearchers explain this behavior mainly by social motives rather than by generosity alone. Many customers appear to care about treating the seller fairly, and many care about how they will be seen by the seller or by other customers. These motives are strongest when the exchange is personal. In one experiment, customers who paid the owner of a café directly paid considerably more, on average, than customers who dropped their money into an anonymous box, even though the food and service were identical.\n\nThe same research suggests when the method is likely to succeed. It works best when the seller's cost of serving one more customer is low, because even modest payments then cover that cost; when customers can see the person they are paying; and when the product has a familiar reference price, which gives customers a sense of what a fair payment would be. Where these conditions are absent—where each unit is expensive to produce, where payment is anonymous, or where customers have no idea what the product is worth—sellers have fared poorly.\n\nPay-what-you-want pricing, in other words, is neither a charitable gesture nor a gimmick doomed to fail. It is a pricing strategy with a narrow but real field of application. Sellers who adopt it outside that field should not be surprised when their customers behave as the skeptics predicted."
+  },
+  "diagnosis": [
+   {
+    "why": "Each table is expensive to make, so modest payments would not cover the cost.",
+    "type": "Logic"
+   },
+   {
+    "why": "Payment is anonymous and a new product has no familiar reference price.",
+    "type": "Logic"
+   },
+   null,
+   {
+    "why": "Payment through an unattended machine is anonymous.",
+    "type": "Logic"
+   },
+   {
+    "why": "Antiques are costly and have no reference price, so customers cannot judge a fair payment.",
+    "type": "Logic"
+   }
+  ],
+  "solution": "C is correct: the bakery meets all three conditions: bread costs little per extra customer, payment is face to face, and customers know the usual price. A: Each table is expensive to make, so modest payments would not cover the cost. B: Payment is anonymous and a new product has no familiar reference price. D: Payment through an unattended machine is anonymous. E: Antiques are costly and have no reference price, so customers cannot judge a fair payment."
+ },
+ {
+  "id": "vr08",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "RC",
+  "topic": "RC · Tone/Style",
+  "subtopic": "Author attitude",
+  "skill": "Moderate tone",
+  "difficulty": 5,
+  "expectedSec": 80,
+  "stem": "The author's attitude toward pay-what-you-want pricing is best described as",
+  "choices": [
+   "qualified approval",
+   "reluctant rejection",
+   "enthusiastic endorsement",
+   "skeptical dismissal",
+   "detached indifference"
+  ],
+  "answer": 0,
+  "hints": [
+   "Find the sentence where the author gives a verdict.",
+   "'Narrow but real field of application.' Which word is positive, which is a limit?",
+   "Key idea: tone answers are usually moderate; extreme words rarely fit a GMAT author.",
+   "Look for an option with both a positive attitude and a limit."
+  ],
+  "method": "Last paragraph: neither charity nor doomed gimmick; a strategy with a narrow but real field. Positive with limits: qualified approval.",
+  "trap": "C picks up only the positive half of the verdict.",
+  "passage": {
+   "title": "Pay what you want",
+   "text": "When a restaurant or a band lets customers decide how much to pay, most observers expect the business to be exploited: why pay anything when nothing is required? Field experiments with “pay-what-you-want” pricing have repeatedly found that this expectation is too pessimistic. In several studies the great majority of customers paid something, and a sizable minority paid close to what the seller would normally have charged.\n\nResearchers explain this behavior mainly by social motives rather than by generosity alone. Many customers appear to care about treating the seller fairly, and many care about how they will be seen by the seller or by other customers. These motives are strongest when the exchange is personal. In one experiment, customers who paid the owner of a café directly paid considerably more, on average, than customers who dropped their money into an anonymous box, even though the food and service were identical.\n\nThe same research suggests when the method is likely to succeed. It works best when the seller's cost of serving one more customer is low, because even modest payments then cover that cost; when customers can see the person they are paying; and when the product has a familiar reference price, which gives customers a sense of what a fair payment would be. Where these conditions are absent—where each unit is expensive to produce, where payment is anonymous, or where customers have no idea what the product is worth—sellers have fared poorly.\n\nPay-what-you-want pricing, in other words, is neither a charitable gesture nor a gimmick doomed to fail. It is a pricing strategy with a narrow but real field of application. Sellers who adopt it outside that field should not be surprised when their customers behave as the skeptics predicted."
+  },
+  "diagnosis": [
+   null,
+   {
+    "why": "The author does not reject the method; it is 'a pricing strategy with a narrow but real field of application'.",
+    "type": "Reading"
+   },
+   {
+    "why": "The author limits the method to a 'narrow' field and warns sellers who use it elsewhere.",
+    "type": "Trap"
+   },
+   {
+    "why": "The author says it is not 'a gimmick doomed to fail'.",
+    "type": "Reading"
+   },
+   {
+    "why": "The author gives a clear verdict, so the tone is not indifferent.",
+    "type": "Reading"
+   }
+  ],
+  "solution": "A is correct: the author defends the method ('real') but limits it ('narrow') — approval with a qualification. B: The author does not reject the method; it is 'a pricing strategy with a narrow but real field of application'. C: The author limits the method to a 'narrow' field and warns sellers who use it elsewhere. D: The author says it is not 'a gimmick doomed to fail'. E: The author gives a clear verdict, so the tone is not indifferent."
+ },
+ {
+  "id": "vr09",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "RC",
+  "topic": "RC · Main idea",
+  "subtopic": "Main point",
+  "skill": "Challenged account",
+  "difficulty": 4,
+  "expectedSec": 160,
+  "stem": "Which of the following best states the main point of the passage?",
+  "choices": [
+   "Local sun time was more accurate than the standard time adopted by the railroads.",
+   "Telegraph companies, rather than railroads, invented the system of time zones.",
+   "Towns that kept local time for civic purposes suffered economic losses as a result.",
+   "The adoption of standard time was a gradual and contested process shaped by many developments, not simply the result of the railroads' decision.",
+   "Railroads created standard time because local times made their timetables confusing and dangerous."
+  ],
+  "answer": 3,
+  "hints": [
+   "Which account does the passage question?",
+   "What replaces it in the third paragraph?",
+   "Key idea: the main point is the claim the author argues for, usually against another view.",
+   "Look for 'Recent historians have complicated this story' — the turn of the passage."
+  ],
+  "method": "P1 context → P2 standard account, then complications → P3 what really spread standard time → P4 general lesson. Answer D.",
+  "trap": "E is true according to the passage but is only the starting point.",
+  "passage": {
+   "title": "The spread of standard time",
+   "text": "Before the late nineteenth century, most towns kept their own time, setting their clocks by the sun so that noon fell when the sun stood highest. Because the sun's position changes as one moves east or west, clocks in two towns only a few dozen miles apart could differ by several minutes. For most of history the differences caused little trouble. Railroads changed that. A timetable listing dozens of stations, each with its own local time, confused passengers and, worse, endangered trains that shared a single track.\n\nThe standard account of what followed is simple: railroad companies divided the country into a few broad time zones, and the public, recognizing the convenience, soon adopted railroad time for everyday life. Recent historians have complicated this story. They point out that for years after the railroads adopted standard time, many towns continued to keep local time for civic purposes, and some kept both, displaying two sets of hands on public clocks. Opponents objected that time should follow the sun, not the needs of corporations, and a number of city councils voted to reject the new system before later accepting it.\n\nWhat eventually spread standard time, these historians argue, was less the railroads' decision than a web of smaller changes. Telegraph companies began to transmit precise time signals from observatories, which jewelers and businesses used to set their clocks; schools and factories adopted fixed schedules; and legal disputes over deadlines pushed courts toward a single time that could be verified. Only decades later did national law make standard time official.\n\nThe episode illustrates a broader point about technological change: a new technology may create the need for a new social convention, but it does not by itself determine how, or how quickly, the convention is accepted."
+  },
+  "diagnosis": [
+   {
+    "why": "The passage never compares the accuracy of the two systems.",
+    "type": "Reading"
+   },
+   {
+    "why": "Telegraph companies spread time signals; the passage says the railroads created the zones.",
+    "type": "Trap"
+   },
+   {
+    "why": "No economic losses are mentioned.",
+    "type": "Reading"
+   },
+   null,
+   {
+    "why": "This is the background in the first paragraph, not the point the passage builds to.",
+    "type": "Interpretation"
+   }
+  ],
+  "solution": "D is correct: the passage challenges the simple account (railroads decided, the public followed) with evidence of resistance and a web of other causes. A: The passage never compares the accuracy of the two systems. B: Telegraph companies spread time signals; the passage says the railroads created the zones. C: No economic losses are mentioned. E: This is the background in the first paragraph, not the point the passage builds to."
+ },
+ {
+  "id": "vr10",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "RC",
+  "topic": "RC · Detail",
+  "subtopic": "Specific detail",
+  "skill": "Locating the line",
+  "difficulty": 3,
+  "expectedSec": 70,
+  "stem": "According to the passage, some towns responded to the introduction of railroad time by",
+  "choices": [
+   "asking telegraph companies to transmit local time signals",
+   "moving their town centers closer to railroad stations",
+   "building railroad lines of their own",
+   "passing laws that made local time official throughout the country",
+   "displaying both local time and standard time on public clocks"
+  ],
+  "answer": 4,
+  "hints": [
+   "Look in the second paragraph, where the complications begin.",
+   "What did some towns keep, according to the historians?",
+   "Key idea: detail answers paraphrase a specific line.",
+   "'Some kept both, displaying two sets of hands on public clocks.'"
+  ],
+  "method": "Paragraph 2: many towns kept local time; some kept both, with two sets of hands. Answer E.",
+  "trap": "A mixes a detail from paragraph 3 with the towns in paragraph 2.",
+  "passage": {
+   "title": "The spread of standard time",
+   "text": "Before the late nineteenth century, most towns kept their own time, setting their clocks by the sun so that noon fell when the sun stood highest. Because the sun's position changes as one moves east or west, clocks in two towns only a few dozen miles apart could differ by several minutes. For most of history the differences caused little trouble. Railroads changed that. A timetable listing dozens of stations, each with its own local time, confused passengers and, worse, endangered trains that shared a single track.\n\nThe standard account of what followed is simple: railroad companies divided the country into a few broad time zones, and the public, recognizing the convenience, soon adopted railroad time for everyday life. Recent historians have complicated this story. They point out that for years after the railroads adopted standard time, many towns continued to keep local time for civic purposes, and some kept both, displaying two sets of hands on public clocks. Opponents objected that time should follow the sun, not the needs of corporations, and a number of city councils voted to reject the new system before later accepting it.\n\nWhat eventually spread standard time, these historians argue, was less the railroads' decision than a web of smaller changes. Telegraph companies began to transmit precise time signals from observatories, which jewelers and businesses used to set their clocks; schools and factories adopted fixed schedules; and legal disputes over deadlines pushed courts toward a single time that could be verified. Only decades later did national law make standard time official.\n\nThe episode illustrates a broader point about technological change: a new technology may create the need for a new social convention, but it does not by itself determine how, or how quickly, the convention is accepted."
+  },
+  "diagnosis": [
+   {
+    "why": "Telegraph companies transmitted observatory time, which spread standard time, not local time.",
+    "type": "Trap"
+   },
+   {
+    "why": "Nothing like this is mentioned.",
+    "type": "Reading"
+   },
+   {
+    "why": "Towns building railroads are not mentioned.",
+    "type": "Reading"
+   },
+   {
+    "why": "The only law mentioned made standard time official, decades later, at the national level.",
+    "type": "Reading"
+   },
+   null
+  ],
+  "solution": "E is correct: the second paragraph says some towns 'kept both, displaying two sets of hands on public clocks'. A: Telegraph companies transmitted observatory time, which spread standard time, not local time. B: Nothing like this is mentioned. C: Towns building railroads are not mentioned. D: The only law mentioned made standard time official, decades later, at the national level."
+ },
+ {
+  "id": "vr11",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "RC",
+  "topic": "RC · Function/Structure",
+  "subtopic": "Role of a paragraph",
+  "skill": "Paragraph structure",
+  "difficulty": 5,
+  "expectedSec": 90,
+  "stem": "The second paragraph of the passage functions primarily to",
+  "choices": [
+   "defend the standard account against recent criticism",
+   "summarize the legal history of standard time",
+   "explain why railroads needed a single time",
+   "present a widely accepted account and then introduce evidence that complicates it",
+   "describe the technology used to transmit time signals"
+  ],
+  "answer": 3,
+  "hints": [
+   "Summarize the paragraph in two halves.",
+   "First half: the standard account. Second half: 'Recent historians have complicated this story.'",
+   "Key idea: structure questions describe what a part does, not what it says.",
+   "Match 'account, then complication'."
+  ],
+  "method": "Paragraph 2: standard account → historians' complications (local time kept, clocks with two sets of hands, councils rejecting). Answer D.",
+  "trap": "A reverses the paragraph's direction: it moves away from the standard account.",
+  "passage": {
+   "title": "The spread of standard time",
+   "text": "Before the late nineteenth century, most towns kept their own time, setting their clocks by the sun so that noon fell when the sun stood highest. Because the sun's position changes as one moves east or west, clocks in two towns only a few dozen miles apart could differ by several minutes. For most of history the differences caused little trouble. Railroads changed that. A timetable listing dozens of stations, each with its own local time, confused passengers and, worse, endangered trains that shared a single track.\n\nThe standard account of what followed is simple: railroad companies divided the country into a few broad time zones, and the public, recognizing the convenience, soon adopted railroad time for everyday life. Recent historians have complicated this story. They point out that for years after the railroads adopted standard time, many towns continued to keep local time for civic purposes, and some kept both, displaying two sets of hands on public clocks. Opponents objected that time should follow the sun, not the needs of corporations, and a number of city councils voted to reject the new system before later accepting it.\n\nWhat eventually spread standard time, these historians argue, was less the railroads' decision than a web of smaller changes. Telegraph companies began to transmit precise time signals from observatories, which jewelers and businesses used to set their clocks; schools and factories adopted fixed schedules; and legal disputes over deadlines pushed courts toward a single time that could be verified. Only decades later did national law make standard time official.\n\nThe episode illustrates a broader point about technological change: a new technology may create the need for a new social convention, but it does not by itself determine how, or how quickly, the convention is accepted."
+  },
+  "diagnosis": [
+   {
+    "why": "The paragraph reports the criticism; it does not defend the standard account.",
+    "type": "Logic"
+   },
+   {
+    "why": "The law is mentioned only briefly, in the third paragraph.",
+    "type": "Reading"
+   },
+   {
+    "why": "That is the role of the first paragraph.",
+    "type": "Reading"
+   },
+   null,
+   {
+    "why": "Time signals are described in the third paragraph.",
+    "type": "Reading"
+   }
+  ],
+  "solution": "D is correct: it states 'the standard account' and then reports the historians' evidence of towns keeping local time and councils rejecting the system. A: The paragraph reports the criticism; it does not defend the standard account. B: The law is mentioned only briefly, in the third paragraph. C: That is the role of the first paragraph. E: Time signals are described in the third paragraph."
+ },
+ {
+  "id": "vr12",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "RC",
+  "topic": "RC · Inference",
+  "subtopic": "Inference about a viewpoint",
+  "skill": "Staying within the text",
+  "difficulty": 5,
+  "expectedSec": 95,
+  "stem": "It can be inferred from the passage that the historians it discusses would most likely agree with which of the following?",
+  "choices": [
+   "The railroads opposed the use of standard time outside their own timetables.",
+   "The city councils that rejected standard time did so because they misunderstood it.",
+   "Standard time became official by national law before it was widely used.",
+   "The spread of standard time depended in part on institutions other than the railroads adopting it for their own reasons.",
+   "Most people preferred sun time once they understood its advantages."
+  ],
+  "answer": 3,
+  "hints": [
+   "What do the historians say eventually spread standard time?",
+   "List the actors in the third paragraph.",
+   "Key idea: an inference about a group's views must follow from what the passage says they argue.",
+   "Did those actors adopt standard time for the railroads' sake or for their own purposes?"
+  ],
+  "method": "Paragraph 3: a 'web of smaller changes' — telegraph signals, schedules of schools and factories, courts' need for a verifiable time. So other institutions, with their own reasons, spread it. Answer D.",
+  "trap": "C reverses the order of events in the third paragraph.",
+  "passage": {
+   "title": "The spread of standard time",
+   "text": "Before the late nineteenth century, most towns kept their own time, setting their clocks by the sun so that noon fell when the sun stood highest. Because the sun's position changes as one moves east or west, clocks in two towns only a few dozen miles apart could differ by several minutes. For most of history the differences caused little trouble. Railroads changed that. A timetable listing dozens of stations, each with its own local time, confused passengers and, worse, endangered trains that shared a single track.\n\nThe standard account of what followed is simple: railroad companies divided the country into a few broad time zones, and the public, recognizing the convenience, soon adopted railroad time for everyday life. Recent historians have complicated this story. They point out that for years after the railroads adopted standard time, many towns continued to keep local time for civic purposes, and some kept both, displaying two sets of hands on public clocks. Opponents objected that time should follow the sun, not the needs of corporations, and a number of city councils voted to reject the new system before later accepting it.\n\nWhat eventually spread standard time, these historians argue, was less the railroads' decision than a web of smaller changes. Telegraph companies began to transmit precise time signals from observatories, which jewelers and businesses used to set their clocks; schools and factories adopted fixed schedules; and legal disputes over deadlines pushed courts toward a single time that could be verified. Only decades later did national law make standard time official.\n\nThe episode illustrates a broader point about technological change: a new technology may create the need for a new social convention, but it does not by itself determine how, or how quickly, the convention is accepted."
+  },
+  "diagnosis": [
+   {
+    "why": "Nothing suggests that the railroads opposed wider use.",
+    "type": "Reading"
+   },
+   {
+    "why": "The councils' objection is reported as a principle — time should follow the sun — not as a misunderstanding.",
+    "type": "Trap"
+   },
+   {
+    "why": "The passage says the law came 'only decades later'.",
+    "type": "Reading"
+   },
+   null,
+   {
+    "why": "The passage reports objections from opponents, not a general preference.",
+    "type": "Reading"
+   }
+  ],
+  "solution": "D is correct: the historians credit telegraph companies, jewelers, businesses, schools, factories and courts, each with its own reasons, for spreading standard time. A: Nothing suggests that the railroads opposed wider use. B: The councils' objection is reported as a principle — time should follow the sun — not as a misunderstanding. C: The passage says the law came 'only decades later'. E: The passage reports objections from opponents, not a general preference."
+ },
+ {
+  "id": "vr13",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "RC",
+  "topic": "RC · Main idea",
+  "subtopic": "Primary concern",
+  "skill": "Whole-passage scope",
+  "difficulty": 4,
+  "expectedSec": 160,
+  "stem": "The passage is primarily concerned with",
+  "choices": [
+   "comparing the growth rates of different pine species",
+   "explaining the conditions under which a particular way of releasing seeds benefits trees",
+   "proposing ways to protect forests from changes in climate",
+   "describing how fires destroy pine forests",
+   "arguing that serotinous pines are more common than other pines"
+  ],
+  "answer": 1,
+  "hints": [
+   "What is the passage's subject in the first sentence of each paragraph?",
+   "Paragraph 1: what serotiny is; paragraph 2: when it is favored; paragraph 3: a test.",
+   "Key idea: the main concern covers all paragraphs.",
+   "Eliminate options built on a single sentence."
+  ],
+  "method": "P1 definition and payoff → P2 conditions (fire frequency) → P3 evidence and a concern. Answer B.",
+  "trap": "C turns the final sentence into the passage's purpose.",
+  "passage": {
+   "title": "Fire and closed cones",
+   "text": "Many pine species release their seeds as soon as their cones ripen. Some, however, are “serotinous”: their cones are sealed shut with resin and can stay on the branch, closed, for years or even decades. The resin melts only at high temperatures, so the seeds are released in large numbers after a fire has passed through the forest. At first glance this strategy seems risky, since a tree that waits for a fire may die without ever releasing its seeds. In the right setting, however, it pays off. A fire clears away competing plants and the thick layer of needles on the forest floor, exposing bare soil and letting in sunlight, conditions in which pine seedlings grow well.\n\nWhether serotiny is favored depends on how often fires occur. If fires are very frequent, young trees burn before they have produced cones, and neither strategy succeeds for long. If fires are rare, serotinous trees tend to die of age or disease with their seeds still locked away, while trees that release seeds every year have been replacing themselves all along. Serotiny is therefore most advantageous where fires return at intervals long enough for trees to mature but short enough that a stand is likely to burn within the lifetime of its trees.\n\nA striking test of this reasoning comes from species in which serotiny varies among populations. Researchers studying such species have found that stands with a history of frequent crown fires contain a high proportion of serotinous trees, while stands of the same species where such fires have been rare contain few. The pattern suggests that serotiny is not a fixed trait of a species but one that shifts with local conditions, and it raises a concern: if changes in climate alter how often fires occur, forests adapted to one pattern of fire may be poorly suited to the next."
+  },
+  "diagnosis": [
+   {
+    "why": "Growth rates of species are not compared.",
+    "type": "Reading"
+   },
+   null,
+   {
+    "why": "Climate change appears only as a concern in the last sentence; no protective measures are proposed.",
+    "type": "Trap"
+   },
+   {
+    "why": "Fire matters in the passage as the trigger for seed release, not as a destroyer of forests.",
+    "type": "Interpretation"
+   },
+   {
+    "why": "The passage makes no claim about how common serotiny is overall.",
+    "type": "Reading"
+   }
+  ],
+  "solution": "B is correct: the passage defines serotiny, explains when it pays off, and presents evidence that it follows local fire history. A: Growth rates of species are not compared. C: Climate change appears only as a concern in the last sentence; no protective measures are proposed. D: Fire matters in the passage as the trigger for seed release, not as a destroyer of forests. E: The passage makes no claim about how common serotiny is overall."
+ },
+ {
+  "id": "vr14",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "RC",
+  "topic": "RC · Detail",
+  "subtopic": "Specific detail",
+  "skill": "Cause vs consequence",
+  "difficulty": 3,
+  "expectedSec": 70,
+  "stem": "According to the passage, the cones of serotinous pines open when",
+  "choices": [
+   "heat melts the resin that seals them",
+   "the tree dies of age or disease",
+   "sunlight reaches the forest floor",
+   "competing plants have been cleared away",
+   "the seeds inside them are fully ripe"
+  ],
+  "answer": 0,
+  "hints": [
+   "Find where the passage explains how the cones are sealed.",
+   "What melts, and when?",
+   "Key idea: separate what triggers an event from what follows it.",
+   "'The resin melts only at high temperatures.'"
+  ],
+  "method": "Paragraph 1: cones sealed with resin; the resin melts only at high temperatures (fire). Answer A.",
+  "trap": "C and D describe the conditions after a fire, not the trigger for opening.",
+  "passage": {
+   "title": "Fire and closed cones",
+   "text": "Many pine species release their seeds as soon as their cones ripen. Some, however, are “serotinous”: their cones are sealed shut with resin and can stay on the branch, closed, for years or even decades. The resin melts only at high temperatures, so the seeds are released in large numbers after a fire has passed through the forest. At first glance this strategy seems risky, since a tree that waits for a fire may die without ever releasing its seeds. In the right setting, however, it pays off. A fire clears away competing plants and the thick layer of needles on the forest floor, exposing bare soil and letting in sunlight, conditions in which pine seedlings grow well.\n\nWhether serotiny is favored depends on how often fires occur. If fires are very frequent, young trees burn before they have produced cones, and neither strategy succeeds for long. If fires are rare, serotinous trees tend to die of age or disease with their seeds still locked away, while trees that release seeds every year have been replacing themselves all along. Serotiny is therefore most advantageous where fires return at intervals long enough for trees to mature but short enough that a stand is likely to burn within the lifetime of its trees.\n\nA striking test of this reasoning comes from species in which serotiny varies among populations. Researchers studying such species have found that stands with a history of frequent crown fires contain a high proportion of serotinous trees, while stands of the same species where such fires have been rare contain few. The pattern suggests that serotiny is not a fixed trait of a species but one that shifts with local conditions, and it raises a concern: if changes in climate alter how often fires occur, forests adapted to one pattern of fire may be poorly suited to the next."
+  },
+  "diagnosis": [
+   null,
+   {
+    "why": "The passage says such trees die 'with their seeds still locked away'.",
+    "type": "Reading"
+   },
+   {
+    "why": "Sunlight on the forest floor is a result of the fire that helps seedlings, not what opens the cones.",
+    "type": "Trap"
+   },
+   {
+    "why": "Cleared ground is a result of the fire, not the trigger for opening the cones.",
+    "type": "Trap"
+   },
+   {
+    "why": "That describes the many pines that are not serotinous.",
+    "type": "Reading"
+   }
+  ],
+  "solution": "A is correct: the resin 'melts only at high temperatures, so the seeds are released… after a fire'. B: The passage says such trees die 'with their seeds still locked away'. C: Sunlight on the forest floor is a result of the fire that helps seedlings, not what opens the cones. D: Cleared ground is a result of the fire, not the trigger for opening the cones. E: That describes the many pines that are not serotinous."
+ },
+ {
+  "id": "vr15",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "RC",
+  "topic": "RC · Inference",
+  "subtopic": "Inference to a new case",
+  "skill": "Applying a stated pattern",
+  "difficulty": 5,
+  "expectedSec": 95,
+  "stem": "It can be inferred from the passage that, in a region where crown fires occur only once every several centuries, a pine species whose serotiny varies among populations would most likely",
+  "choices": [
+   "burn before most of its trees produce cones",
+   "have a low proportion of serotinous trees",
+   "have a high proportion of serotinous trees",
+   "produce no cones at all",
+   "be replaced by species that release their seeds only after fires"
+  ],
+  "answer": 1,
+  "hints": [
+   "Is a fire every several centuries frequent or rare for a pine?",
+   "What happens to serotinous trees when fires are rare?",
+   "Key idea: apply the passage's rule to the new case, and do not go beyond it.",
+   "Paragraph 3: stands where crown fires have been rare 'contain few' serotinous trees."
+  ],
+  "method": "Rare fires → serotinous trees die before releasing seeds (paragraph 2) → stands where fires are rare contain few serotinous trees (paragraph 3). Answer B.",
+  "trap": "C reverses the pattern; A describes the opposite case of very frequent fires.",
+  "passage": {
+   "title": "Fire and closed cones",
+   "text": "Many pine species release their seeds as soon as their cones ripen. Some, however, are “serotinous”: their cones are sealed shut with resin and can stay on the branch, closed, for years or even decades. The resin melts only at high temperatures, so the seeds are released in large numbers after a fire has passed through the forest. At first glance this strategy seems risky, since a tree that waits for a fire may die without ever releasing its seeds. In the right setting, however, it pays off. A fire clears away competing plants and the thick layer of needles on the forest floor, exposing bare soil and letting in sunlight, conditions in which pine seedlings grow well.\n\nWhether serotiny is favored depends on how often fires occur. If fires are very frequent, young trees burn before they have produced cones, and neither strategy succeeds for long. If fires are rare, serotinous trees tend to die of age or disease with their seeds still locked away, while trees that release seeds every year have been replacing themselves all along. Serotiny is therefore most advantageous where fires return at intervals long enough for trees to mature but short enough that a stand is likely to burn within the lifetime of its trees.\n\nA striking test of this reasoning comes from species in which serotiny varies among populations. Researchers studying such species have found that stands with a history of frequent crown fires contain a high proportion of serotinous trees, while stands of the same species where such fires have been rare contain few. The pattern suggests that serotiny is not a fixed trait of a species but one that shifts with local conditions, and it raises a concern: if changes in climate alter how often fires occur, forests adapted to one pattern of fire may be poorly suited to the next."
+  },
+  "diagnosis": [
+   {
+    "why": "That happens where fires are very frequent.",
+    "type": "Reading"
+   },
+   null,
+   {
+    "why": "That is the pattern for stands with frequent crown fires.",
+    "type": "Logic"
+   },
+   {
+    "why": "Nothing suggests that the trees stop producing cones.",
+    "type": "Reading"
+   },
+   {
+    "why": "With rare fires, trees that release seeds every year have the advantage, not those that wait for fire.",
+    "type": "Logic"
+   }
+  ],
+  "solution": "B is correct: where fires are rare, serotinous trees die with their seeds locked away, and stands of such species 'contain few' serotinous trees. A: That happens where fires are very frequent. C: That is the pattern for stands with frequent crown fires. D: Nothing suggests that the trees stop producing cones. E: With rare fires, trees that release seeds every year have the advantage, not those that wait for fire."
+ },
+ {
+  "id": "vr16",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "RC",
+  "topic": "RC · Application",
+  "subtopic": "Evaluating the passage’s reasoning",
+  "skill": "Attacking a key link",
+  "difficulty": 6,
+  "expectedSec": 105,
+  "stem": "Which of the following findings, if true, would most seriously undermine the passage's explanation of why serotiny can benefit pines?",
+  "choices": [
+   "Crown fires have become more frequent in some regions over the past century.",
+   "Pines that are not serotinous begin producing cones at a younger age than serotinous pines.",
+   "Some pine species that are not serotinous also grow in regions where fires are frequent.",
+   "The cones of some serotinous pines can remain closed for more than fifty years.",
+   "Pine seedlings grow more slowly in the bare soil left by a fire than in the shade of an unburned forest."
+  ],
+  "answer": 4,
+  "hints": [
+   "What exactly, according to the passage, makes waiting for a fire worthwhile?",
+   "Paragraph 1: fire exposes bare soil and lets in light, 'conditions in which pine seedlings grow well'.",
+   "Key idea: to undermine an explanation, attack the link it depends on.",
+   "Look for a finding that contradicts that link."
+  ],
+  "method": "The benefit rests on one claim: seedlings do well after fire. E contradicts it directly.",
+  "trap": "A sounds relevant to fire, but it matches the passage's own concern rather than challenging its explanation.",
+  "passage": {
+   "title": "Fire and closed cones",
+   "text": "Many pine species release their seeds as soon as their cones ripen. Some, however, are “serotinous”: their cones are sealed shut with resin and can stay on the branch, closed, for years or even decades. The resin melts only at high temperatures, so the seeds are released in large numbers after a fire has passed through the forest. At first glance this strategy seems risky, since a tree that waits for a fire may die without ever releasing its seeds. In the right setting, however, it pays off. A fire clears away competing plants and the thick layer of needles on the forest floor, exposing bare soil and letting in sunlight, conditions in which pine seedlings grow well.\n\nWhether serotiny is favored depends on how often fires occur. If fires are very frequent, young trees burn before they have produced cones, and neither strategy succeeds for long. If fires are rare, serotinous trees tend to die of age or disease with their seeds still locked away, while trees that release seeds every year have been replacing themselves all along. Serotiny is therefore most advantageous where fires return at intervals long enough for trees to mature but short enough that a stand is likely to burn within the lifetime of its trees.\n\nA striking test of this reasoning comes from species in which serotiny varies among populations. Researchers studying such species have found that stands with a history of frequent crown fires contain a high proportion of serotinous trees, while stands of the same species where such fires have been rare contain few. The pattern suggests that serotiny is not a fixed trait of a species but one that shifts with local conditions, and it raises a concern: if changes in climate alter how often fires occur, forests adapted to one pattern of fire may be poorly suited to the next."
+  },
+  "diagnosis": [
+   {
+    "why": "More frequent fires fit the passage's concern about climate; they do not challenge why serotiny pays off.",
+    "type": "Interpretation"
+   },
+   {
+    "why": "The age at which other pines produce cones does not bear on the benefit of releasing seeds after fire.",
+    "type": "Overthinking"
+   },
+   {
+    "why": "Other strategies can coexist in fire-prone regions; this does not contradict the explanation.",
+    "type": "Logic"
+   },
+   {
+    "why": "The passage already says cones can stay closed for decades.",
+    "type": "Reading"
+   },
+   null
+  ],
+  "solution": "E is correct: the explanation says serotiny pays off because fire leaves conditions in which seedlings grow well; if seedlings grew worse there, the payoff would disappear. A: More frequent fires fit the passage's concern about climate; they do not challenge why serotiny pays off. B: The age at which other pines produce cones does not bear on the benefit of releasing seeds after fire. C: Other strategies can coexist in fire-prone regions; this does not contradict the explanation. D: The passage already says cones can stay closed for decades."
+ }
+]

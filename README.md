@@ -24,7 +24,7 @@ The **Learn** tab holds the GMAT knowledge built into the app: a lesson for each
 
 **Coach sets** (from the plan, or "Let the coach pick" in Practice) are adaptive: weak topics come up most and strong ones now and then, and each question is harder after a right answer and easier after a wrong one.
 
-**GMAT simulation** (Mocks tab) follows the real GMAT Focus format: three 45-minute sections (Quant 21, Verbal 23, Data Insights 20 questions) in the order you choose, one optional 10-minute break after the first or second section, question-by-question adaptive difficulty starting from a middle level, no going back, bookmarks and up to 3 answer changes per section at the end, calculator only in Data Insights, no confidence ratings and no feedback until the end, reading passages with their questions together. It uses only questions you have never seen, so it opens once every section has enough. It does not produce a GMAT score: only official practice exams can.
+**GMAT simulation** (Mocks tab) follows the real GMAT Focus format: three 45-minute sections (Quant 21, Verbal 23, Data Insights 20 questions) in the order you choose, one optional 10-minute break after the first or second section, question-by-question adaptive difficulty starting from a middle level, no going back, bookmarks and up to 3 answer changes per section at the end, calculator only in Data Insights, no confidence ratings and no feedback until the end, reading passages with their questions together. It uses only questions you have never seen: Quant and Data Insights always have enough once their diagnostic block is done, and Verbal needs 23 unseen questions. It does not produce a GMAT score: only official practice exams can.
 
 ## Where your progress is saved
 
@@ -40,7 +40,10 @@ The **Learn** tab holds the GMAT knowledge built into the app: a lesson for each
 
 ## Questions
 
-`questions/index.json` lists the question files; each file is a JSON array of questions. The format is in [CLAUDE.md](CLAUDE.md), and `node tools/validate-questions.js` checks it. Practice opens section by section after that section's diagnostic block.
+- **Quant and Data Insights: unlimited.** `generators.js` builds new questions from 67 templates covering all 20 Quant topics and every Data Insights type (Data Sufficiency, Two-Part Analysis, Table Analysis, Graphics Interpretation, Multi-Source Reasoning), at levels 2–6. The numbers change every time, the answer is computed, and every wrong option comes from a typical mistake, with its diagnosis. Written questions come first when both fit.
+- **Verbal: written by hand.** 65 so far: the diagnostic (5 Critical Reasoning, 1 passage with 4 questions) and a practice set of 40 Critical Reasoning questions (all nine types) and 4 Reading Comprehension passages with 4 questions each. The daily review adds more on your weak topics.
+
+`questions/index.json` lists the question files; each file is a JSON array of questions. The format is in [CLAUDE.md](CLAUDE.md), and `node tools/validate-questions.js` checks it. `tests/generators.test.js` builds every template thousands of times and re-derives most answer keys by brute force. Practice opens section by section after that section's diagnostic block.
 
 ## Files
 
@@ -49,6 +52,7 @@ The **Learn** tab holds the GMAT knowledge built into the app: a lesson for each
 | `index.html` | Page structure and styles |
 | `app.js` | Views, test engine, review flow, analytics |
 | `planner.js` | Rule-based coach: daily plan, topic weights, coach sets |
+| `generators.js` | Question templates: unlimited Quant and Data Insights practice |
 | `store.js` | Browser storage, backups, GitHub sync |
 | `questions/` | Question bank |
 | `knowledge/` | Lessons for every topic and exam guides |
