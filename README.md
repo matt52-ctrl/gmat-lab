@@ -30,7 +30,9 @@ The **Coach** tab answers "What should I study today?", "What is my main weaknes
 
 ## Claude
 
-- **Daily review.** Every morning Claude reads your synced progress, writes a review with the week's focus (on the Coach tab), and adds new questions on your weak topics and for the GMAT simulation. It uses your Claude subscription, not an API key. The procedure is in [CLAUDE.md](CLAUDE.md).
+- **Daily review.** Every night Claude reads your synced progress, writes a review with the week's focus (on the Coach tab), and adds new questions on your weak topics and for the GMAT simulation. It uses your Claude subscription, not an API key. The procedure is in [CLAUDE.md](CLAUDE.md).
+  - It runs in GitHub Actions (`Daily review` workflow) once two repository secrets exist (**Settings → Secrets and variables → Actions**): `CLAUDE_CODE_OAUTH_TOKEN`, from `claude setup-token` on a computer with Claude Code (Pro or Max plan), and `PROGRESS_REPO_TOKEN`, a fine-grained token with **Contents: Read and write** on the progress repository (the one you use for sync in the app works). Claude only edits files; the workflow checks the questions, publishes them and saves the review. Without the secrets it stops with a notice. **Actions → Daily review → Run workflow** starts it by hand.
+  - A Claude Code routine runs the same review at 05:56 as a backup; if the night run already did the work, it stops.
 - **Coach chat and question generator (optional).** "Ask the coach" under each question and "Generate a fresh question" in Practice call Claude (`claude-opus-5-5`) from the browser with your own Anthropic API key (Settings → Claude coach), billed by Anthropic separately from a Claude subscription. `vendor/anthropic-sdk.js` is the official `@anthropic-ai/sdk` 0.129.0 (MIT), bundled for the browser. Requests enable Anthropic's server-side refusal fallback (`fallbacks: "default"`).
 
 ## Questions

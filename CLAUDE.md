@@ -27,7 +27,7 @@ Static GMAT training app served by GitHub Pages. No build step, no dependencies 
 
 ## Daily review
 
-Runs every morning at 05:56 (Europe/Amsterdam) from a Claude Code routine, and whenever the student writes "analizza", "analizza il diagnostic" or "analizza il mock".
+Runs every night in GitHub Actions (`.github/workflows/daily-review.yml`, 03:17 Amsterdam time, once its two secrets are set), every morning at 05:56 from a Claude Code routine as a backup, and whenever the student writes "analizza", "analizza il diagnostic" or "analizza il mock". Whichever runs first does the work; the next one finds nothing new and stops. In GitHub Actions, Claude only edits files (steps 1–4) and the workflow commits, checks and publishes.
 
 1. Read the progress file. If it does not exist, tell the student in one line what is missing and stop. If there is no attempt, error, mock or reported question newer than `profile/coach.updatedAt`, stop without changes and without messaging.
 2. Analyse: accuracy and time against expected time per topic and section, confidence calibration, error types and prevention rules, reported questions, overdue retests, simulations (sessions with `kind: "exam"`), mocks. Compare with the previous review. Base every claim on the numbers; say when there is too little data.

@@ -1,0 +1,121 @@
+name: Daily review
+
+# Claude reviews the student's progress every morning with the Claude subscription (no API key).
+# Claude only edits files; the steps after it check the questions, publish them and save the review.
+# Needs two repository secrets (Settings → Secrets and variables → Actions):
+#   CLAUDE_CODE_OAUTH_TOKEN  – from `claude setup-token` on a computer with Claude Code (Pro or Max plan)
+#   PROGRESS_REPO_TOKEN      – fine-grained token for the progress repository, Contents: Read and write
+# Without them, or before the app has synced once, the run stops with a notice and stays green.
+
+on:
+  schedule:
+    - cron: "17 1 * * *"   # 03:17 in Amsterdam in summer, 02:17 in winter (GitHub cron is UTC); well before the 05:56 backup review
+  workflow_dispatch:
+
+permissions:
+  contents: write    # push new questions to main
+  actions: write     # start the deploy workflow afterwards
+  id-token: write    # the Claude GitHub App authentication used by claude-code-action
+
+concurrency:
+  group: daily-review
+  cancel-in-progress: false
+
+env:
+  PROGRESS_REPO: matt52-ctrl/gmat-lab-progress
+  PROGRESS_BRANCH: gmat-progress
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check that everything is set up
+        id: ready
+        env:
+          OAUTH: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          PROGRESS_TOKEN: ${{ secrets.PROGRESS_REPO_TOKEN }}
+        run: |
+          if [ -z "$OAUTH" ] || [ -z "$PROGRESS_TOKEN" ]; then
+            echo "::notice::Daily review is off: add the CLAUDE_CODE_OAUTH_TOKEN and PROGRESS_REPO_TOKEN secrets to turn it on."
+            echo "ok=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          if ! git ls-remote --exit-code "https://x-access-token:${PROGRESS_TOKEN}@github.com/${PROGRESS_REPO}.git" "refs/heads/${PROGRESS_BRANCH}" > /dev/null; then
+            echo "::notice::No synced progress yet: turn on Sync with GitHub in the app (Settings) first."
+            echo "ok=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          echo "ok=true" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v7
+        if: steps.ready.outputs.ok == 'true'
+        with:
+          ref: main
+
+      - uses: actions/checkout@v7
+        if: steps.ready.outputs.ok == 'true'
+        with:
+          repository: ${{ env.PROGRESS_REPO }}
+          ref: ${{ env.PROGRESS_BRANCH }}
+          token: ${{ secrets.PROGRESS_REPO_TOKEN }}
+          path: .progress
+
+      - uses: actions/setup-node@v7
+        if: steps.ready.outputs.ok == 'true'
+        with:
+          node-version: 22
+
+      - name: Review with Claude
+        if: steps.ready.outputs.ok == 'true'
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            Daily GMAT Lab review, running in GitHub Actions on ${{ github.repository }}.
+            Follow steps 1–4 of "Daily review" in CLAUDE.md. The progress file is ./.progress/progress/gmat-lab.json.
+            Do not run git or gh commands, do not create branches or pull requests: only edit files.
+            The workflow commits and publishes your changes after you finish, and only if
+            `node tools/validate-questions.js` and `node --test tests/*.test.js` pass, so run both before you stop.
+            Instead of step 5 and 6, write your message for the student (a few lines, in Italian) to ./.review-message.md.
+            If there is nothing new since the last review, change nothing and write nothing.
+          claude_args: |
+            --allowedTools "Read,Write,Edit,Glob,Grep,Bash(node:*)"
+
+      - name: Check the question files
+        if: steps.ready.outputs.ok == 'true'
+        run: |
+          node tools/validate-questions.js
+          node --test tests/*.test.js
+
+      - name: Publish new questions
+        if: steps.ready.outputs.ok == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git add questions
+          if git diff --cached --quiet; then echo "No new questions."; exit 0; fi
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -m "Daily review: new questions $(date -u +%F)"
+          # the action revokes its own token when it ends, so push with this workflow's token
+          git push "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" HEAD:main
+          # pushes made with the workflow token start no workflows; a dispatch does
+          gh workflow run site.yml --ref main --repo "${{ github.repository }}"
+
+      - name: Save the review to the progress repository
+        if: steps.ready.outputs.ok == 'true'
+        env:
+          PROGRESS_TOKEN: ${{ secrets.PROGRESS_REPO_TOKEN }}
+        run: |
+          cd .progress
+          git add progress
+          if git diff --cached --quiet; then echo "Nothing new to save."; exit 0; fi
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -m "Review $(date -u +%F)"
+          if ! git push "https://x-access-token:${PROGRESS_TOKEN}@github.com/${PROGRESS_REPO}.git" "HEAD:${PROGRESS_BRANCH}"; then
+            echo "::error::The progress file changed during the review (a device synced). Nothing was lost; run the review again."
+            exit 1
+          fi
+
+      - name: Summary
+        if: steps.ready.outputs.ok == 'true' && always()
+        run: |
+          if [ -s .review-message.md ]; then cat .review-message.md >> "$GITHUB_STEP_SUMMARY"; else echo "Nothing new since the last review." >> "$GITHUB_STEP_SUMMARY"; fi
