@@ -1,0 +1,8 @@
+{
+ "lessons": [
+  "quant.json",
+  "di.json",
+  "verbal.json"
+ ],
+ "guides": "guides.json"
+}

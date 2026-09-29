@@ -1,0 +1,142 @@
+[
+ {
+  "topic": "Data Sufficiency",
+  "section": "Data Insights",
+  "summary": "Deciding whether the information is enough, without solving more than needed.",
+  "ideas": [
+   "The five answers never change: (A) statement 1 alone is sufficient, 2 is not; (B) 2 alone is sufficient, 1 is not; (C) both together are needed; (D) each alone is sufficient; (E) not sufficient even together.",
+   "Sufficient means exactly one answer: one value for a value question, always “yes” or always “no” for a yes/no question.",
+   "A definite “no” is sufficient.",
+   "You never need the final number, only to know that one exists.",
+   "The two statements never contradict each other."
+  ],
+  "formulas": [],
+  "method": [
+   "Rephrase the question: what do you really need to know? (“Is x odd?” may become “is x − 1 even?”)",
+   "Judge statement 1 alone, then statement 2 alone, forgetting statement 1.",
+   "Only if both fail alone, combine them.",
+   "Use the grid: if 1 is sufficient, the answer is A or D; if not, B, C or E."
+  ],
+  "traps": [
+   "Assuming numbers are integers or positive when the question does not say so.",
+   "Carrying information from statement 1 into statement 2.",
+   "The C trap: two equations do not always give a unique solution.",
+   "Solving completely when a quick check of sufficiency is enough."
+  ],
+  "shortcuts": [
+   "To prove “not sufficient”, find two allowed numbers that give different answers.",
+   "Test 0, 1, negatives and fractions whenever the question does not rule them out."
+  ],
+  "example": {
+   "q": "Is x > 0? (1) x^{2} = 9. (2) x^{3} = 27.",
+   "a": "(1) x = 3 or −3: not sufficient. (2) x = 3 only: sufficient. Answer: **B**."
+  }
+ },
+ {
+  "topic": "Two-Part Analysis",
+  "section": "Data Insights",
+  "summary": "Two linked answers chosen from one shared list of options.",
+  "ideas": [
+   "Each question has two columns and one list of options; you pick one option per column.",
+   "The two parts may depend on each other (find one, then derive the other) or be independent.",
+   "The same option can be the right answer for both columns.",
+   "It can be quantitative (equations, rates) or verbal (strengthen and weaken, cause and effect)."
+  ],
+  "formulas": [],
+  "method": [
+   "Read what each column asks and every condition that links them.",
+   "Solve the part with the most constraints first.",
+   "Use the options: plug them into the conditions instead of solving from scratch.",
+   "Check the pair against every condition before moving on."
+  ],
+  "traps": [
+   "Stopping after one part: both must be right to score.",
+   "Assuming the two answers must be different."
+  ],
+  "shortcuts": [
+   "If the parts are linked by an equation, test options in pairs that satisfy it."
+  ],
+  "example": {
+   "q": "Choose x and y from 3, 4, 6, 7 and 10 so that x + y = 10 and x − y = 4.",
+   "a": "Adding the equations: 2x = 14, x = 7, so y = 3. Answer: **x = 7, y = 3**."
+  }
+ },
+ {
+  "topic": "Table Analysis",
+  "section": "Data Insights",
+  "summary": "Sortable tables with three yes/no or true/false statements.",
+  "ideas": [
+   "You can sort the table by any column; sorting replaces most manual searching.",
+   "Each statement is judged on its own, and all three must be right to score.",
+   "Typical tasks: counts above a threshold, ranks, medians, ratios between columns, percent of a total."
+  ],
+  "formulas": [],
+  "method": [
+   "Read the title, column headers and units first.",
+   "For each statement, decide which column answers it and sort by that column.",
+   "Compute only what the statement needs, and estimate when a clear margin allows it."
+  ],
+  "traps": [
+   "Units such as “$ thousands” or percent versus absolute values.",
+   "“At least” versus “more than” at the boundary.",
+   "Ties in rankings, and the median of an even number of rows."
+  ],
+  "shortcuts": [
+   "A ratio across two columns (like revenue per employee) cannot be sorted directly: estimate the few candidates that could win."
+  ]
+ },
+ {
+  "topic": "Graphics Interpretation",
+  "section": "Data Insights",
+  "summary": "Reading charts and completing statements with drop-down menus.",
+  "ideas": [
+   "Charts can be bar, line, scatter, pie or bubble charts, or Venn diagrams.",
+   "Each statement has blanks with drop-down choices; read the choices before calculating.",
+   "Common tasks: percent change, trend, slope of a line, correlation, share of a total."
+  ],
+  "formulas": [
+   "Percent change = (new − old) / old × 100"
+  ],
+  "method": [
+   "Read the title, axes, units, scale and legend.",
+   "Find exactly what the blank asks for.",
+   "Estimate first: the drop-down choices are usually far enough apart."
+  ],
+  "traps": [
+   "An axis that does not start at zero exaggerates differences.",
+   "Percent change versus absolute change.",
+   "Reading the wrong series or the wrong axis."
+  ],
+  "shortcuts": [
+   "Round the values you read to easy numbers; exact reading is rarely needed."
+  ],
+  "example": {
+   "q": "A bar grows from 16 to 20. By what percent did it increase?",
+   "a": "Increase 4 on a base of 16: 4/16 = **25%**. Not 20%: the base is the starting value."
+  }
+ },
+ {
+  "topic": "Multi-Source Reasoning",
+  "section": "Data Insights",
+  "summary": "Two or three tabs of text, tables and charts that questions combine.",
+  "ideas": [
+   "Tabs can hold text (emails, reports), tables and charts.",
+   "Some questions need one tab, others need two together.",
+   "Questions are multiple choice or three yes/no statements."
+  ],
+  "formulas": [],
+  "method": [
+   "Skim every tab once and note in a few words what each one contains.",
+   "For each question, decide which tab or tabs it needs.",
+   "Look for conditions, exceptions and rules in text tabs; they often decide the answer."
+  ],
+  "traps": [
+   "Missing a condition stated in another tab.",
+   "Applying a rule outside the situation it covers.",
+   "Reading every tab in detail before seeing the questions."
+  ],
+  "shortcuts": [
+   "Keep a short note: tab 1 = policy, tab 2 = costs, tab 3 = schedule."
+  ]
+ }
+]

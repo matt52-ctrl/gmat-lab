@@ -1,0 +1,639 @@
+[
+ {
+  "topic": "Integers & divisibility",
+  "section": "Quant",
+  "summary": "Factors, multiples and divisibility rules, reasoned without heavy arithmetic.",
+  "ideas": [
+   "n is divisible by d when n = d·k for some integer k. Every non-zero integer divides 0.",
+   "Divisibility rules: 2 (last digit even), 3 (digit sum divisible by 3), 4 (last two digits divisible by 4), 5 (ends in 0 or 5), 6 (by 2 and by 3), 8 (last three digits divisible by 8), 9 (digit sum divisible by 9), 11 (alternating digit sum divisible by 11).",
+   "If d divides a and d divides b, then d divides a + b and a − b.",
+   "The product of k consecutive integers is divisible by k! (for example, three consecutive integers: by 6).",
+   "For positive integers a and b: GCD(a, b) × LCM(a, b) = a × b."
+  ],
+  "formulas": [
+   "Multiples of k from 1 to n: ⌊n/k⌋",
+   "Multiples of k from a to b (inclusive): ⌊b/k⌋ − ⌊(a − 1)/k⌋"
+  ],
+  "method": [
+   "Translate “divisible by”, “multiple of”, “factor of” into n = d·k.",
+   "Break every number into prime factors before reasoning.",
+   "Check what the question allows: integer? positive? distinct?",
+   "Test a few real numbers to confirm a pattern before trusting it."
+  ],
+  "traps": [
+   "0 is a multiple of every integer, and multiples can be negative.",
+   "“Integer” does not mean “positive integer”.",
+   "If a + b is divisible by d, a and b are not necessarily divisible by d (3 + 7 is divisible by 5)."
+  ],
+  "shortcuts": [
+   "To test divisibility by a composite number, test coprime factors: divisible by 12 ⇔ divisible by 3 and by 4."
+  ],
+  "example": {
+   "q": "How many integers from 1 to 100 are divisible by 6 but not by 4?",
+   "a": "Multiples of 6: ⌊100/6⌋ = 16. Those also divisible by 4 are the multiples of LCM(6, 4) = 12: ⌊100/12⌋ = 8. Answer: 16 − 8 = **8** (6, 18, 30, 42, 54, 66, 78, 90)."
+  }
+ },
+ {
+  "topic": "Primes & factors",
+  "section": "Quant",
+  "summary": "Prime factorisation and everything it unlocks: divisors, GCD, LCM, factorials.",
+  "ideas": [
+   "A prime has exactly two positive divisors. 2 is the only even prime; 1 is not prime.",
+   "Every integer greater than 1 has one prime factorisation.",
+   "If n = p^{a}·q^{b}·r^{c}, n has (a + 1)(b + 1)(c + 1) positive divisors.",
+   "Perfect squares have only even exponents and an odd number of divisors.",
+   "GCD: common primes with the lowest exponents. LCM: all primes with the highest exponents."
+  ],
+  "formulas": [
+   "Divisors of p^{a}q^{b}: (a + 1)(b + 1)",
+   "Exponent of prime p in n!: ⌊n/p⌋ + ⌊n/p^{2}⌋ + ⌊n/p^{3}⌋ + …",
+   "Trailing zeros of n!: ⌊n/5⌋ + ⌊n/25⌋ + ⌊n/125⌋ + …"
+  ],
+  "method": [
+   "Factorise every number into primes first.",
+   "Compare exponents prime by prime.",
+   "Read carefully: “distinct prime factors” counts each prime once."
+  ],
+  "traps": [
+   "Forgetting that 2 is prime, or treating 1 as prime.",
+   "Counting prime factors when the question asks for all divisors.",
+   "Mixing “distinct prime factors” with prime factors counted with repetition."
+  ],
+  "shortcuts": [
+   "To check whether a number up to 100 is prime, test only the primes 2, 3, 5, 7."
+  ],
+  "example": {
+   "q": "How many positive divisors does 360 have?",
+   "a": "360 = 2^{3}·3^{2}·5. Divisors: (3 + 1)(2 + 1)(1 + 1) = **24**."
+  }
+ },
+ {
+  "topic": "Remainders",
+  "section": "Quant",
+  "summary": "n = d·q + r: remainders, their arithmetic and the cycles of units digits.",
+  "ideas": [
+   "Dividing n by d: n = d·q + r with 0 ≤ r < d. If the remainder is r, then n − r is a multiple of d.",
+   "Remainders add and multiply: the remainder of a + b (or a·b) is the remainder of the remainders’ sum (or product).",
+   "Units digits of powers repeat: 2 → 2, 4, 8, 6; 3 → 3, 9, 7, 1; 7 → 7, 9, 3, 1; 4 → 4, 6; 9 → 9, 1; 0, 1, 5, 6 stay the same.",
+   "If n is smaller than d, the remainder is n itself (3 ÷ 7 leaves 3)."
+  ],
+  "formulas": [
+   "n = d·q + r, 0 ≤ r < d"
+  ],
+  "method": [
+   "Write n = d·q + r and list the first values: r, r + d, r + 2d, …",
+   "With two conditions, find the smallest number that meets both; the rest repeat every LCM of the divisors.",
+   "For big powers, find the cycle length and divide the exponent by it."
+  ],
+  "traps": [
+   "The remainder is always smaller than the divisor, and can be 0.",
+   "Remainder questions often hide the fact that n can be small (n = r is allowed)."
+  ],
+  "shortcuts": [
+   "Units digit of 7^{n}: cycle of 4, so use the remainder of n ÷ 4 (remainder 0 means the 4th term)."
+  ],
+  "example": {
+   "q": "n leaves remainder 3 when divided by 5 and remainder 2 when divided by 7. What is the remainder when n is divided by 35?",
+   "a": "Numbers with remainder 3 mod 5: 3, 8, 13, 18, 23, … The first with remainder 2 mod 7 is 23 (23 = 21 + 2). So n = 23 + 35k and the remainder is **23**."
+  }
+ },
+ {
+  "topic": "Odd/even & signs",
+  "section": "Quant",
+  "summary": "Parity and sign rules that settle “must be true” questions fast.",
+  "ideas": [
+   "even ± even = even; odd ± odd = even; even ± odd = odd.",
+   "A product is even if at least one factor is even; odd × odd = odd.",
+   "A product or quotient is negative exactly when it has an odd number of negative factors.",
+   "Even powers are never negative; odd powers keep the sign of the base.",
+   "0 is even, and neither positive nor negative."
+  ],
+  "formulas": [],
+  "method": [
+   "Rewrite the expression by factoring (ab + a = a(b + 1)).",
+   "Test cases: one even and one odd, one positive and one negative, and 0.",
+   "For “must be true”, one counterexample is enough to eliminate a choice."
+  ],
+  "traps": [
+   "Fractions are neither even nor odd; parity rules apply to integers only.",
+   "x^{2} > x is false for 0 ≤ x ≤ 1.",
+   "Multiplying an inequality by a negative number reverses it."
+  ],
+  "shortcuts": [
+   "“Odd × anything even = even” settles most product questions in one line."
+  ],
+  "example": {
+   "q": "a and b are integers and ab + a is odd. Which must be true?",
+   "a": "ab + a = a(b + 1). A product is odd only if both factors are odd, so a is odd and b + 1 is odd: **a is odd and b is even**."
+  }
+ },
+ {
+  "topic": "Fractions & decimals",
+  "section": "Quant",
+  "summary": "Comparing, simplifying and converting fractions without a calculator.",
+  "ideas": [
+   "Compare two positive fractions by cross-multiplying: a/b > c/d ⇔ ad > bc.",
+   "Adding the same positive number to numerator and denominator moves a positive fraction toward 1.",
+   "A fraction in lowest terms has a terminating decimal exactly when its denominator has no primes other than 2 and 5.",
+   "Dividing by a number between 0 and 1 makes a positive number larger.",
+   "Useful values: 1/8 = 0.125, 1/6 ≈ 0.167, 1/7 ≈ 0.143, 1/9 = 0.111…, 1/11 = 0.0909…, 1/12 ≈ 0.083."
+  ],
+  "formulas": [],
+  "method": [
+   "Keep fractions as fractions through multi-step work; convert at the end.",
+   "Cancel common factors before multiplying.",
+   "Reduce a fraction fully before judging whether its decimal terminates."
+  ],
+  "traps": [
+   "21/60 looks non-terminating because of the 3, but it reduces to 7/20, which terminates.",
+   "Rounding early makes answer choices look equal."
+  ],
+  "shortcuts": [
+   "Benchmark with 1/2 or 1 to compare fractions without computing them."
+  ],
+  "example": {
+   "q": "Which of 7/15, 21/60 and 13/42 has a terminating decimal?",
+   "a": "7/15: denominator 3·5, no. 21/60 = 7/20: denominator 2^{2}·5, **yes**. 13/42: denominator 2·3·7, no."
+  }
+ },
+ {
+  "topic": "Exponents & roots",
+  "section": "Quant",
+  "summary": "Exponent rules, factoring powers and handling roots.",
+  "ideas": [
+   "a^{m}·a^{n} = a^{m+n}; a^{m}/a^{n} = a^{m−n}; (a^{m})^{n} = a^{mn}; (ab)^{n} = a^{n}b^{n}.",
+   "a^{0} = 1 (a ≠ 0); a^{−n} = 1/a^{n}; a^{1/n} is the n-th root.",
+   "You cannot combine a sum of powers directly; factor the smallest power: 2^{10} + 2^{11} = 2^{10}(1 + 2) = 3·2^{10}.",
+   "√(x^{2}) = |x|. The √ symbol always gives the non-negative root.",
+   "For 0 < x < 1, higher powers are smaller: x^{3} < x^{2} < x < √x."
+  ],
+  "formulas": [
+   "a^{m}·a^{n} = a^{m+n}",
+   "(a^{m})^{n} = a^{mn}",
+   "a^{−n} = 1/a^{n}",
+   "√(ab) = √a·√b (a, b ≥ 0)"
+  ],
+  "method": [
+   "Rewrite everything with the same base (4 = 2^{2}, 8 = 2^{3}, 27 = 3^{3}).",
+   "Factor out the smallest power in sums and differences.",
+   "To compare powers, match either the bases or the exponents."
+  ],
+  "traps": [
+   "(a + b)^{2} is not a^{2} + b^{2}.",
+   "A negative base with an even exponent gives a positive result: (−2)^{4} = 16, but −2^{4} = −16.",
+   "x^{2} = 9 has two solutions, ±3; √9 is only 3."
+  ],
+  "shortcuts": [
+   "Simplify roots by pulling out squares: √72 = √(36·2) = 6√2."
+  ],
+  "example": {
+   "q": "(2^{20} + 2^{21} + 2^{22}) / 2^{19} = ?",
+   "a": "Factor 2^{20}: 2^{20}(1 + 2 + 4) = 7·2^{20}. Divided by 2^{19}: 7·2 = **14**."
+  }
+ },
+ {
+  "topic": "Percents",
+  "section": "Quant",
+  "summary": "Percent change, successive changes and reverse percents with multipliers.",
+  "ideas": [
+   "An increase of p% multiplies by (1 + p/100); a decrease of p% multiplies by (1 − p/100).",
+   "Successive changes multiply: +25% then −20% is 1.25 × 0.80 = 1.00, no net change.",
+   "Percent change = (new − old) / old × 100. The base is always the original value.",
+   "Percentage points measure differences between percents: from 10% to 12% is +2 points but +20%.",
+   "“x is what percent of y” is x/y × 100."
+  ],
+  "formulas": [
+   "Percent change = (new − old) / old × 100",
+   "Original = new / (1 ± p/100)"
+  ],
+  "method": [
+   "Pick 100 as the starting value when no number is given.",
+   "Turn every change into a multiplier and multiply them.",
+   "For reverse percents, divide by the multiplier: after a 20% rise to 60, the original is 60/1.2 = 50."
+  ],
+  "traps": [
+   "Adding successive percents (+20% then −20% is not 0%).",
+   "Using the new value as the base of a percent change.",
+   "Confusing percent with percentage points."
+  ],
+  "shortcuts": [
+   "10% is moving the decimal point; 5% is half of that; 15% = 10% + 5%."
+  ],
+  "example": {
+   "q": "A price rises 25% and then falls 20%. What is the overall percent change?",
+   "a": "1.25 × 0.80 = 1.00: the final price equals the original, so the change is **0%**."
+  }
+ },
+ {
+  "topic": "Ratios & proportions",
+  "section": "Quant",
+  "summary": "Ratios as parts of a whole, combining ratios and proportions.",
+  "ideas": [
+   "a : b = m : n means a = m·k and b = n·k for some positive k.",
+   "Part-to-whole: a is m/(m + n) of the total.",
+   "To combine a : b and b : c, rescale so b matches: 2 : 3 and 4 : 5 give 8 : 12 : 15.",
+   "Direct proportion: y = kx. Inverse proportion: xy = k."
+  ],
+  "formulas": [
+   "a : b = m : n ⇒ a = mk, b = nk",
+   "a / (a + b) = m / (m + n)"
+  ],
+  "method": [
+   "Write each quantity as a multiple of an unknown k.",
+   "Use the total or a change to find k.",
+   "Answer the quantity actually asked for."
+  ],
+  "traps": [
+   "A ratio is not the actual numbers: 3 : 5 could be 30 and 50.",
+   "Part-to-part and part-to-whole give different fractions.",
+   "When amounts are added, the ratio changes; set up a new equation."
+  ],
+  "shortcuts": [
+   "If the total must be a whole number, it must be a multiple of the sum of the ratio parts."
+  ],
+  "example": {
+   "q": "The ratio of boys to girls is 3 : 5. After 6 boys join, the ratio is 1 : 1. How many girls are there?",
+   "a": "Boys = 3k, girls = 5k. 3k + 6 = 5k gives k = 3, so there are **15 girls**."
+  }
+ },
+ {
+  "topic": "Rates & work",
+  "section": "Quant",
+  "summary": "Distance, speed and time; combined work rates.",
+  "ideas": [
+   "Distance = rate × time; work = rate × time.",
+   "Average speed = total distance / total time, not the average of the speeds.",
+   "Objects moving toward each other: add speeds. Same direction: subtract them.",
+   "Work rates add: a job done in a hours has rate 1/a per hour.",
+   "Two workers together: time = ab/(a + b)."
+  ],
+  "formulas": [
+   "D = R × T",
+   "Together: 1/t = 1/a + 1/b, so t = ab/(a + b)",
+   "Equal distances at v₁ and v₂: average speed = 2v₁v₂/(v₁ + v₂)"
+  ],
+  "method": [
+   "Write the rate of each person or machine per unit of time.",
+   "Add rates for people working together (subtract for a drain working against a fill).",
+   "Keep units consistent: minutes or hours, not both."
+  ],
+  "traps": [
+   "Averaging two speeds for equal distances.",
+   "Mixing minutes and hours.",
+   "Adding times instead of rates."
+  ],
+  "shortcuts": [
+   "A rate table (rate · time = distance/work) keeps multi-part problems organised."
+  ],
+  "example": {
+   "q": "Pipe A fills a tank in 6 hours, pipe B in 3 hours. How long do they take together?",
+   "a": "Rates: 1/6 + 1/3 = 1/2 tank per hour, so **2 hours** (or 6·3/(6 + 3) = 2)."
+  }
+ },
+ {
+  "topic": "Mixtures",
+  "section": "Quant",
+  "summary": "Tracking the pure ingredient and weighted averages of concentrations.",
+  "ideas": [
+   "Amount of pure substance = concentration × total volume.",
+   "Adding water changes the total but not the amount of solute.",
+   "The concentration of a mix is the weighted average of the concentrations.",
+   "Alligation: the quantities mixed are in inverse ratio to their distances from the final concentration."
+  ],
+  "formulas": [
+   "c_{mix} = (c₁V₁ + c₂V₂) / (V₁ + V₂)",
+   "V₁ / V₂ = (c₂ − c) / (c − c₁)"
+  ],
+  "method": [
+   "Track the pure ingredient before and after.",
+   "Write the new concentration as (new amount of ingredient) / (new total).",
+   "For two solutions mixed, use a weighted average or alligation."
+  ],
+  "traps": [
+   "Forgetting that the total volume changes.",
+   "Averaging percentages without weighting by volume."
+  ],
+  "shortcuts": [
+   "If the target is exactly halfway between two concentrations, mix equal amounts."
+  ],
+  "example": {
+   "q": "How many litres of water must be added to 10 L of a 30% salt solution to get a 20% solution?",
+   "a": "Salt: 0.3 × 10 = 3 L, which does not change. 3 / (10 + x) = 0.2 gives 10 + x = 15, so **5 L**."
+  }
+ },
+ {
+  "topic": "Interest",
+  "section": "Quant",
+  "summary": "Simple and compound interest.",
+  "ideas": [
+   "Simple interest: I = P·r·t (interest only on the principal).",
+   "Compound interest: A = P(1 + r/n)^{nt}, where n is the number of compounding periods per year.",
+   "Over more than one period, compound interest earns more than simple interest at the same rate.",
+   "Two years at r compounded yearly: P(1 + r)^{2} = P(1 + 2r + r^{2}); the extra r^{2} is interest on interest."
+  ],
+  "formulas": [
+   "I = P·r·t",
+   "A = P(1 + r/n)^{nt}"
+  ],
+  "method": [
+   "Identify the rate per period and the number of periods.",
+   "Semiannual means r/2, twice a year; quarterly means r/4, four times a year.",
+   "Estimate first: compound interest is slightly more than simple interest."
+  ],
+  "traps": [
+   "Using the annual rate for each semiannual period.",
+   "Forgetting to subtract the principal when asked for interest earned."
+  ],
+  "shortcuts": [
+   "For small rates over a few periods, compound ≈ simple + a small extra; use that to eliminate choices."
+  ],
+  "example": {
+   "q": "$1,000 is invested at 10% a year, compounded semiannually. What is it worth after 1 year?",
+   "a": "Two periods at 5%: 1,000 × 1.05^{2} = 1,000 × 1.1025 = **$1,102.50**."
+  }
+ },
+ {
+  "topic": "Overlapping sets",
+  "section": "Quant",
+  "summary": "Two- and three-set problems with formulas and the double-set matrix.",
+  "ideas": [
+   "Two sets: Total = A + B − Both + Neither.",
+   "Three sets: Total = A + B + C − (A∩B + A∩C + B∩C) + A∩B∩C + Neither.",
+   "With “exactly two” counts: Total = A + B + C − (exactly two) − 2·(all three) + Neither.",
+   "Two yes/no attributes (e.g. gender and smoker) fit a 2 × 2 table with totals."
+  ],
+  "formulas": [
+   "Total = A + B − Both + Neither"
+  ],
+  "method": [
+   "Decide whether the problem uses “both/at least two” or “exactly two”.",
+   "For two attributes, draw the 2 × 2 table and fill the cells you know.",
+   "Solve for the missing cell or overlap."
+  ],
+  "traps": [
+   "Counting the overlap twice.",
+   "Mixing “exactly two” with “at least two”.",
+   "Forgetting the “neither” group."
+  ],
+  "shortcuts": [
+   "In a 2 × 2 table every row and column must add up; fill the easiest cell first."
+  ],
+  "example": {
+   "q": "Of 50 students, 30 study French, 25 study Spanish and 10 study neither. How many study both?",
+   "a": "50 = 30 + 25 − Both + 10, so Both = **15**."
+  }
+ },
+ {
+  "topic": "Statistics",
+  "section": "Quant",
+  "summary": "Mean, median, mode, range and standard deviation.",
+  "ideas": [
+   "Mean = sum / number of values, so sum = mean × number.",
+   "Median: the middle value of the ordered list; with an even count, the average of the two middle values.",
+   "Range = maximum − minimum.",
+   "Standard deviation measures spread around the mean: adding a constant to every value does not change it; multiplying every value by k multiplies it by |k|; it is 0 only when all values are equal.",
+   "In an evenly spaced set, mean = median = (first + last)/2."
+  ],
+  "formulas": [
+   "Sum = mean × n",
+   "Weighted mean = (w₁x₁ + w₂x₂ + …) / (w₁ + w₂ + …)"
+  ],
+  "method": [
+   "Convert means to sums as soon as values are added or removed.",
+   "Sort the list before finding a median.",
+   "For standard deviation, compare how far values sit from the mean; you rarely need to compute it."
+  ],
+  "traps": [
+   "Taking the median of an unsorted list.",
+   "Assuming mean and median are equal in a set that is not evenly spaced.",
+   "Thinking a larger mean means a larger standard deviation."
+  ],
+  "shortcuts": [
+   "Adding a value equal to the mean keeps the mean and does not increase the standard deviation."
+  ],
+  "example": {
+   "q": "The mean of 5 numbers is 12. If the number 20 is removed, what is the mean of the rest?",
+   "a": "Sum = 60. Without 20: 40, over 4 numbers: **10**."
+  }
+ },
+ {
+  "topic": "Counting",
+  "section": "Quant",
+  "summary": "Multiplication principle, permutations, combinations and restrictions.",
+  "ideas": [
+   "Multiplication principle: independent choices multiply.",
+   "Order matters → permutations: n!/(n − k)!. Order does not matter → combinations: C(n, k) = n!/(k!(n − k)!).",
+   "Arrangements with identical items: n!/(a!·b!·…).",
+   "Around a circle: (n − 1)! arrangements.",
+   "Complement: count everything, then subtract what is not allowed."
+  ],
+  "formulas": [
+   "P(n, k) = n!/(n − k)!",
+   "C(n, k) = n!/(k!(n − k)!)",
+   "Circular: (n − 1)!"
+  ],
+  "method": [
+   "Ask: does order matter? Are there repetitions? Any restrictions?",
+   "Handle restrictions first (fixed seats, items that must be together).",
+   "For “items together”, treat them as one block, then multiply by their internal arrangements."
+  ],
+  "traps": [
+   "Using permutations for teams or committees (order does not matter).",
+   "Double counting when choosing in stages.",
+   "Forgetting the internal order of a block."
+  ],
+  "shortcuts": [
+   "C(n, k) = C(n, n − k): choosing who is in equals choosing who is out."
+  ],
+  "example": {
+   "q": "In how many ways can 5 people sit in a row if A and B must sit next to each other?",
+   "a": "Treat AB as one block: 4 units → 4! = 24 orders, and A, B can swap inside the block: 24 × 2 = **48**."
+  }
+ },
+ {
+  "topic": "Probability",
+  "section": "Quant",
+  "summary": "Equally likely outcomes, complements, independent events and “at least one”.",
+  "ideas": [
+   "P(event) = favourable outcomes / total outcomes (when outcomes are equally likely).",
+   "P(not A) = 1 − P(A).",
+   "Independent events: P(A and B) = P(A)·P(B).",
+   "P(A or B) = P(A) + P(B) − P(A and B).",
+   "Without replacement, the probabilities change after each draw."
+  ],
+  "formulas": [
+   "P(A or B) = P(A) + P(B) − P(A and B)",
+   "P(at least one) = 1 − P(none)"
+  ],
+  "method": [
+   "Decide whether draws are with or without replacement.",
+   "For “at least one”, compute 1 − P(none).",
+   "For a specific sequence, multiply step by step; if order does not matter, multiply by the number of orders."
+  ],
+  "traps": [
+   "Adding probabilities of events that can happen together.",
+   "Forgetting to multiply by the number of possible orders.",
+   "Treating dependent draws as independent."
+  ],
+  "shortcuts": [
+   "A probability is never above 1: use that to eliminate answer choices."
+  ],
+  "example": {
+   "q": "A fair coin is tossed 3 times. What is the probability of at least one head?",
+   "a": "P(no heads) = (1/2)^{3} = 1/8, so P(at least one head) = **7/8**."
+  }
+ },
+ {
+  "topic": "Sequences",
+  "section": "Quant",
+  "summary": "Arithmetic and geometric sequences, sums and recursive rules.",
+  "ideas": [
+   "Arithmetic: a_{n} = a_{1} + (n − 1)d; sum = n(a_{1} + a_{n})/2.",
+   "Geometric: a_{n} = a_{1}·r^{n−1}.",
+   "Number of terms from a to b in steps of d: (b − a)/d + 1.",
+   "Recursive rules (a_{n} defined from a_{n−1}): compute the first terms and look for a pattern or cycle."
+  ],
+  "formulas": [
+   "a_{n} = a_{1} + (n − 1)d",
+   "Sum = n·(a_{1} + a_{n})/2",
+   "a_{n} = a_{1}·r^{n−1}"
+  ],
+  "method": [
+   "Identify the type: constant difference or constant ratio?",
+   "Count terms carefully (inclusive counts add 1).",
+   "For sums of evenly spaced numbers, use average × count."
+  ],
+  "traps": [
+   "Off-by-one errors: n − 1 in the formula, +1 when counting inclusively.",
+   "Assuming a pattern after only two terms."
+  ],
+  "shortcuts": [
+   "Sum of evenly spaced numbers = average of first and last × number of terms."
+  ],
+  "example": {
+   "q": "What is the sum of the integers from 20 to 80, inclusive?",
+   "a": "Count: 80 − 20 + 1 = 61. Average: (20 + 80)/2 = 50. Sum: 61 × 50 = **3,050**."
+  }
+ },
+ {
+  "topic": "Linear equations",
+  "section": "Quant",
+  "summary": "Systems of linear equations and translating words into equations.",
+  "ideas": [
+   "You usually need as many independent equations as unknowns.",
+   "Solve by substitution or elimination.",
+   "A system can have one solution, none (parallel lines) or infinitely many (the same line).",
+   "Sometimes the question asks for a combination (like x + y) that you can get without finding each variable."
+  ],
+  "formulas": [],
+  "method": [
+   "Write down exactly what is asked.",
+   "Look for a combination of the equations that gives it directly.",
+   "Otherwise eliminate one variable and solve."
+  ],
+  "traps": [
+   "Assuming two equations always give a unique solution (2x + 2y = 4 and x + y = 2 are the same line).",
+   "Reversing “less than”: 5 less than x is x − 5."
+  ],
+  "shortcuts": [
+   "Adding or subtracting the equations often isolates the combination the question asks for."
+  ],
+  "example": {
+   "q": "3x + 2y = 12 and x − y = −1. What is x?",
+   "a": "From the second equation x = y − 1. Substitute: 3(y − 1) + 2y = 12, so y = 3 and **x = 2**."
+  }
+ },
+ {
+  "topic": "Quadratics & functions",
+  "section": "Quant",
+  "summary": "Factoring quadratics, special products, roots and function notation.",
+  "ideas": [
+   "x^{2} + bx + c = (x − r₁)(x − r₂) with r₁ + r₂ = −b and r₁·r₂ = c.",
+   "For ax^{2} + bx + c: sum of roots = −b/a, product = c/a.",
+   "Special products: (a + b)^{2} = a^{2} + 2ab + b^{2}; (a − b)^{2} = a^{2} − 2ab + b^{2}; (a + b)(a − b) = a^{2} − b^{2}.",
+   "The discriminant b^{2} − 4ac tells how many real roots there are: > 0 two, = 0 one, < 0 none.",
+   "Function notation: f(3) means replace x by 3; f(g(x)) means apply g first."
+  ],
+  "formulas": [
+   "(a + b)(a − b) = a^{2} − b^{2}",
+   "Sum of roots = −b/a; product = c/a"
+  ],
+  "method": [
+   "Move everything to one side and factor.",
+   "Recognise special products instantly.",
+   "Never divide both sides by a variable that could be 0."
+  ],
+  "traps": [
+   "Dividing x^{2} = 5x by x loses the root x = 0.",
+   "Forgetting the negative root of x^{2} = k."
+  ],
+  "shortcuts": [
+   "a^{2} − b^{2} = (a + b)(a − b) turns big arithmetic into easy products: 51^{2} − 49^{2} = 100 × 2 = 200."
+  ],
+  "example": {
+   "q": "If x^{2} − 5x + 6 = 0, what is the sum of all possible values of x^{2}?",
+   "a": "(x − 2)(x − 3) = 0, so x = 2 or 3. Sum of squares: 4 + 9 = **13**."
+  }
+ },
+ {
+  "topic": "Inequalities & absolute value",
+  "section": "Quant",
+  "summary": "Solving inequalities, sign flips and absolute value as distance.",
+  "ideas": [
+   "Multiplying or dividing by a negative number flips the inequality.",
+   "Do not multiply by a variable unless you know its sign.",
+   "|x| is the distance from 0: |x − a| < b ⇔ a − b < x < a + b; |x − a| > b ⇔ x < a − b or x > a + b.",
+   "Inequalities pointing the same way can be added, never subtracted."
+  ],
+  "formulas": [
+   "|x − a| < b ⇔ a − b < x < a + b"
+  ],
+  "method": [
+   "Isolate the variable, flipping the sign when you divide by a negative.",
+   "For absolute values, read them as distances on a number line.",
+   "Test the boundary points and one value on each side."
+  ],
+  "traps": [
+   "Squaring both sides when negatives are possible.",
+   "|x| = −x when x < 0, a frequent Data Sufficiency trap.",
+   "Strict (<) versus inclusive (≤) boundaries when counting integers."
+  ],
+  "shortcuts": [
+   "Draw the number line: the answer is usually visible at once."
+  ],
+  "example": {
+   "q": "How many integers x satisfy |x − 3| < 4?",
+   "a": "−4 < x − 3 < 4, so −1 < x < 7: the integers 0 to 6, that is **7**."
+  }
+ },
+ {
+  "topic": "Word problems",
+  "section": "Quant",
+  "summary": "Translating English into equations and checking the answer.",
+  "ideas": [
+   "“is” means =, “of” means ×, “more than” means +, “less than” reverses the order (5 less than x is x − 5).",
+   "Age problems: the difference between two ages never changes.",
+   "Profit = revenue − cost; markup is on cost, discount is on the selling price.",
+   "Answer choices are a tool: backsolving is often faster than algebra."
+  ],
+  "formulas": [],
+  "method": [
+   "Read the question last sentence first: what exactly is asked?",
+   "Name the variables and write the equations.",
+   "Solve, then check the result against the story.",
+   "If the algebra is messy, backsolve starting from the middle answer choice."
+  ],
+  "traps": [
+   "Solving for the wrong quantity (the other person’s age, the original price).",
+   "Reversing “less than”.",
+   "Mixing units."
+  ],
+  "shortcuts": [
+   "Backsolving: try the middle choice; if it is too small, move to larger choices."
+  ],
+  "example": {
+   "q": "Tom is 4 years older than twice Ann’s age. In 6 years the sum of their ages will be 58. How old is Ann now?",
+   "a": "T = 2A + 4. (T + 6) + (A + 6) = 58 gives 3A + 16 = 58, so **A = 14** (Tom 32; in 6 years 20 + 38 = 58)."
+  }
+ }
+]

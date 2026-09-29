@@ -1,0 +1,317 @@
+[
+ {
+  "topic": "CR · Strengthen",
+  "section": "Verbal",
+  "summary": "Find the answer that makes the conclusion more likely to be true.",
+  "ideas": [
+   "Identify the conclusion and the premises; the gap between them is the assumption.",
+   "A strengthener supports the assumption, rules out an alternative explanation, or adds evidence for the conclusion.",
+   "It does not need to prove the conclusion, only to make it more likely."
+  ],
+  "formulas": [],
+  "method": [
+   "Find the conclusion (look for “therefore”, “so”, “thus”, or the claim the rest supports).",
+   "Predict the gap: what must be true for the premises to lead to the conclusion?",
+   "Choose the answer that closes the gap or removes an alternative."
+  ],
+  "traps": [
+   "Answers that repeat a premise without helping the link.",
+   "Out of scope: a different group, time or place.",
+   "Answers that weaken instead."
+  ],
+  "shortcuts": [
+   "For a causal conclusion (X causes Y), “no other cause” or “when X is absent, Y is absent” strengthens."
+  ]
+ },
+ {
+  "topic": "CR · Weaken",
+  "section": "Verbal",
+  "summary": "Find the answer that most damages the link from premises to conclusion.",
+  "ideas": [
+   "Premises are taken as true: attack the reasoning, not the facts.",
+   "Classic weakeners: an alternative cause, a sample that is not representative, a plan that will not reach its goal, an assumption that fails."
+  ],
+  "formulas": [],
+  "method": [
+   "Find the conclusion and the premises.",
+   "Predict the assumption, then look for an answer that breaks it.",
+   "For causal arguments, look for another cause of the same effect, or for reversed causation."
+  ],
+  "traps": [
+   "Answers that attack a premise rather than the reasoning.",
+   "Answers that are irrelevant to the specific conclusion.",
+   "Answers that actually strengthen."
+  ],
+  "shortcuts": [
+   "Causal conclusion? Ask: what else could explain the result?"
+  ],
+  "example": {
+   "q": "A company introduced flexible working hours, and the next year sick days fell by 15%. Management concluded that flexible hours reduced sick days. What would weaken this?",
+   "a": "An alternative cause of the same effect, for example that the flu season that year was far milder than the year before."
+  }
+ },
+ {
+  "topic": "CR · Assumption",
+  "section": "Verbal",
+  "summary": "Find the unstated premise the argument needs.",
+  "ideas": [
+   "A necessary assumption must be true for the argument to work.",
+   "Negation test: negate the answer; if the argument falls apart, it is the assumption.",
+   "Assumptions often link a new term in the conclusion to the premises."
+  ],
+  "formulas": [],
+  "method": [
+   "Find the conclusion and premises.",
+   "Look for the new idea in the conclusion that the premises never mention.",
+   "Negate each remaining answer and keep the one that destroys the argument."
+  ],
+  "traps": [
+   "Extreme answers (“all”, “always”, “never”) are rarely necessary.",
+   "Answers that would help but are not required."
+  ],
+  "shortcuts": [
+   "Weak, modest wording (“at least some”, “not all”) fits necessary assumptions."
+  ]
+ },
+ {
+  "topic": "CR · Evaluate",
+  "section": "Verbal",
+  "summary": "Find the question or information that would best judge the argument.",
+  "ideas": [
+   "The right answer is a question whose answer can strengthen or weaken the argument.",
+   "Variance test: imagine two opposite answers; one should help the argument and the other should hurt it."
+  ],
+  "formulas": [],
+  "method": [
+   "Find the conclusion and the gap.",
+   "For each answer, imagine “yes” and “no”.",
+   "Keep the one where the two answers move the conclusion in opposite directions."
+  ],
+  "traps": [
+   "Questions whose answer would not affect the conclusion either way.",
+   "Questions about details outside the argument."
+  ],
+  "shortcuts": []
+ },
+ {
+  "topic": "CR · Inference",
+  "section": "Verbal",
+  "summary": "Find what must be true, or is best supported, given the statements.",
+  "ideas": [
+   "There is often no conclusion: you draw one yourself.",
+   "The answer must follow from the text, with no outside knowledge.",
+   "Correct answers are usually cautiously worded."
+  ],
+  "formulas": [],
+  "method": [
+   "Read the statements as facts.",
+   "Combine two of them to see what follows.",
+   "Eliminate anything that needs an extra assumption."
+  ],
+  "traps": [
+   "Extreme words (“most”, “always”, “only”) that the text does not support.",
+   "Answers that sound reasonable but are not stated or implied.",
+   "Answers that use real-world knowledge."
+  ],
+  "shortcuts": []
+ },
+ {
+  "topic": "CR · Boldface/Role",
+  "section": "Verbal",
+  "summary": "Describe the role each bold part plays in the argument.",
+  "ideas": [
+   "Roles: main conclusion, intermediate conclusion, premise (evidence), opposing view, evidence against the conclusion, background.",
+   "The answer choices describe roles abstractly: match function, not content."
+  ],
+  "formulas": [],
+  "method": [
+   "Find the author’s main conclusion first.",
+   "Label each bold part in your own words (conclusion, evidence for it, opposing claim, …).",
+   "Match your labels to the answers; eliminate any answer with one wrong label."
+  ],
+  "traps": [
+   "Confusing the author’s conclusion with a position the author rejects.",
+   "Missing contrast words (“however”, “but”) that change who is speaking."
+  ],
+  "shortcuts": [
+   "Contrast words usually introduce the author’s own view."
+  ]
+ },
+ {
+  "topic": "CR · Flaw",
+  "section": "Verbal",
+  "summary": "Name the error in the reasoning.",
+  "ideas": [
+   "Common flaws: correlation taken as causation, a sample that is not representative, circular reasoning, confusing percentages with numbers, false choice between two options, generalising from one case.",
+   "Answers describe the flaw in general terms."
+  ],
+  "formulas": [],
+  "method": [
+   "Find the conclusion and the evidence.",
+   "Predict the gap in your own words.",
+   "Match it to the abstract description in the answers."
+  ],
+  "traps": [
+   "Answers describing a flaw the argument does not commit.",
+   "Criticisms that are true but not the main problem."
+  ],
+  "shortcuts": []
+ },
+ {
+  "topic": "CR · Explain discrepancy",
+  "section": "Verbal",
+  "summary": "Resolve two facts that seem to contradict each other.",
+  "ideas": [
+   "Both facts are true; the right answer shows how they can both be true.",
+   "The answer usually adds information about a difference between the two situations."
+  ],
+  "formulas": [],
+  "method": [
+   "State the two facts and why they seem to conflict.",
+   "Look for the answer that makes the surprise go away."
+  ],
+  "traps": [
+   "Answers that explain only one of the two facts.",
+   "Answers that make the conflict worse."
+  ],
+  "shortcuts": []
+ },
+ {
+  "topic": "CR · Plan/Method",
+  "section": "Verbal",
+  "summary": "Judge whether a plan reaches its goal, or describe how an argument works.",
+  "ideas": [
+   "Plan questions: a goal and a plan to reach it; ask what makes the plan more or less likely to work.",
+   "Method questions: describe the technique of the argument (analogy, counterexample, questioning evidence, pointing to an alternative)."
+  ],
+  "formulas": [],
+  "method": [
+   "Separate the goal from the plan.",
+   "Look for side effects or conditions that would stop the plan from working.",
+   "For method questions, describe what the argument does in general words before reading the answers."
+  ],
+  "traps": [
+   "Answers about a different goal.",
+   "Method answers that are accurate for part of the argument but not its main move."
+  ],
+  "shortcuts": []
+ },
+ {
+  "topic": "RC · Main idea",
+  "section": "Verbal",
+  "summary": "Primary purpose or main point of a passage.",
+  "ideas": [
+   "The main idea covers the whole passage, not one paragraph.",
+   "The verb in the answer matters: argue, describe, explain, criticise, compare, propose."
+  ],
+  "formulas": [],
+  "method": [
+   "After reading, state the main point in one sentence before looking at the answers.",
+   "Check the verb and the scope of each answer against the whole passage."
+  ],
+  "traps": [
+   "Answers that are too narrow (one paragraph) or too broad (beyond the passage).",
+   "A wrong verb: “argue” when the passage only describes."
+  ],
+  "shortcuts": [
+   "The first and last paragraphs usually carry the main point."
+  ]
+ },
+ {
+  "topic": "RC · Detail",
+  "section": "Verbal",
+  "summary": "What the passage states directly.",
+  "ideas": [
+   "The answer is in the text, usually paraphrased.",
+   "Line references or key words tell you where to look."
+  ],
+  "formulas": [],
+  "method": [
+   "Go back to the relevant sentence and reread it.",
+   "Match the meaning, not the same words."
+  ],
+  "traps": [
+   "Answers that use the passage’s words with a changed meaning.",
+   "Statements that are true in the real world but not in the passage.",
+   "Details from the wrong paragraph."
+  ],
+  "shortcuts": []
+ },
+ {
+  "topic": "RC · Inference",
+  "section": "Verbal",
+  "summary": "What the passage suggests or implies.",
+  "ideas": [
+   "The answer goes one small step beyond the text, never far.",
+   "It must be supported by specific sentences."
+  ],
+  "formulas": [],
+  "method": [
+   "Find the relevant sentences.",
+   "Ask what must be true if they are true.",
+   "Eliminate extreme and unsupported answers."
+  ],
+  "traps": [
+   "Answers that go too far or need outside knowledge.",
+   "Extreme wording."
+  ],
+  "shortcuts": []
+ },
+ {
+  "topic": "RC · Function/Structure",
+  "section": "Verbal",
+  "summary": "Why the author mentions something, or how the passage is organised.",
+  "ideas": [
+   "The question asks for purpose, not content.",
+   "Look at the sentences before and after the reference."
+  ],
+  "formulas": [],
+  "method": [
+   "Find the reference in the passage.",
+   "Ask: what does this help the author do here?",
+   "Choose the answer that names that role."
+  ],
+  "traps": [
+   "Answers that describe what the text says instead of why it is there."
+  ],
+  "shortcuts": [
+   "Structure answers list the moves of the passage in order; check each move."
+  ]
+ },
+ {
+  "topic": "RC · Application",
+  "section": "Verbal",
+  "summary": "Apply the passage’s idea or principle to a new situation.",
+  "ideas": [
+   "The new situation has the same logical structure as the one in the passage."
+  ],
+  "formulas": [],
+  "method": [
+   "State the principle in general terms.",
+   "Find the answer whose situation follows the same structure."
+  ],
+  "traps": [
+   "Answers with the same topic but a different logic."
+  ],
+  "shortcuts": []
+ },
+ {
+  "topic": "RC · Tone/Style",
+  "section": "Verbal",
+  "summary": "The author’s attitude.",
+  "ideas": [
+   "GMAT authors are usually moderate: qualified approval, measured scepticism, cautious optimism.",
+   "Adjectives and hedging words reveal the tone."
+  ],
+  "formulas": [],
+  "method": [
+   "Collect the words that show the author’s opinion.",
+   "Choose the answer with the same strength and direction."
+  ],
+  "traps": [
+   "Extreme emotions (outrage, contempt) are almost never right.",
+   "Confusing the author’s tone with the tone of views the author reports."
+  ],
+  "shortcuts": []
+ }
+]

@@ -1,0 +1,70 @@
+[
+ {
+  "id": "format",
+  "title": "The exam",
+  "points": [
+   "Three sections of 45 minutes each: Quantitative Reasoning (21 questions, Problem Solving only), Verbal Reasoning (23 questions, Reading Comprehension and Critical Reasoning), Data Insights (20 questions: Data Sufficiency, Table Analysis, Graphics Interpretation, Multi-Source Reasoning, Two-Part Analysis).",
+   "You choose the order of the sections before the exam starts, and you may take one optional 10-minute break after the first or second section.",
+   "Each section adapts to you question by question: getting questions right leads to harder ones.",
+   "You must answer each question to move on; you cannot go back during the section.",
+   "You can bookmark questions and, if time is left at the end of a section, review any question and change up to 3 answers.",
+   "An on-screen calculator is available only in Data Insights.",
+   "Scores: total 205–805, each section 60–90, all three weigh the same.",
+   "Unanswered questions at the end of a section lower the score: always answer every question."
+  ]
+ },
+ {
+  "id": "pacing",
+  "title": "Pacing",
+  "points": [
+   "Average time per question: Quant about 2:09, Verbal about 1:57, Data Insights about 2:15.",
+   "Checkpoints (GMAT Lab’s advice): in Quant, about 7 questions every 15 minutes; in Verbal about 8; in Data Insights about 7.",
+   "If a question passes about 3 minutes with no clear path, eliminate what you can, guess, bookmark it and move on.",
+   "In the last 2–3 minutes, make sure every remaining question gets an answer.",
+   "Reading Comprehension passages take time up front: the first question on a passage takes longer, the next ones less."
+  ]
+ },
+ {
+  "id": "review",
+  "title": "Bookmarks and answer changes",
+  "points": [
+   "Bookmark only questions where you guessed or were unsure.",
+   "At the end, go back to bookmarked questions first.",
+   "Change an answer only with a clear reason: first instincts are right more often than second-guessing.",
+   "You have at most 3 changes per section, so spend them where you found a concrete error."
+  ]
+ },
+ {
+  "id": "cr",
+  "title": "How to read a Critical Reasoning argument",
+  "points": [
+   "Read the question stem first: it tells you what to look for (weaken, assumption, inference…).",
+   "In the argument, find the conclusion, then the premises that support it.",
+   "Name the gap: what does the author take for granted?",
+   "Predict the answer in your own words before reading the choices.",
+   "Eliminate choices that are out of scope, too extreme, or that do the opposite of what is asked."
+  ]
+ },
+ {
+  "id": "rc",
+  "title": "How to read a passage",
+  "points": [
+   "Read for structure: the main point, what each paragraph does, and where the author gives an opinion.",
+   "Watch contrast words (however, but, yet, although): the key idea usually follows them.",
+   "Keep a short map: one line per paragraph.",
+   "Do not memorise details: go back to the text when a question asks for them.",
+   "Spend about 2–3 minutes reading a long passage; the questions go faster afterwards."
+  ]
+ },
+ {
+  "id": "ds",
+  "title": "Data Sufficiency in 30 seconds",
+  "points": [
+   "Rephrase the question first.",
+   "Statement 1 alone → A or D if sufficient; B, C or E if not.",
+   "Statement 2 alone, forgetting statement 1.",
+   "Combine only if both are insufficient alone.",
+   "Test numbers that the question allows, including 0, negatives and fractions."
+  ]
+ }
+]
