@@ -1,0 +1,1963 @@
+[
+ {
+  "id": "vc01",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Strengthen",
+  "subtopic": "Causal plan from a comparison",
+  "skill": "Ruling out selection effects",
+  "difficulty": 3,
+  "expectedSec": 105,
+  "stem": "Last year the city of Norham replaced the streetlights in six of its twelve districts with brighter LED lamps. Over the following year, nighttime traffic accidents in those six districts fell by 22 percent, while in the other six districts they stayed about the same. The city therefore plans to install LED lamps in all of its districts in order to reduce nighttime accidents.\n\nWhich of the following, if true, most strongly supports the city's plan?",
+  "choices": [
+   "LED lamps use less electricity than the lamps they replaced.",
+   "The six districts that received LED lamps were chosen by lottery from all twelve districts.",
+   "Daytime traffic accidents also fell in the six districts that received LED lamps.",
+   "Most drivers surveyed in Norham said they prefer driving under LED lamps.",
+   "Some districts that kept their old lamps have fewer nighttime accidents than some districts with LED lamps."
+  ],
+  "answer": 1,
+  "hints": [
+   "What does the plan assume about why accidents fell?",
+   "The evidence compares two groups of districts. What could make that comparison unfair?",
+   "Key idea: a causal plan is strengthened by ruling out other differences between the groups being compared.",
+   "Look for an option showing that the two groups of districts were alike apart from the lamps."
+  ],
+  "method": "Plan: LED lamps will cut accidents everywhere. The evidence is a comparison of districts, which is convincing only if the districts differed in nothing but the lamps. B (chosen by lottery) rules out a selection effect.",
+  "trap": "C sounds like good news for the lamps, but lamps cannot prevent daytime accidents, so it suggests another cause.",
+  "diagnosis": [
+   {
+    "why": "Saving electricity is a different benefit; the plan's goal is fewer accidents.",
+    "type": "Interpretation"
+   },
+   null,
+   {
+    "why": "Lighting cannot explain fewer daytime accidents, so this points to some other cause at work in those districts: it weakens.",
+    "type": "Logic"
+   },
+   {
+    "why": "Liking the lamps is not the same as having fewer accidents under them.",
+    "type": "Trap"
+   },
+   {
+    "why": "The evidence is about changes in each group of districts; comparing accident levels between single districts says nothing about the lamps' effect.",
+    "type": "Reading"
+   }
+  ],
+  "solution": "B is correct: a lottery makes it unlikely that the six districts differed in some other way that explains the fall, so the lamps become the most likely cause. A: Saving electricity is a different benefit; the plan's goal is fewer accidents. C: Lighting cannot explain fewer daytime accidents, so this points to some other cause at work in those districts: it weakens. D: Liking the lamps is not the same as having fewer accidents under them. E: The evidence is about changes in each group of districts; comparing accident levels between single districts says nothing about the lamps' effect."
+ },
+ {
+  "id": "vc02",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Strengthen",
+  "subtopic": "Closing an alternative explanation",
+  "skill": "Evidence-to-conclusion gap",
+  "difficulty": 4,
+  "expectedSec": 110,
+  "stem": "At a coastal cave site, archaeologists found the bones of several deep-sea fish species in layers dated to about 42,000 years ago. They concluded that the people who lived at the site had the skills and equipment to fish in deep water far from shore.\n\nWhich of the following, if true, most strengthens the archaeologists' conclusion?",
+  "choices": [
+   "The cave was occupied only during the warmer months of the year.",
+   "The same layers also contained the bones of fish that live in shallow coastal waters.",
+   "Deep-sea fish contain more fat than most fish that live near the shore.",
+   "The fish species in question never enter shallow water, and their bodies are not washed ashore when they die.",
+   "Stone tools found at other sites of the same age appear to have been used to make fishing hooks."
+  ],
+  "answer": 3,
+  "hints": [
+   "Is there another way deep-sea fish bones could end up in a coastal cave?",
+   "The conclusion is about skills and equipment; the evidence is only about bones.",
+   "Key idea: strengthen a conclusion by closing off other explanations of the evidence.",
+   "Predict: the fish could not have been obtained anywhere near the shore."
+  ],
+  "method": "Evidence: deep-sea fish bones at the site. Conclusion: people fished in deep water. The gap: the fish might have been found on the shore. D closes it.",
+  "trap": "C gives a motive for deep-sea fishing, but a motive is not an ability.",
+  "altMethod": "Negate D: if the fish did wash ashore, people could simply have collected them, and the conclusion collapses.",
+  "diagnosis": [
+   {
+    "why": "When the cave was used has no bearing on how the fish were obtained.",
+    "type": "Reading"
+   },
+   {
+    "why": "Shallow-water fish show fishing near the shore; they say nothing about deep water.",
+    "type": "Reading"
+   },
+   {
+    "why": "A reason to want deep-sea fish is not evidence that people could catch them.",
+    "type": "Interpretation"
+   },
+   null,
+   {
+    "why": "Tools at other sites do not show what the people at this site could do, nor that hooks worked in deep water.",
+    "type": "Logic"
+   }
+  ],
+  "solution": "D is correct: if the fish never come near the shore and are not washed up, the only way their bones reached the cave is that people caught them in deep water. A: When the cave was used has no bearing on how the fish were obtained. B: Shallow-water fish show fishing near the shore; they say nothing about deep water. C: A reason to want deep-sea fish is not evidence that people could catch them. E: Tools at other sites do not show what the people at this site could do, nor that hooks worked in deep water."
+ },
+ {
+  "id": "vc03",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Strengthen",
+  "subtopic": "Plan based on a trial",
+  "skill": "Linking effect to cause",
+  "difficulty": 4,
+  "expectedSec": 110,
+  "stem": "Last year the Kirkby library system extended the evening opening hours of five of its fourteen branches from 8 p.m. to 10 p.m. Book loans at those five branches rose by 12 percent over the year. The system's director proposes extending the hours of every branch in order to increase book loans.\n\nWhich of the following, if true, most strongly supports the director's proposal?",
+  "choices": [
+   "Most of the additional loans at the five branches were made between 8 p.m. and 10 p.m.",
+   "Many borrowers told library staff that they would welcome longer opening hours.",
+   "Before the change, the five branches already lent more books per day than the other branches.",
+   "The cost of staffing the extra hours at the five branches was covered by a grant.",
+   "Over the same year, book loans at the nine other branches rose by 11 percent."
+  ],
+  "answer": 0,
+  "hints": [
+   "What would show that the rise came from the new hours rather than from something else?",
+   "Where in the day should the extra loans appear if the director is right?",
+   "Key idea: evidence that ties the effect to the specific change is the strongest support.",
+   "Predict: the additional loans took place during the added hours."
+  ],
+  "method": "Proposal: longer hours will raise loans everywhere. A links the rise to the added hours themselves.",
+  "trap": "E looks like neutral background, but it shows the rise happened without the change too.",
+  "diagnosis": [
+   null,
+   {
+    "why": "Saying you would welcome longer hours is not the same as borrowing more books because of them.",
+    "type": "Trap"
+   },
+   {
+    "why": "A difference in levels before the change does not show that the new hours caused the rise; if anything, it hints that these branches differ in other ways.",
+    "type": "Logic"
+   },
+   {
+    "why": "Who pays for the hours says nothing about whether the hours raise loans.",
+    "type": "Interpretation"
+   },
+   {
+    "why": "If loans rose almost as much without longer hours, the extra hours explain little of the rise: this weakens.",
+    "type": "Logic"
+   }
+  ],
+  "solution": "A is correct: if the extra loans happened in the new evening hours, the longer hours are the likely source of the rise. B: Saying you would welcome longer hours is not the same as borrowing more books because of them. C: A difference in levels before the change does not show that the new hours caused the rise; if anything, it hints that these branches differ in other ways. D: Who pays for the hours says nothing about whether the hours raise loans. E: If loans rose almost as much without longer hours, the extra hours explain little of the rise: this weakens."
+ },
+ {
+  "id": "vc04",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Strengthen",
+  "subtopic": "Causal hypothesis from a trial",
+  "skill": "Control groups",
+  "difficulty": 5,
+  "expectedSec": 120,
+  "stem": "In a year-long trial, patients with arthritis were randomly assigned to take either a new drug, Z, or a placebo. By the end of the trial, the patients taking Z reported 40 percent fewer headaches than they had reported in the year before the trial. The researchers hypothesize that drug Z reduces the frequency of headaches.\n\nWhich of the following, if true, most strengthens the researchers' hypothesis?",
+  "choices": [
+   "Patients taking Z were told that the drug had already been tested on thousands of people.",
+   "Drug Z costs more than the arthritis drugs most of the patients took before the trial.",
+   "Some patients taking Z still reported frequent headaches at the end of the trial.",
+   "Over the same year, patients taking the placebo reported about as many headaches as they had in the year before the trial.",
+   "Headaches are more common among people with arthritis than among people without it."
+  ],
+  "answer": 3,
+  "hints": [
+   "The evidence compares the Z group with its own past. What else could have changed over that year?",
+   "The trial had a second group. What should that group show if Z works?",
+   "Key idea: a control group rules out time, season and the effect of simply being in a trial.",
+   "Predict: the placebo group's headaches did not fall."
+  ],
+  "method": "Hypothesis: Z reduces headaches. The before–after comparison alone cannot rule out other causes; D uses the control group to rule them out.",
+  "trap": "Without the placebo comparison, the fall could come from time, the season, or the attention of being in a trial.",
+  "diagnosis": [
+   {
+    "why": "Reassuring patients could create an expectation effect, another possible cause of the fall: if anything it weakens.",
+    "type": "Logic"
+   },
+   {
+    "why": "Price has no bearing on whether Z prevents headaches.",
+    "type": "Interpretation"
+   },
+   {
+    "why": "An average fall of 40 percent allows some patients to keep having headaches.",
+    "type": "Logic"
+   },
+   null,
+   {
+    "why": "This is background about arthritis patients in general; it does not connect Z to fewer headaches.",
+    "type": "Reading"
+   }
+  ],
+  "solution": "D is correct: the placebo group shows what would have happened without Z; since their headaches did not fall, the fall in the Z group is likely due to Z. A: Reassuring patients could create an expectation effect, another possible cause of the fall: if anything it weakens. B: Price has no bearing on whether Z prevents headaches. C: An average fall of 40 percent allows some patients to keep having headaches. E: This is background about arthritis patients in general; it does not connect Z to fewer headaches."
+ },
+ {
+  "id": "vc05",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Strengthen",
+  "subtopic": "Causal claim from a before–after change",
+  "skill": "Dose–response support",
+  "difficulty": 6,
+  "expectedSec": 135,
+  "stem": "Public health researcher: In the five towns in our region that opened public swimming pools three years ago, emergency-room visits for heat-related illness during summer heat waves have since fallen by a third. I conclude that the pools helped residents stay cool during heat waves.\n\nWhich of the following, if true, most strengthens the researcher's conclusion?",
+  "choices": [
+   "Many of the people who used the pools during heat waves were children.",
+   "Building a public pool costs considerably more than opening an air-conditioned cooling center.",
+   "Emergency rooms in the five towns hired additional nurses over the past three years.",
+   "The heat waves of the past three summers were somewhat milder than those of the years before.",
+   "In each of the five towns, the fall in heat-related visits was largest among residents who live within walking distance of the pool."
+  ],
+  "answer": 4,
+  "hints": [
+   "What pattern would you expect in the data if the pools really caused the fall?",
+   "Who could use a pool most easily during a heat wave?",
+   "Key idea: a 'dose–response' pattern — more exposure, more effect — supports a causal claim.",
+   "Predict: people living closest to the pools benefited most."
+  ],
+  "method": "Conclusion: the pools reduced heat illness. E shows the fall is concentrated where access to the pools is easiest, a pattern that other causes (weather, hospital staffing) would not produce.",
+  "trap": "D and C look related to heat or hospitals, but they are rival explanations or irrelevant.",
+  "diagnosis": [
+   {
+    "why": "Who used the pools does not show that pool use reduced illness.",
+    "type": "Reading"
+   },
+   {
+    "why": "Cost compares policies; it says nothing about whether the pools worked.",
+    "type": "Interpretation"
+   },
+   {
+    "why": "More nurses change how visits are handled, not how many people fall ill from heat.",
+    "type": "Overthinking"
+   },
+   {
+    "why": "Milder heat waves are a rival explanation for fewer visits: this weakens.",
+    "type": "Logic"
+   },
+   null
+  ],
+  "solution": "E is correct: if the benefit is greatest for the people who could most easily use the pools, the pools are the likely cause — the effect follows access, as it should. A: Who used the pools does not show that pool use reduced illness. B: Cost compares policies; it says nothing about whether the pools worked. C: More nurses change how visits are handled, not how many people fall ill from heat. D: Milder heat waves are a rival explanation for fewer visits: this weakens."
+ },
+ {
+  "id": "vc06",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Weaken",
+  "subtopic": "Comparison of two groups",
+  "skill": "Unequal conditions",
+  "difficulty": 3,
+  "expectedSec": 105,
+  "stem": "Last year Brandt Logistics replaced 20 of its 60 delivery vans with electric models. Per kilometer driven, the electric vans' energy and maintenance costs were 30 percent lower than those of the diesel vans. The operations manager concluded that electric vans cost less to run per kilometer than diesel vans and proposed replacing the rest of the fleet.\n\nWhich of the following, if true, most seriously weakens the manager's conclusion?",
+  "choices": [
+   "The drivers of the electric vans said they found them quieter and more comfortable.",
+   "The company installed charging points at its depot before the electric vans arrived.",
+   "The electric vans cost more to buy than the diesel vans did.",
+   "Several other delivery firms have reported similar savings after switching to electric vans.",
+   "The electric vans were assigned to long, flat highway routes, which cost less per kilometer for any van, while the diesel vans kept the stop-and-go city routes."
+  ],
+  "answer": 4,
+  "hints": [
+   "What exactly does the manager conclude — about buying or about running costs?",
+   "The two groups of vans were compared. Were they compared under the same conditions?",
+   "Key idea: a comparison between groups is weakened by a difference between them other than the one being tested.",
+   "Predict: the electric vans were used in easier, cheaper conditions."
+  ],
+  "method": "Conclusion: electric vans are cheaper to run per kilometer. E shows the comparison was unfair: the routes, not the vans, could explain the difference.",
+  "trap": "C feels like a strong objection to the proposal, but it attacks a claim the manager did not make.",
+  "diagnosis": [
+   {
+    "why": "Comfort is not cost.",
+    "type": "Interpretation"
+   },
+   {
+    "why": "How the vans are charged is setup; it does not explain the difference in running costs.",
+    "type": "Reading"
+   },
+   {
+    "why": "The purchase price is not a running cost; the conclusion is only about cost per kilometer driven.",
+    "type": "Trap"
+   },
+   {
+    "why": "Similar results elsewhere support the conclusion rather than weaken it.",
+    "type": "Logic"
+   },
+   null
+  ],
+  "solution": "E is correct: if the electric vans drove the cheapest routes and the diesel vans the most expensive ones, the 30 percent gap may come from the routes, not from the type of van. A: Comfort is not cost. B: How the vans are charged is setup; it does not explain the difference in running costs. C: The purchase price is not a running cost; the conclusion is only about cost per kilometer driven. D: Similar results elsewhere support the conclusion rather than weaken it."
+ },
+ {
+  "id": "vc07",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Weaken",
+  "subtopic": "Survey to population",
+  "skill": "Unrepresentative sample",
+  "difficulty": 4,
+  "expectedSec": 105,
+  "stem": "Columnist: In an online poll on our newspaper's website, 70 percent of the 5,000 respondents opposed the proposed football stadium. Clearly, most of the city's residents are against the stadium.\n\nWhich of the following, if true, most seriously weakens the columnist's argument?",
+  "choices": [
+   "Five thousand respondents is a larger number than most polls of city residents include.",
+   "The stadium would be paid for partly by a private company.",
+   "Most readers of the newspaper's website live in the neighborhoods next to the proposed site, which would bear the stadium's traffic and noise.",
+   "Some of the respondents who opposed the stadium support other large public building projects.",
+   "A similar poll five years ago found that 60 percent of respondents opposed a new concert hall."
+  ],
+  "answer": 2,
+  "hints": [
+   "The evidence is about poll respondents; the conclusion is about all residents. What must be true for that jump?",
+   "Who answers an online poll on a newspaper's website?",
+   "Key idea: a survey supports a conclusion about a population only if the sample represents that population.",
+   "Predict: the respondents are unusual in a way that affects their view of the stadium."
+  ],
+  "method": "From 'respondents oppose' to 'residents oppose' requires a representative sample. C shows the respondents are the residents most affected, so the sample is biased.",
+  "trap": "A answers a sample-size worry that the argument does not have; size cannot fix bias.",
+  "diagnosis": [
+   {
+    "why": "A large sample does not help if the sample is biased; if anything, this seems to support the columnist.",
+    "type": "Trap"
+   },
+   {
+    "why": "How the stadium is financed does not affect whether the poll represents the city.",
+    "type": "Interpretation"
+   },
+   null,
+   {
+    "why": "Respondents' views on other projects do not affect what this poll shows.",
+    "type": "Reading"
+   },
+   {
+    "why": "A different poll on a different project says nothing about how representative this one is.",
+    "type": "Reading"
+   }
+  ],
+  "solution": "C is correct: if the respondents come mostly from the neighborhoods that would suffer from the stadium, they are not representative of the city, and the 70 percent cannot be applied to all residents. A: A large sample does not help if the sample is biased; if anything, this seems to support the columnist. B: How the stadium is financed does not affect whether the poll represents the city. D: Respondents' views on other projects do not affect what this poll shows. E: A different poll on a different project says nothing about how representative this one is."
+ },
+ {
+  "id": "vc08",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Weaken",
+  "subtopic": "Plan and its mechanism",
+  "skill": "Alternative source",
+  "difficulty": 4,
+  "expectedSec": 110,
+  "stem": "Park manager: Most of the litter in Hartwell Park is found more than 100 meters from the nearest trash bin. So if we double the number of bins, placing the new ones in the areas that are now farthest from a bin, the amount of litter in the park will fall substantially.\n\nWhich of the following, if true, most seriously weakens the manager's argument?",
+  "choices": [
+   "Visitors spend most of their time in the parts of the park that are farthest from the existing bins.",
+   "Most of the litter in the park is blown in by the wind from a busy road along the park's edge rather than dropped by visitors.",
+   "Some visitors who drop litter right next to a bin say they did not notice the bin.",
+   "Parks in neighboring towns that have more bins per hectare have less litter.",
+   "The new bins will cost less than hiring additional cleaning staff."
+  ],
+  "answer": 1,
+  "hints": [
+   "What does the manager assume about who produces the litter?",
+   "Bins help only with litter that people would otherwise drop.",
+   "Key idea: a plan is weakened by showing that its mechanism does not reach the main cause of the problem.",
+   "Predict: the litter does not come from visitors."
+  ],
+  "method": "Argument: litter is far from bins → more bins → less litter. It assumes visitors drop the litter for lack of a bin. B shows the litter has another source.",
+  "trap": "A and D look like facts about bins and litter, but both support the manager.",
+  "diagnosis": [
+   {
+    "why": "If visitors spend their time far from the bins, new bins there are more likely to help: this strengthens.",
+    "type": "Logic"
+   },
+   null,
+   {
+    "why": "This is about litter next to bins, which new bins elsewhere would not affect either way.",
+    "type": "Reading"
+   },
+   {
+    "why": "A comparison in which more bins go with less litter supports the manager.",
+    "type": "Logic"
+   },
+   {
+    "why": "Cost is not the issue; the argument predicts less litter.",
+    "type": "Interpretation"
+   }
+  ],
+  "solution": "B is correct: if most of the litter comes from the road and not from visitors, more bins for visitors will do little to reduce it. A: If visitors spend their time far from the bins, new bins there are more likely to help: this strengthens. C: This is about litter next to bins, which new bins elsewhere would not affect either way. D: A comparison in which more bins go with less litter supports the manager. E: Cost is not the issue; the argument predicts less litter."
+ },
+ {
+  "id": "vc09",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Weaken",
+  "subtopic": "Percent vs amount",
+  "skill": "Share of a changing total",
+  "difficulty": 5,
+  "expectedSec": 115,
+  "stem": "Minister: Five years ago, solar power supplied 4 percent of the electricity generated in our country; today it supplies 8 percent. Our policies have therefore doubled the amount of electricity generated from solar power.\n\nWhich of the following, if true, most seriously weakens the minister's argument?",
+  "choices": [
+   "The share of electricity generated by wind power also rose over the past five years.",
+   "Most of the solar capacity built in the past five years was paid for by private companies.",
+   "Over the past five years, the country's total electricity generation fell by almost half as heavy industry moved abroad.",
+   "The minister's party promised during the last election to double the use of solar power.",
+   "Solar panels have become much cheaper over the past five years."
+  ],
+  "answer": 2,
+  "hints": [
+   "The evidence is a percentage; the conclusion is an amount. What links the two?",
+   "A share can double because the part grows or because the whole shrinks.",
+   "Key idea: a change in a percentage says nothing about amounts unless the total is known.",
+   "Predict: the total amount of electricity generated fell."
+  ],
+  "method": "8% of a smaller total can equal 4% of the old total. C shows the total fell by about half, so solar generation may not have grown at all.",
+  "trap": "D questions the minister's motives, which is not evidence against the conclusion.",
+  "diagnosis": [
+   {
+    "why": "Wind's share is irrelevant to how much solar electricity is generated.",
+    "type": "Reading"
+   },
+   {
+    "why": "Who paid bears on credit for the policy, but the argument's weak point is the move from share to amount.",
+    "type": "Interpretation"
+   },
+   null,
+   {
+    "why": "A motive to claim success does not make the claim false: attacking the speaker is not a weakener.",
+    "type": "Trap"
+   },
+   {
+    "why": "Cheaper panels make growth in solar more plausible; they do not weaken the claim.",
+    "type": "Logic"
+   }
+  ],
+  "solution": "C is correct: if total generation nearly halved, a doubled share is consistent with almost no change in the amount of solar electricity. A: Wind's share is irrelevant to how much solar electricity is generated. B: Who paid bears on credit for the policy, but the argument's weak point is the move from share to amount. D: A motive to claim success does not make the claim false: attacking the speaker is not a weakener. E: Cheaper panels make growth in solar more plausible; they do not weaken the claim."
+ },
+ {
+  "id": "vc10",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Weaken",
+  "subtopic": "Group data to individual conclusion",
+  "skill": "Ecological fallacy",
+  "difficulty": 6,
+  "expectedSec": 130,
+  "stem": "A study of 40 cities found that the higher the percentage of residents who own a dog, the more minutes per day the average resident spends walking. The researchers concluded that owning a dog leads people to walk more.\n\nWhich of the following, if true, most seriously weakens the researchers' conclusion?",
+  "choices": [
+   "In most of the 40 cities, fewer than half of the residents own a dog.",
+   "The study measured walking with step counters rather than with questionnaires.",
+   "Some of the cities with the most dog owners also have the highest rates of car ownership.",
+   "Within each of the 40 cities, residents who own a dog walk no more, on average, than residents who do not.",
+   "Dog owners in the 40 cities walk their dogs mostly in the morning and in the evening."
+  ],
+  "answer": 3,
+  "hints": [
+   "Is the evidence about individual people or about whole cities?",
+   "Could a city with many dog owners have walkers who are not the dog owners?",
+   "Key idea: a pattern across groups does not show the same pattern among individuals.",
+   "Predict: inside each city, dog owners do not walk more than other residents."
+  ],
+  "method": "The study compares cities; the conclusion is about what dog ownership does to a person. D shows the link disappears at the individual level, so a feature of the cities (parks, climate, layout) likely drives both.",
+  "trap": "A and C feel like objections but do not break the link between owning a dog and walking.",
+  "diagnosis": [
+   {
+    "why": "A city-level relationship can exist even when dog owners are a minority.",
+    "type": "Trap"
+   },
+   {
+    "why": "Better measurement makes the study's finding more reliable, if anything.",
+    "type": "Logic"
+   },
+   {
+    "why": "High car ownership would, if anything, make the walking figures in those cities more surprising; it does not undercut the link.",
+    "type": "Overthinking"
+   },
+   null,
+   {
+    "why": "When dog owners walk has no bearing on whether owning a dog makes people walk more.",
+    "type": "Reading"
+   }
+  ],
+  "solution": "D is correct: the conclusion is about individuals, but the evidence is about cities; if within each city dog owners walk no more than others, something about the cities, not dog ownership, explains the pattern. A: A city-level relationship can exist even when dog owners are a minority. B: Better measurement makes the study's finding more reliable, if anything. C: High car ownership would, if anything, make the walking figures in those cities more surprising; it does not undercut the link. E: When dog owners walk has no bearing on whether owning a dog makes people walk more."
+ },
+ {
+  "id": "vc11",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Assumption",
+  "subtopic": "Plan assumption",
+  "skill": "Negation test",
+  "difficulty": 3,
+  "expectedSec": 100,
+  "stem": "Café owner: Customers often complain that they wait too long for their coffee. If we install a second espresso machine, the wait will become shorter.\n\nThe owner's argument depends on which of the following assumptions?",
+  "choices": [
+   "Customers would be willing to pay slightly more for faster service.",
+   "A second espresso machine will cost less than the first one did.",
+   "The wait is caused mainly by the time needed to make the drinks rather than by the time needed to order and pay.",
+   "No other café nearby has two espresso machines.",
+   "Most of the complaints are made during the busiest hours of the day."
+  ],
+  "answer": 2,
+  "hints": [
+   "What must be true for a second machine to shorten the wait?",
+   "Where could the wait come from, other than making the drinks?",
+   "Key idea: test each option by negating it — a necessary assumption, once negated, breaks the argument.",
+   "Negate C: the wait comes mostly from ordering and paying. Does the plan still work?"
+  ],
+  "method": "The plan speeds up drink-making. It works only if drink-making is what causes the wait. Negating C breaks the argument.",
+  "trap": "E sounds relevant to complaints, but the argument does not need the complaints to cluster at any time.",
+  "diagnosis": [
+   {
+    "why": "Willingness to pay is irrelevant to whether the wait gets shorter.",
+    "type": "Interpretation"
+   },
+   {
+    "why": "The machine's price does not affect the length of the wait.",
+    "type": "Interpretation"
+   },
+   null,
+   {
+    "why": "What other cafés have is irrelevant to this café's wait.",
+    "type": "Reading"
+   },
+   {
+    "why": "When complaints happen does not matter to the argument; the plan could work at any hour.",
+    "type": "Overthinking"
+   }
+  ],
+  "solution": "C is correct: if the queue at the till is the bottleneck, a second machine would not shorten the wait: negate this and the argument falls apart. A: Willingness to pay is irrelevant to whether the wait gets shorter. B: The machine's price does not affect the length of the wait. D: What other cafés have is irrelevant to this café's wait. E: When complaints happen does not matter to the argument; the plan could work at any hour."
+ },
+ {
+  "id": "vc12",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Assumption",
+  "subtopic": "From one group to another",
+  "skill": "Negation test",
+  "difficulty": 4,
+  "expectedSec": 110,
+  "stem": "People who cycle to work are, on average, healthier than people who drive to work. Therefore the city's new program, which pays commuters a small monthly amount for cycling to work, will improve the health of the city's residents.\n\nThe argument depends on the assumption that",
+  "choices": [
+   "most people who now drive to work would be willing to cycle if they were paid to do so",
+   "cycling is the healthiest way to travel to work",
+   "people who start cycling because of the payments will gain at least some of the health benefits that current cyclists enjoy",
+   "the program will cost the city less than it saves in health care",
+   "people who now cycle to work started cycling because they were already healthy"
+  ],
+  "answer": 2,
+  "hints": [
+   "The evidence is about people who cycle now. The conclusion is about people who will start. What must link the two?",
+   "Could current cyclists be healthier for reasons that new cyclists would not share?",
+   "Key idea: an argument that moves from one group to another assumes the groups respond alike.",
+   "Negate C: new cyclists gain no benefit. Is the conclusion still supported?"
+  ],
+  "method": "From 'cyclists are healthier' to 'paying people to cycle improves health' requires that cycling benefits those who start because of the payments. Negating C destroys the conclusion.",
+  "trap": "A and B are too strong: the argument can work without them.",
+  "diagnosis": [
+   {
+    "why": "The program need not convince most drivers; improving health requires only that some who switch benefit.",
+    "type": "Overthinking"
+   },
+   {
+    "why": "Cycling need only be healthier than driving, not the healthiest option of all.",
+    "type": "Overthinking"
+   },
+   null,
+   {
+    "why": "Cost is irrelevant to whether health improves.",
+    "type": "Interpretation"
+   },
+   {
+    "why": "If current cyclists were healthy to begin with, cycling may not cause the health gap: this weakens the argument rather than being assumed by it.",
+    "type": "Logic"
+   }
+  ],
+  "solution": "C is correct: if the new cyclists gained none of the benefits, paying them to cycle would not improve anyone's health. A: The program need not convince most drivers; improving health requires only that some who switch benefit. B: Cycling need only be healthier than driving, not the healthiest option of all. D: Cost is irrelevant to whether health improves. E: If current cyclists were healthy to begin with, cycling may not cause the health gap: this weakens the argument rather than being assumed by it."
+ },
+ {
+  "id": "vc13",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Assumption",
+  "subtopic": "Argument by analogy",
+  "skill": "Relevant similarity",
+  "difficulty": 4,
+  "expectedSec": 110,
+  "stem": "City council member: Since protected bike lanes were built on Elm Street two years ago, the number of cyclists injured there each year has fallen by half. So building similar lanes on Oak Street will reduce the number of cyclists injured on Oak Street.\n\nThe council member's argument relies on which of the following assumptions?",
+  "choices": [
+   "No cyclists have been injured on Elm Street since the lanes were built.",
+   "The main causes of cyclist injuries on Oak Street are ones that protected bike lanes can prevent, as they did on Elm Street.",
+   "Drivers who use Oak Street support building the lanes.",
+   "More cyclists ride on Oak Street than on Elm Street.",
+   "Protected bike lanes are the most effective way to reduce injuries to cyclists."
+  ],
+  "answer": 1,
+  "hints": [
+   "What does the argument take for granted when it applies Elm Street's result to Oak Street?",
+   "Could the two streets differ in why cyclists get hurt?",
+   "Key idea: an argument by analogy assumes the two cases are alike in the ways that matter.",
+   "Negate B: on Oak Street, injuries come mostly from something lanes do not prevent."
+  ],
+  "method": "Analogy from Elm to Oak. It assumes the relevant similarity: Oak's injuries are the kind lanes prevent. Negating B breaks it.",
+  "trap": "E and A are extreme versions of claims the argument does not need.",
+  "diagnosis": [
+   {
+    "why": "The argument says injuries fell by half, not to zero, and does not need zero.",
+    "type": "Reading"
+   },
+   null,
+   {
+    "why": "Drivers' support is irrelevant to whether injuries fall.",
+    "type": "Interpretation"
+   },
+   {
+    "why": "The number of cyclists does not need to be larger; lanes could cut injuries either way.",
+    "type": "Overthinking"
+   },
+   {
+    "why": "The lanes need only reduce injuries, not be the best possible measure.",
+    "type": "Overthinking"
+   }
+  ],
+  "solution": "B is correct: if Oak Street's injuries came from causes lanes cannot address, the Elm Street result would not carry over. A: The argument says injuries fell by half, not to zero, and does not need zero. C: Drivers' support is irrelevant to whether injuries fall. D: The number of cyclists does not need to be larger; lanes could cut injuries either way. E: The lanes need only reduce injuries, not be the best possible measure."
+ },
+ {
+  "id": "vc14",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Assumption",
+  "subtopic": "Averages vs typical cases",
+  "skill": "Negation test",
+  "difficulty": 5,
+  "expectedSec": 125,
+  "stem": "Over the past five years, the average price of a house in Lindon rose by 10 percent, while average household income in Lindon rose by 12 percent. Therefore buying a house in Lindon has become more affordable for the typical Lindon household.\n\nWhich of the following is an assumption on which the argument depends?",
+  "choices": [
+   "Mortgage interest rates fell over the past five years.",
+   "The rise in average household income was not driven mainly by large increases for a small number of very high-income households.",
+   "Houses in Lindon are more affordable than houses in neighboring towns.",
+   "The number of houses for sale in Lindon did not change over the past five years.",
+   "House prices in Lindon will not rise faster than incomes over the next five years."
+  ],
+  "answer": 1,
+  "hints": [
+   "The evidence is about averages. The conclusion is about the typical household. Are those the same?",
+   "How could average income rise by 12 percent while most households gain far less?",
+   "Key idea: an average can be pulled by a few extreme values; a conclusion about the typical case assumes it is not.",
+   "Negate B: the rise came mostly from a few very rich households. Is the conclusion still supported?"
+  ],
+  "method": "Average income ↑12% vs price ↑10%. To conclude about the typical household, the argument assumes the average rise reflects typical incomes. Negating B breaks it.",
+  "trap": "A is tempting because rates matter to affordability, but a fall is not required — only not a sharp rise.",
+  "diagnosis": [
+   {
+    "why": "Falling rates would make houses even more affordable, but the argument does not need them to fall.",
+    "type": "Overthinking"
+   },
+   null,
+   {
+    "why": "The argument compares Lindon with its own past, not with other towns.",
+    "type": "Reading"
+   },
+   {
+    "why": "The number of houses for sale does not affect the price-to-income comparison.",
+    "type": "Interpretation"
+   },
+   {
+    "why": "The conclusion is about the past five years, not the future.",
+    "type": "Reading"
+   }
+  ],
+  "solution": "B is correct: an average can rise because a few incomes soar while the typical household's income barely moves; the argument needs the average to reflect the typical household. A: Falling rates would make houses even more affordable, but the argument does not need them to fall. C: The argument compares Lindon with its own past, not with other towns. D: The number of houses for sale does not affect the price-to-income comparison. E: The conclusion is about the past five years, not the future."
+ },
+ {
+  "id": "vc15",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Assumption",
+  "subtopic": "Outcome credited to one cause",
+  "skill": "Negation test",
+  "difficulty": 6,
+  "expectedSec": 130,
+  "stem": "Automaker spokesperson: Of the cars covered by last year's safety recall, 95 percent have now been brought to dealers for the free repair. Our campaign of letters and advertisements about the recall therefore reached at least 95 percent of the affected owners.\n\nThe spokesperson's argument depends on which of the following assumptions?",
+  "choices": [
+   "The defect covered by the recall could cause serious accidents.",
+   "Most owners who have not brought their cars in never received a recall letter.",
+   "Owners who brought their cars in for the repair learned of the recall through the automaker's letters or advertisements rather than only through other sources.",
+   "The repair was offered free of charge to every affected owner.",
+   "Cars that have been repaired will not develop the defect again."
+  ],
+  "answer": 2,
+  "hints": [
+   "The evidence is about cars repaired; the conclusion is about owners reached by the campaign.",
+   "Could an owner have come in without ever seeing the letters or advertisements?",
+   "Key idea: a conclusion that credits one cause for an outcome assumes the outcome did not come from other causes.",
+   "Negate C: most owners learned of the recall elsewhere. What happens to the conclusion?"
+  ],
+  "method": "The spokesperson treats every repair as proof that the campaign reached the owner. That requires that owners learned of the recall from the campaign. Negating C breaks the argument.",
+  "trap": "B is about the 5 percent who did not come in, which the argument does not rely on.",
+  "diagnosis": [
+   {
+    "why": "How dangerous the defect is does not affect whether the campaign reached owners.",
+    "type": "Reading"
+   },
+   {
+    "why": "The argument is about the 95 percent who came in; it needs no claim about why the others did not.",
+    "type": "Overthinking"
+   },
+   null,
+   {
+    "why": "The repair being free is stated, and it does not link the repairs to the campaign.",
+    "type": "Reading"
+   },
+   {
+    "why": "Whether repairs last is unrelated to how owners found out.",
+    "type": "Interpretation"
+   }
+  ],
+  "solution": "C is correct: if many owners heard about the recall only from dealers, mechanics or the news, the 95 percent would not measure the campaign's reach. A: How dangerous the defect is does not affect whether the campaign reached owners. B: The argument is about the 95 percent who came in; it needs no claim about why the others did not. D: The repair being free is stated, and it does not link the repairs to the campaign. E: Whether repairs last is unrelated to how owners found out."
+ },
+ {
+  "id": "vc16",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Evaluate",
+  "subtopic": "Chain of causes",
+  "skill": "Two-way test",
+  "difficulty": 3,
+  "expectedSec": 100,
+  "stem": "The principal of Ridgeway High School plans to start classes an hour later in the morning. She argues that students will then get more sleep, and that better-rested students will earn higher grades.\n\nThe answer to which of the following questions would be most useful in evaluating the principal's argument?",
+  "choices": [
+   "Would students go to bed later if classes started later?",
+   "Do other schools in the district have longer school days than Ridgeway?",
+   "Were Ridgeway students' grades higher last year than the year before?",
+   "Can the school buses run an hour later without extra cost?",
+   "Would most teachers at Ridgeway prefer the later start?"
+  ],
+  "answer": 0,
+  "hints": [
+   "Break the argument into links: later start → more sleep → higher grades.",
+   "Which link is the least certain?",
+   "Key idea: an evaluate question asks for information whose answer would either strengthen or weaken the argument.",
+   "Ask of each option: would a 'yes' and a 'no' push the argument in opposite directions?"
+  ],
+  "method": "The chain is later start → more sleep → better grades. A tests the first link: a 'yes' means no extra sleep (weakens); a 'no' supports it.",
+  "trap": "D is a real practical question, but its answer does not affect whether the reasoning is sound.",
+  "diagnosis": [
+   null,
+   {
+    "why": "Other schools' schedules say nothing about Ridgeway students' sleep.",
+    "type": "Reading"
+   },
+   {
+    "why": "Past grade trends do not test whether the later start will raise grades.",
+    "type": "Reading"
+   },
+   {
+    "why": "Cost and feasibility matter to the plan, but not to whether the reasoning about sleep and grades holds.",
+    "type": "Interpretation"
+   },
+   {
+    "why": "Teachers' preferences do not affect whether students sleep more or earn better grades.",
+    "type": "Interpretation"
+   }
+  ],
+  "solution": "A is correct: if students simply went to bed an hour later, they would get no extra sleep and the argument would fail; if not, the first link holds. B: Other schools' schedules say nothing about Ridgeway students' sleep. C: Past grade trends do not test whether the later start will raise grades. D: Cost and feasibility matter to the plan, but not to whether the reasoning about sleep and grades holds. E: Teachers' preferences do not affect whether students sleep more or earn better grades."
+ },
+ {
+  "id": "vc17",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Evaluate",
+  "subtopic": "Correlation used for a plan",
+  "skill": "Selection vs causation",
+  "difficulty": 4,
+  "expectedSec": 110,
+  "stem": "Retailer: Customers who use our mobile app spend 30 percent more in our stores per year than customers who do not. So if we persuade all our customers to install the app, our revenue will rise substantially.\n\nWhich of the following would it be most useful to know in order to evaluate the retailer's argument?",
+  "choices": [
+   "How much it cost to develop the mobile app",
+   "Whether customers who use the app already spent more than other customers before they installed it",
+   "How many times the app has been downloaded in the past year",
+   "How the app is rated by the customers who use it",
+   "Whether competing retailers also offer mobile apps"
+  ],
+  "answer": 1,
+  "hints": [
+   "Does the 30 percent show that the app causes customers to spend more?",
+   "Who is most likely to install a store's app in the first place?",
+   "Key idea: a correlation supports a causal plan only if the groups were alike before the cause.",
+   "Ask: what was the app users' spending before the app?"
+  ],
+  "method": "Correlation: app users spend more. Plan: get everyone to install it. B checks for reverse selection: loyal big spenders may be the ones who install the app.",
+  "trap": "D feels relevant to whether the app is good, but satisfaction is not spending.",
+  "diagnosis": [
+   {
+    "why": "Development cost is spent already and does not affect whether the app raises spending.",
+    "type": "Interpretation"
+   },
+   null,
+   {
+    "why": "The number of downloads says nothing about whether the app causes higher spending.",
+    "type": "Reading"
+   },
+   {
+    "why": "Customers can like an app that does not change what they spend.",
+    "type": "Trap"
+   },
+   {
+    "why": "Competitors' apps are irrelevant to whether this app raises spending at this retailer.",
+    "type": "Reading"
+   }
+  ],
+  "solution": "B is correct: if big spenders were simply the ones who installed the app, the app does not cause the extra spending and persuading others would not help; if they spent the same before, the app is more likely the cause. A: Development cost is spent already and does not affect whether the app raises spending. C: The number of downloads says nothing about whether the app causes higher spending. D: Customers can like an app that does not change what they spend. E: Competitors' apps are irrelevant to whether this app raises spending at this retailer."
+ },
+ {
+  "id": "vc18",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Evaluate",
+  "subtopic": "Before–after causal claim",
+  "skill": "Comparison group",
+  "difficulty": 5,
+  "expectedSec": 115,
+  "stem": "Ten years ago the country of Veland banned the pesticide DL-4. Since then the population of the red-tailed kite, a bird of prey, has risen by 40 percent. Conservationists conclude that the ban is responsible for the kite's recovery.\n\nThe answer to which of the following questions would be most helpful in evaluating the conservationists' conclusion?",
+  "choices": [
+   "Did most farmers in Veland support the ban on DL-4?",
+   "How long does a red-tailed kite typically live?",
+   "Was DL-4 more expensive than the pesticides that farmers now use instead?",
+   "Do other birds in Veland feed on insects that DL-4 used to kill?",
+   "Did red-tailed kite populations also rise over the same period in neighboring countries where DL-4 was never used?"
+  ],
+  "answer": 4,
+  "hints": [
+   "The argument moves from 'after the ban' to 'because of the ban'. What would test that step?",
+   "Is there a place where the ban could not have played a role?",
+   "Key idea: comparing with a group that lacked the supposed cause tests a causal claim.",
+   "Ask of E: what would a 'yes' mean, and what would a 'no' mean?"
+  ],
+  "method": "Before/after causal claim. E provides a comparison group: a similar rise without the ban weakens the conclusion; no rise there strengthens it.",
+  "trap": "D sounds scientific, but other birds' diets do not bear on the kites' recovery.",
+  "diagnosis": [
+   {
+    "why": "Farmers' opinions do not tell us what caused the recovery.",
+    "type": "Interpretation"
+   },
+   {
+    "why": "Life span alone neither supports nor undermines the ban as the cause.",
+    "type": "Overthinking"
+   },
+   {
+    "why": "The price of pesticides has no bearing on whether the ban helped the kites.",
+    "type": "Interpretation"
+   },
+   {
+    "why": "Other birds' diets do not test the ban's effect on kites.",
+    "type": "Reading"
+   },
+   null
+  ],
+  "solution": "E is correct: if kites recovered just as much where DL-4 was never used, something other than the ban explains the rise; if they did not, the ban is more likely the cause. A: Farmers' opinions do not tell us what caused the recovery. B: Life span alone neither supports nor undermines the ban as the cause. C: The price of pesticides has no bearing on whether the ban helped the kites. D: Other birds' diets do not test the ban's effect on kites."
+ },
+ {
+  "id": "vc19",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Evaluate",
+  "subtopic": "Local change, citywide prediction",
+  "skill": "Displacement",
+  "difficulty": 6,
+  "expectedSec": 125,
+  "stem": "After the city of Marlow installed speed bumps on 30 residential streets, the average speed of cars on those streets fell by 8 kilometers per hour. City officials predict that, as a result, the number of pedestrians injured by cars in Marlow as a whole will fall.\n\nWhich of the following would be most useful to determine in order to evaluate the officials' prediction?",
+  "choices": [
+   "Whether drivers who used to take the 30 streets now take other residential routes that have no speed bumps",
+   "Whether average speeds fell more on some of the 30 streets than on others",
+   "Whether the speed bumps slow down ambulances and fire engines",
+   "Whether the speed bumps cost more to install than the city had budgeted",
+   "Whether residents of the 30 streets complained about noise from cars crossing the bumps"
+  ],
+  "answer": 0,
+  "hints": [
+   "Is the prediction about the 30 streets or about the whole city?",
+   "What could drivers do in response to the bumps?",
+   "Key idea: a local improvement may just move a problem elsewhere; evaluate by checking for displacement.",
+   "Ask of A: how would each answer change the prediction for the whole city?"
+  ],
+  "method": "Evidence: slower traffic on 30 streets. Prediction: fewer injuries citywide. A checks whether traffic moved to other streets, which would decide the citywide effect.",
+  "trap": "B is about the 30 streets only; the prediction's scope is the whole city.",
+  "diagnosis": [
+   null,
+   {
+    "why": "Variation among the 30 streets does not change the overall picture for the city.",
+    "type": "Overthinking"
+   },
+   {
+    "why": "Emergency response times are a different concern from pedestrian injuries caused by cars.",
+    "type": "Reading"
+   },
+   {
+    "why": "The budget does not affect how many pedestrians are injured.",
+    "type": "Interpretation"
+   },
+   {
+    "why": "Noise complaints do not bear on pedestrian injuries.",
+    "type": "Reading"
+   }
+  ],
+  "solution": "A is correct: the prediction is about the whole city; if traffic simply moved to unprotected streets, injuries there could rise and offset the gains. B: Variation among the 30 streets does not change the overall picture for the city. C: Emergency response times are a different concern from pedestrian injuries caused by cars. D: The budget does not affect how many pedestrians are injured. E: Noise complaints do not bear on pedestrian injuries."
+ },
+ {
+  "id": "vc20",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Inference",
+  "subtopic": "Conditional chain",
+  "skill": "Necessary conditions",
+  "difficulty": 3,
+  "expectedSec": 90,
+  "stem": "In the town of Carvale, every restaurant that serves alcohol must hold a license, and licenses are issued only to restaurants that have at least two fire exits. Luigi's, a restaurant in Carvale, legally serves alcohol.\n\nIf the statements above are true, which of the following must also be true?",
+  "choices": [
+   "Luigi's has at least two fire exits.",
+   "Luigi's obtained its license within the past year.",
+   "Most restaurants in Carvale serve alcohol.",
+   "Every restaurant in Carvale with two fire exits serves alcohol.",
+   "Restaurants in Carvale without a license have only one fire exit."
+  ],
+  "answer": 0,
+  "hints": [
+   "Follow the chain of conditions for Luigi's.",
+   "Serving alcohol legally → license. License → ?",
+   "Key idea: in a must-be-true question, chain the stated conditions; do not reverse them.",
+   "Luigi's has a license, so it meets every requirement for one."
+  ],
+  "method": "Serves alcohol legally → has a license → has at least two fire exits.",
+  "trap": "D reverses the direction of the rule, the most common trap in conditional reasoning.",
+  "diagnosis": [
+   null,
+   {
+    "why": "Nothing is said about when the license was issued.",
+    "type": "Reading"
+   },
+   {
+    "why": "Nothing is said about how many restaurants serve alcohol.",
+    "type": "Reading"
+   },
+   {
+    "why": "Two exits are required for a license, but having them does not mean a restaurant serves alcohol: this reverses the rule.",
+    "type": "Logic"
+   },
+   {
+    "why": "A restaurant can have two exits and still choose not to hold a license.",
+    "type": "Logic"
+   }
+  ],
+  "solution": "A is correct: Luigi's serves alcohol legally, so it holds a license; a license requires at least two fire exits. B: Nothing is said about when the license was issued. C: Nothing is said about how many restaurants serve alcohol. D: Two exits are required for a license, but having them does not mean a restaurant serves alcohol: this reverses the rule. E: A restaurant can have two exits and still choose not to hold a license."
+ },
+ {
+  "id": "vc21",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Inference",
+  "subtopic": "Must be true with numbers",
+  "skill": "Percent vs amount",
+  "difficulty": 4,
+  "expectedSec": 110,
+  "stem": "Last year Orlin Tools' revenue was 10 percent higher than the year before, yet its profit (revenue minus costs) was lower than the year before.\n\nIf the statements above are true, which of the following must also be true?",
+  "choices": [
+   "Orlin sold more tools last year than the year before.",
+   "Orlin's costs rose by a larger dollar amount than its revenue did.",
+   "Orlin made a loss last year.",
+   "Orlin's revenue will rise again this year.",
+   "Orlin's costs rose by more than 10 percent last year."
+  ],
+  "answer": 1,
+  "hints": [
+   "Write profit as revenue minus costs.",
+   "If revenue went up and profit went down, what must costs have done?",
+   "Key idea: a must-be-true answer holds in every case consistent with the facts; test the tempting ones with an extreme case.",
+   "Try a year with a loss: revenue 100 → 110, costs 150 → 162."
+  ],
+  "method": "Δprofit = Δrevenue − Δcosts < 0 with Δrevenue > 0, so Δcosts > Δrevenue in dollars. E fails when the firm had a loss: 150 → 162 is only an 8% rise.",
+  "trap": "E looks equivalent to B, but percent and dollar changes differ when costs are larger than revenue.",
+  "diagnosis": [
+   {
+    "why": "Revenue can rise through higher prices with no rise in units sold.",
+    "type": "Reading"
+   },
+   null,
+   {
+    "why": "Profit fell, but it could still be positive.",
+    "type": "Logic"
+   },
+   {
+    "why": "Nothing is said about this year.",
+    "type": "Reading"
+   },
+   {
+    "why": "This follows only if Orlin was profitable the year before; if it had a loss, costs exceeded revenue and could rise by less than 10 percent.",
+    "type": "Trap"
+   }
+  ],
+  "solution": "B is correct: profit = revenue − costs; revenue rose and profit fell, so costs must have risen by more dollars than revenue did. A: Revenue can rise through higher prices with no rise in units sold. C: Profit fell, but it could still be positive. D: Nothing is said about this year. E: This follows only if Orlin was profitable the year before; if it had a loss, costs exceeded revenue and could rise by less than 10 percent."
+ },
+ {
+  "id": "vc22",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Inference",
+  "subtopic": "Inference from figures",
+  "skill": "Averages from totals",
+  "difficulty": 5,
+  "expectedSec": 110,
+  "stem": "Between 2000 and 2020 the number of farms in the region of Kesh fell by 30 percent, but the total area of farmland in Kesh stayed almost the same. Over the same period, the region's total crop output rose by 15 percent.\n\nThe statements above most strongly support which of the following?",
+  "choices": [
+   "Large farms produce more crops per hectare than small farms.",
+   "Many farmers in Kesh sold their land to developers between 2000 and 2020.",
+   "The number of people working on farms in Kesh fell between 2000 and 2020.",
+   "Crop output per farm in Kesh fell between 2000 and 2020.",
+   "The average size of a farm in Kesh increased between 2000 and 2020."
+  ],
+  "answer": 4,
+  "hints": [
+   "Combine two facts: the number of farms and the total area.",
+   "Average farm size = total area ÷ number of farms.",
+   "Key idea: the best-supported inference follows directly from the numbers, with no new assumptions.",
+   "Area constant, farms −30% → average size?"
+  ],
+  "method": "Average size = area ÷ farms: the area is unchanged and the number of farms fell by 30%, so the average size rose (by about 43%).",
+  "trap": "A adds a causal claim about size and productivity that the facts do not establish.",
+  "diagnosis": [
+   {
+    "why": "Output per hectare did rise, but the facts do not show that farm size caused it.",
+    "type": "Trap"
+   },
+   {
+    "why": "The farmland area stayed the same, which argues against land going to developers.",
+    "type": "Logic"
+   },
+   {
+    "why": "Nothing is said about employment; fewer farms need not mean fewer workers.",
+    "type": "Reading"
+   },
+   {
+    "why": "Output rose while the number of farms fell, so output per farm rose, not fell.",
+    "type": "Logic"
+   },
+   null
+  ],
+  "solution": "E is correct: the same area divided among 30 percent fewer farms means each farm is larger on average. A: Output per hectare did rise, but the facts do not show that farm size caused it. B: The farmland area stayed the same, which argues against land going to developers. C: Nothing is said about employment; fewer farms need not mean fewer workers. D: Output rose while the number of farms fell, so output per farm rose, not fell."
+ },
+ {
+  "id": "vc23",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Inference",
+  "subtopic": "Rates and counts",
+  "skill": "Must be true with rates",
+  "difficulty": 6,
+  "expectedSec": 130,
+  "stem": "Among last year's applicants to Brevard University's graduate program, those who chose to submit test scores were admitted at a higher rate than those who did not. Yet the program admitted more applicants who did not submit test scores than applicants who did.\n\nIf the statements above are true, which of the following must also be true?",
+  "choices": [
+   "The program will require test scores from next year's applicants.",
+   "Submitting test scores improved an applicant's chances of admission.",
+   "Most of the admitted applicants submitted test scores.",
+   "More of last year's applicants applied without test scores than with them.",
+   "Applicants who did not submit test scores had lower scores than those who did."
+  ],
+  "answer": 3,
+  "hints": [
+   "Admissions = number of applicants × admission rate.",
+   "The non-submitters have the lower rate but the larger number of admissions.",
+   "Key idea: when a group with a lower rate produces a larger count, the group itself must be larger.",
+   "If the non-submitters were the smaller group, could they produce more admissions at a lower rate?"
+  ],
+  "method": "Let the rates be r₁ > r₂ for submitters and non-submitters, with counts n₁ and n₂. Admissions r₂n₂ > r₁n₁ > r₂n₁, so n₂ > n₁: more applicants did not submit.",
+  "trap": "B turns a correlation into a cause, the classic trap in inference questions.",
+  "diagnosis": [
+   {
+    "why": "Nothing is said about future requirements.",
+    "type": "Reading"
+   },
+   {
+    "why": "A higher admission rate does not show that submitting scores caused admission; stronger applicants may have chosen to submit.",
+    "type": "Trap"
+   },
+   {
+    "why": "The passage says more admitted applicants did not submit scores.",
+    "type": "Logic"
+   },
+   null,
+   {
+    "why": "The scores of those who did not submit are unknown.",
+    "type": "Reading"
+   }
+  ],
+  "solution": "D is correct: the non-submitters were admitted at a lower rate yet produced more admissions, which is possible only if there were more of them. A: Nothing is said about future requirements. B: A higher admission rate does not show that submitting scores caused admission; stronger applicants may have chosen to submit. C: The passage says more admitted applicants did not submit scores. E: The scores of those who did not submit are unknown."
+ },
+ {
+  "id": "vc24",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Boldface/Role",
+  "subtopic": "Opposing view and conclusion",
+  "skill": "Tracking roles",
+  "difficulty": 4,
+  "expectedSec": 120,
+  "stem": "Some city planners argue that **building more lanes on congested highways will reduce commuting times**. Studies of many cities, however, have found that new lanes attract new traffic: people who used to avoid the highway begin to use it, and within a few years congestion returns to its former level. **A more effective approach is to charge drivers for using the busiest roads at peak hours**, since the charge discourages the trips that drivers value least.\n\nIn the argument above, the two boldfaced portions play which of the following roles?",
+  "choices": [
+   "The first is a position that the argument opposes; the second is evidence offered against that position.",
+   "The first is the argument's main conclusion; the second is a consideration offered in support of that conclusion.",
+   "The first is evidence offered in support of a position that the argument opposes; the second is that position.",
+   "The first and the second are both positions that the argument opposes.",
+   "The first is a position that the argument opposes; the second is the position that the argument supports."
+  ],
+  "answer": 4,
+  "hints": [
+   "Find the author's main conclusion first: here it is a recommendation. Is it one of the boldfaced parts?",
+   "For each boldfaced part, ask: does the author agree with it, oppose it, or use it as evidence?",
+   "Key idea: describe each part's role in your own words before reading the options, then eliminate option by option, one half at a time.",
+   "Label them: first = planners' view (rejected); second = author's recommendation (conclusion)."
+  ],
+  "method": "Structure: opposing view (bold 1) → evidence against it (studies) → author's position (bold 2) → reason for it.",
+  "trap": "A describes the second part as evidence; it is actually the claim the evidence is meant to support.",
+  "diagnosis": [
+   {
+    "why": "The second part is the author's recommendation — the conclusion — not evidence; the evidence is the studies about new traffic.",
+    "type": "Logic"
+   },
+   {
+    "why": "The author rejects the first part ('however… congestion returns'), so it cannot be the conclusion.",
+    "type": "Reading"
+   },
+   {
+    "why": "The first part is a claim some planners make, not evidence; and the author supports the second part.",
+    "type": "Reading"
+   },
+   {
+    "why": "The author endorses the second part as 'a more effective approach'.",
+    "type": "Reading"
+   },
+   null
+  ],
+  "solution": "E is correct: the author rejects the planners' claim with the studies and then recommends road charges, which is the conclusion. A: The second part is the author's recommendation — the conclusion — not evidence; the evidence is the studies about new traffic. B: The author rejects the first part ('however… congestion returns'), so it cannot be the conclusion. C: The first part is a claim some planners make, not evidence; and the author supports the second part. D: The author endorses the second part as 'a more effective approach'."
+ },
+ {
+  "id": "vc25",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Boldface/Role",
+  "subtopic": "Failed prediction and explanation",
+  "skill": "Author attitude to a claim",
+  "difficulty": 5,
+  "expectedSec": 130,
+  "stem": "Analysts expected that **the merger of the two regional airlines would raise ticket prices on the routes they had shared**. That expectation was reasonable, since the merged airline faces no competitor on most of those routes. Yet prices on those routes have fallen since the merger. The explanation is that **the merged airline cut its costs by combining its maintenance operations and crews**, and it has passed some of those savings on to passengers in order to fill larger planes.\n\nIn the argument above, the two boldfaced portions play which of the following roles?",
+  "choices": [
+   "The first is the argument's main conclusion; the second is evidence offered in support of that conclusion.",
+   "The first is a prediction that the argument rejects as unreasonable; the second is evidence that it was unreasonable.",
+   "The first is a prediction that the argument accepts as reasonable but that did not come true; the second is part of an explanation of why it did not.",
+   "The first is evidence offered in support of the argument's conclusion; the second is that conclusion.",
+   "The first is a prediction that the argument accepts; the second is a consideration that makes that prediction more likely to come true."
+  ],
+  "answer": 2,
+  "hints": [
+   "Did the prediction come true?",
+   "Does the author call the prediction a mistake in reasoning, or a reasonable expectation that failed?",
+   "Key idea: 'reasonable but wrong' and 'unreasonable' are different roles; read the author's own words.",
+   "Label them: first = reasonable prediction that failed; second = part of the explanation of the failure."
+  ],
+  "method": "Prediction (bold 1) → why it was reasonable → surprising result (prices fell) → explanation (bold 2 plus 'passed on savings').",
+  "trap": "B misreads the author's attitude: the author explicitly defends the prediction as reasonable.",
+  "diagnosis": [
+   {
+    "why": "The argument's point is to explain why the prediction failed; the prediction itself is not its conclusion.",
+    "type": "Reading"
+   },
+   {
+    "why": "The author calls the expectation 'reasonable'; it simply turned out wrong.",
+    "type": "Trap"
+   },
+   null,
+   {
+    "why": "The first part is a prediction, not evidence, and the second part explains the outcome rather than being the conclusion.",
+    "type": "Reading"
+   },
+   {
+    "why": "Lower costs passed on to passengers explain why prices fell, so they work against the prediction coming true.",
+    "type": "Logic"
+   }
+  ],
+  "solution": "C is correct: the author grants that the analysts' prediction was reasonable, notes that prices fell instead, and uses the cost savings to explain why. A: The argument's point is to explain why the prediction failed; the prediction itself is not its conclusion. B: The author calls the expectation 'reasonable'; it simply turned out wrong. D: The first part is a prediction, not evidence, and the second part explains the outcome rather than being the conclusion. E: Lower costs passed on to passengers explain why prices fell, so they work against the prediction coming true."
+ },
+ {
+  "id": "vc26",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Boldface/Role",
+  "subtopic": "Evidence on two sides",
+  "skill": "Tracking roles",
+  "difficulty": 5,
+  "expectedSec": 130,
+  "stem": "Critics of the district's new reading program point out that **students in schools using the program scored lower on this year's national reading test than students in schools without it**. But that comparison is misleading. The program was introduced first in the schools whose students had the lowest reading scores before it began, and **in those schools this year's scores rose more than in any other schools in the district**. The program, then, is likely helping the students who need it most.\n\nIn the argument above, the two boldfaced portions play which of the following roles?",
+  "choices": [
+   "The first and the second are both evidence against the argument's conclusion.",
+   "The first is the position that the argument supports; the second is evidence that complicates that position.",
+   "The first is the argument's conclusion; the second is evidence against that conclusion.",
+   "The first is evidence offered in support of a view that the argument opposes; the second is evidence offered in support of the argument's conclusion.",
+   "The first is evidence that the argument accepts as decisive; the second is a qualification of that evidence."
+  ],
+  "answer": 3,
+  "hints": [
+   "Find the author's own conclusion first: it is in the last sentence. Is it one of the boldfaced parts?",
+   "For each boldfaced part, ask: does the author agree with it, oppose it, or use it as evidence?",
+   "Key idea: describe each part's role in your own words before reading the options, then eliminate option by option, one half at a time.",
+   "Label them: first = critics' evidence; second = author's evidence."
+  ],
+  "method": "Critics' evidence (bold 1) → author: misleading → reason (program started in weakest schools) → author's evidence (bold 2) → conclusion (program helps).",
+  "trap": "E and B treat the first part as something the author accepts; the author rejects the inference drawn from it.",
+  "diagnosis": [
+   {
+    "why": "The rise in scores in the program's schools supports the author's conclusion.",
+    "type": "Logic"
+   },
+   {
+    "why": "The first part supports the critics, whom the author opposes.",
+    "type": "Reading"
+   },
+   {
+    "why": "The conclusion is the last sentence; the first part is the critics' evidence.",
+    "type": "Reading"
+   },
+   null,
+   {
+    "why": "The author calls the critics' comparison 'misleading', not decisive.",
+    "type": "Reading"
+   }
+  ],
+  "solution": "D is correct: the critics use the first fact against the program; the author calls it misleading and uses the second fact to support the conclusion that the program helps. A: The rise in scores in the program's schools supports the author's conclusion. B: The first part supports the critics, whom the author opposes. C: The conclusion is the last sentence; the first part is the critics' evidence. E: The author calls the critics' comparison 'misleading', not decisive."
+ },
+ {
+  "id": "vc27",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Boldface/Role",
+  "subtopic": "Reversed causation",
+  "skill": "Conclusion markers",
+  "difficulty": 6,
+  "expectedSec": 140,
+  "stem": "Historians long held that **the port town of Varna declined in the fifteenth century because its harbor silted up**. Recent excavations, however, show that ships continued to unload at Varna's docks until at least 1480, and tax records reveal that the town's population fell sharply in the 1420s, decades before the silting could have hindered trade. **The silting of the harbor was therefore more likely a consequence of the town's decline than its cause**: with fewer residents, no one paid to have the harbor dredged.\n\nIn the argument above, the two boldfaced portions play which of the following roles?",
+  "choices": [
+   "The first is a view that the argument rejects; the second is the argument's main conclusion.",
+   "The first is the argument's main conclusion; the second is an objection to that conclusion.",
+   "The first is evidence offered in support of the argument's conclusion; the second is that conclusion.",
+   "The first is a view that the argument rejects; the second is evidence offered against that view.",
+   "The first is a hypothesis that the argument refines; the second is evidence for the refined hypothesis."
+  ],
+  "answer": 0,
+  "hints": [
+   "Find the author's conclusion first: look for the word that introduces it. Is it one of the boldfaced parts?",
+   "For each boldfaced part, ask: does the author agree with it, oppose it, or use it as evidence?",
+   "Key idea: describe each part's role in your own words before reading the options, then eliminate option by option, one half at a time.",
+   "Label them: first = old view (rejected); second = conclusion introduced by 'therefore'."
+  ],
+  "method": "Old view (bold 1) → evidence against it (ships until 1480; population fell in the 1420s) → conclusion (bold 2) → explanation (no dredging).",
+  "trap": "D calls the conclusion 'evidence' because it contradicts the first view; but it is supported by other evidence, which makes it the conclusion.",
+  "diagnosis": [
+   null,
+   {
+    "why": "The first part is the old view that the argument argues against.",
+    "type": "Reading"
+   },
+   {
+    "why": "The first part is a claim the author rejects, not evidence the author uses.",
+    "type": "Reading"
+   },
+   {
+    "why": "The second part is supported by the excavations and tax records ('therefore'); it is the conclusion, not evidence.",
+    "type": "Logic"
+   },
+   {
+    "why": "The argument does not refine the silting explanation; it reverses the direction of cause and effect.",
+    "type": "Trap"
+   }
+  ],
+  "solution": "A is correct: the author presents the historians' view, gives the excavation and tax evidence against it, and concludes ('therefore') that silting followed the decline. B: The first part is the old view that the argument argues against. C: The first part is a claim the author rejects, not evidence the author uses. D: The second part is supported by the excavations and tax records ('therefore'); it is the conclusion, not evidence. E: The argument does not refine the silting explanation; it reverses the direction of cause and effect."
+ },
+ {
+  "id": "vc28",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Flaw",
+  "subtopic": "Necessary vs sufficient",
+  "skill": "Conditional logic",
+  "difficulty": 3,
+  "expectedSec": 95,
+  "stem": "To qualify for the national marathon, a runner must have completed a half-marathon in under two hours during the past year. Last spring Priya completed a half-marathon in 1 hour 50 minutes. So Priya will qualify for the national marathon.\n\nThe reasoning in the argument is flawed because it",
+  "choices": [
+   "treats a requirement for qualifying as if it were enough to guarantee qualifying",
+   "assumes without justification that Priya intends to run the national marathon",
+   "fails to consider that the qualifying time might be changed in the future",
+   "confuses the distance of a half-marathon with that of a full marathon",
+   "relies on a single race time to judge a runner's ability"
+  ],
+  "answer": 0,
+  "hints": [
+   "What does 'must have completed' tell you — that the time is needed, or that it is enough?",
+   "Could a runner meet this condition and still not qualify?",
+   "Key idea: a necessary condition is not a sufficient one.",
+   "Match the flaw: requirement treated as a guarantee."
+  ],
+  "method": "Rule: qualify → fast half-marathon (necessary). Argument: fast half-marathon → qualify (treats it as sufficient).",
+  "trap": "E describes a general weakness in judging runners, not the logical error in this argument.",
+  "diagnosis": [
+   null,
+   {
+    "why": "The conclusion is about qualifying, not about running the race.",
+    "type": "Reading"
+   },
+   {
+    "why": "A possible future rule change is not the flaw in the reasoning as stated.",
+    "type": "Overthinking"
+   },
+   {
+    "why": "The argument keeps the two distances apart correctly.",
+    "type": "Reading"
+   },
+   {
+    "why": "One race time is enough for the stated rule; the problem is what the rule does and does not guarantee.",
+    "type": "Overthinking"
+   }
+  ],
+  "solution": "A is correct: the rule says a fast half-marathon is necessary ('must'), not that it is sufficient; Priya may still fail other requirements. B: The conclusion is about qualifying, not about running the race. C: A possible future rule change is not the flaw in the reasoning as stated. D: The argument keeps the two distances apart correctly. E: One race time is enough for the stated rule; the problem is what the rule does and does not guarantee."
+ },
+ {
+  "id": "vc29",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Flaw",
+  "subtopic": "Proportion vs number",
+  "skill": "Alternative explanation of a share",
+  "difficulty": 4,
+  "expectedSec": 110,
+  "stem": "Over the past decade, the proportion of Blue Hill's residents who are aged 65 or older rose from 18 percent to 22 percent. Clearly, young families have been leaving Blue Hill.\n\nThe argument is most vulnerable to criticism on the grounds that it",
+  "choices": [
+   "fails to define what counts as a young family",
+   "ignores the possibility that the proportion rose because the number of older residents grew while the number of young families did not fall",
+   "treats a sample of residents as representative of the whole town",
+   "relies on figures from only one decade",
+   "assumes without justification that all residents aged 65 or older are retired"
+  ],
+  "answer": 1,
+  "hints": [
+   "The evidence is a proportion. The conclusion is about the number of young families.",
+   "In how many ways can a group's share of a population rise?",
+   "Key idea: a share rises if the group grows or if the rest shrinks; the argument picks one without ruling out the other.",
+   "Predict the flaw: overlooks growth in the older group."
+  ],
+  "method": "Share of 65+ ↑ could be: 65+ ↑ (people living longer, retirees moving in) or others ↓. The argument assumes the second.",
+  "trap": "A names a real vagueness, but it is not what makes the inference fail.",
+  "diagnosis": [
+   {
+    "why": "Vagueness is not the main weakness; even with a precise definition the inference fails.",
+    "type": "Overthinking"
+   },
+   null,
+   {
+    "why": "The figures describe the town's population; no sample is involved.",
+    "type": "Reading"
+   },
+   {
+    "why": "A decade of data is a reasonable basis; the problem is how the figures are interpreted.",
+    "type": "Overthinking"
+   },
+   {
+    "why": "The argument says nothing about retirement.",
+    "type": "Reading"
+   }
+  ],
+  "solution": "B is correct: a rising share of older residents can come from growth in that group; the number of young families may be unchanged or even higher. A: Vagueness is not the main weakness; even with a precise definition the inference fails. C: The figures describe the town's population; no sample is involved. D: A decade of data is a reasonable basis; the problem is how the figures are interpreted. E: The argument says nothing about retirement."
+ },
+ {
+  "id": "vc30",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Flaw",
+  "subtopic": "Parts vs whole",
+  "skill": "Simpson's paradox",
+  "difficulty": 5,
+  "expectedSec": 125,
+  "stem": "Chief financial officer: This year each of our three divisions earned a higher profit margin — profit as a percentage of that division's revenue — than it did last year. So the company as a whole must have earned a higher profit margin this year than last year.\n\nThe reasoning in the argument is most vulnerable to criticism on the grounds that it",
+  "choices": [
+   "treats profit as if it were the same as revenue",
+   "relies on the figures of only three divisions",
+   "overlooks that a shift in revenue toward the division with the lowest margin could lower the company's overall margin even if every division's margin rose",
+   "fails to consider whether the company's total profit rose",
+   "assumes that profit margins will continue to rise in future years"
+  ],
+  "answer": 2,
+  "hints": [
+   "How is the company's overall margin related to the divisions' margins?",
+   "Can an average fall when every group's value rises?",
+   "Key idea: a weighted average depends on the weights; if the weights shift toward low values, the average can fall (Simpson's paradox).",
+   "Try it: division A goes from 10% on revenue of 100 to 11% on 100; division B from 30% on 100 to 31% on 20."
+  ],
+  "method": "Overall margin = Σ revenue × margin / total revenue. Example: margins 10% and 30% (revenues 100 and 100) give 20%; after 11% on 100 and 31% on 20, overall = (11 + 6.2)/120 ≈ 14%.",
+  "trap": "D sounds financial, but the argument's conclusion is only about the margin.",
+  "diagnosis": [
+   {
+    "why": "The argument defines margin as profit divided by revenue; it does not confuse the two.",
+    "type": "Reading"
+   },
+   {
+    "why": "The company has exactly three divisions, so the figures cover all of it.",
+    "type": "Trap"
+   },
+   null,
+   {
+    "why": "The conclusion is about the margin, not total profit; total profit could rise while the margin falls.",
+    "type": "Interpretation"
+   },
+   {
+    "why": "The argument makes no claim about future years.",
+    "type": "Reading"
+   }
+  ],
+  "solution": "C is correct: the overall margin is a revenue-weighted average of the divisions' margins; if revenue moves toward the low-margin division, the average can fall even though each part rose. A: The argument defines margin as profit divided by revenue; it does not confuse the two. B: The company has exactly three divisions, so the figures cover all of it. D: The conclusion is about the margin, not total profit; total profit could rise while the margin falls. E: The argument makes no claim about future years."
+ },
+ {
+  "id": "vc31",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Flaw",
+  "subtopic": "Survivorship",
+  "skill": "Missing comparison group",
+  "difficulty": 6,
+  "expectedSec": 130,
+  "stem": "Of the start-ups in our city that are still operating ten years after they were founded, 80 percent were founded by people who hold an MBA. Clearly, an MBA is a key to a start-up's survival.\n\nWhich of the following most accurately describes a flaw in the argument's reasoning?",
+  "choices": [
+   "It does not define what counts as a start-up.",
+   "It fails to consider what proportion of the start-ups that did not survive were also founded by people with an MBA.",
+   "It assumes that people without an MBA do not found start-ups.",
+   "It assumes that survival is the only measure of a start-up's success.",
+   "It relies on data from a single city."
+  ],
+  "answer": 1,
+  "hints": [
+   "Which start-ups does the evidence describe?",
+   "What would you need to know about the start-ups that closed?",
+   "Key idea: a feature common among survivors matters only if it is less common among those that failed (survivorship bias).",
+   "Predict: the argument never compares survivors with failures."
+  ],
+  "method": "Evidence covers survivors only. Without the MBA share among failed start-ups, 80 percent may simply reflect how common MBAs are among founders.",
+  "trap": "E and A are weaknesses of scope and wording, not the error in the reasoning.",
+  "diagnosis": [
+   {
+    "why": "A definition would not repair the missing comparison.",
+    "type": "Overthinking"
+   },
+   null,
+   {
+    "why": "The data show that 20 percent of the survivors were founded by people without an MBA.",
+    "type": "Reading"
+   },
+   {
+    "why": "The conclusion is only about survival, so it need not assume anything about other kinds of success.",
+    "type": "Overthinking"
+   },
+   {
+    "why": "One city limits how widely the result applies, but the reasoning fails even within that city.",
+    "type": "Overthinking"
+   }
+  ],
+  "solution": "B is correct: if 80 percent of all start-ups, including the ones that failed, were founded by MBA holders, the MBA makes no difference to survival; the argument looks only at survivors. A: A definition would not repair the missing comparison. C: The data show that 20 percent of the survivors were founded by people without an MBA. D: The conclusion is only about survival, so it need not assume anything about other kinds of success. E: One city limits how widely the result applies, but the reasoning fails even within that city."
+ },
+ {
+  "id": "vc32",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Explain discrepancy",
+  "subtopic": "Unexpected result of a policy",
+  "skill": "Measured vs real change",
+  "difficulty": 3,
+  "expectedSec": 95,
+  "stem": "Last year the town of Grovetown doubled the fines for speeding in order to discourage drivers from speeding. During the year after the change, however, the number of speeding tickets issued in Grovetown rose by 25 percent.\n\nWhich of the following, if true, most helps to explain the rise in the number of speeding tickets?",
+  "choices": [
+   "When the fines were raised, Grovetown also doubled the number of officers assigned to traffic patrol.",
+   "The higher fines were widely reported in the local newspaper.",
+   "Most drivers in Grovetown knew about the higher fines.",
+   "Speeding is more common at night than during the day.",
+   "Neighboring towns charge lower fines for speeding than Grovetown now does."
+  ],
+  "answer": 0,
+  "hints": [
+   "What exactly is surprising: that speeding rose, or that tickets rose?",
+   "Tickets depend on how many drivers speed and on how many of them are caught.",
+   "Key idea: resolve a discrepancy by finding a fact that lets both statements be true at once.",
+   "Predict: something increased the chance that a speeder is caught."
+  ],
+  "method": "Tickets = speeders × chance of being caught. A raises the chance of being caught, so tickets can rise while speeding falls.",
+  "trap": "C and B sound relevant, but they make the result harder to explain.",
+  "diagnosis": [
+   null,
+   {
+    "why": "Publicity would make drivers more careful; it deepens the puzzle.",
+    "type": "Logic"
+   },
+   {
+    "why": "Drivers knowing about the fines makes the rise in tickets more puzzling, not less.",
+    "type": "Logic"
+   },
+   {
+    "why": "When speeding happens does not explain why tickets rose.",
+    "type": "Reading"
+   },
+   {
+    "why": "Other towns' fines do not explain more tickets in Grovetown.",
+    "type": "Reading"
+   }
+  ],
+  "solution": "A is correct: more officers catch a larger share of speeders, so tickets can rise even if speeding itself fell. B: Publicity would make drivers more careful; it deepens the puzzle. C: Drivers knowing about the fines makes the rise in tickets more puzzling, not less. D: When speeding happens does not explain why tickets rose. E: Other towns' fines do not explain more tickets in Grovetown."
+ },
+ {
+  "id": "vc33",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Explain discrepancy",
+  "subtopic": "Rates across different groups",
+  "skill": "Case mix",
+  "difficulty": 4,
+  "expectedSec": 105,
+  "stem": "The death rate among patients admitted to Westbrook Hospital is considerably higher than the death rate at the other hospitals in the region. Nevertheless, health experts regard Westbrook as the best hospital in the region.\n\nWhich of the following, if true, most helps to resolve the apparent discrepancy?",
+  "choices": [
+   "Westbrook and the other large hospitals in the region have about the same number of beds.",
+   "Westbrook employs more doctors than any other hospital in the region.",
+   "Several of the region's other hospitals were built more recently than Westbrook.",
+   "Other hospitals in the region send their most seriously ill patients to Westbrook for treatment.",
+   "The death rates at all the region's hospitals have fallen over the past decade."
+  ],
+  "answer": 3,
+  "hints": [
+   "Can a very good hospital have a high death rate?",
+   "What kind of patients would drive a hospital's death rate up?",
+   "Key idea: compare like with like; a difference in the groups being measured can explain a difference in results.",
+   "Predict: Westbrook's patients are sicker than other hospitals' patients."
+  ],
+  "method": "The figures do not account for how ill patients are. D shows Westbrook gets the hardest cases, which reconciles a high death rate with high quality.",
+  "trap": "B supports the experts' view but leaves the death rate unexplained; an explanation must account for both facts.",
+  "diagnosis": [
+   {
+    "why": "Equal size does not explain a difference in death rates.",
+    "type": "Reading"
+   },
+   {
+    "why": "More doctors might make Westbrook better, but they do not explain its higher death rate.",
+    "type": "Logic"
+   },
+   {
+    "why": "The age of the buildings explains neither the death rate nor the experts' view.",
+    "type": "Reading"
+   },
+   null,
+   {
+    "why": "A fall at every hospital leaves the gap between Westbrook and the others unexplained.",
+    "type": "Reading"
+   }
+  ],
+  "solution": "D is correct: if Westbrook treats the sickest patients, a higher death rate is expected even at an excellent hospital. A: Equal size does not explain a difference in death rates. B: More doctors might make Westbrook better, but they do not explain its higher death rate. C: The age of the buildings explains neither the death rate nor the experts' view. E: A fall at every hospital leaves the gap between Westbrook and the others unexplained."
+ },
+ {
+  "id": "vc34",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Explain discrepancy",
+  "subtopic": "Revenue puzzle",
+  "skill": "Changing product mix",
+  "difficulty": 4,
+  "expectedSec": 115,
+  "stem": "Last spring Mara's Bakery cut the prices of all its breads by 25 percent. Over the next three months, the number of loaves it sold was only 10 percent higher than in the same three months of the previous year, yet its revenue from bread was higher than in those months of the previous year.\n\nWhich of the following, if true, most helps to explain how the bakery's revenue from bread could have risen?",
+  "choices": [
+   "After the price cut, customers bought far more of the bakery's large specialty loaves, which cost several times as much as its standard loaves.",
+   "The bakery's sales of cakes and pastries also rose after the price cut.",
+   "The bakery had cut its prices once before, five years earlier.",
+   "The price of flour fell last spring.",
+   "No other bakery in the town cut its prices last spring."
+  ],
+  "answer": 0,
+  "hints": [
+   "Estimate: 10 percent more loaves at prices 25 percent lower — what happens to revenue if the mix of loaves stays the same?",
+   "1.10 × 0.75 = 0.825: revenue should have fallen by about 17 percent.",
+   "Key idea: revenue = number sold × average price; the average price depends on which products are sold.",
+   "Predict: the mix of loaves shifted toward more expensive ones."
+  ],
+  "method": "With the same mix, revenue would fall to about 82.5% of last year's. A changes the mix, raising the average price of a loaf sold.",
+  "trap": "E explains why more loaves were sold, not how revenue rose.",
+  "diagnosis": [
+   null,
+   {
+    "why": "The question is about revenue from bread only.",
+    "type": "Reading"
+   },
+   {
+    "why": "An earlier price cut does not explain this year's revenue.",
+    "type": "Reading"
+   },
+   {
+    "why": "Cheaper flour lowers costs; it does not raise revenue.",
+    "type": "Interpretation"
+   },
+   {
+    "why": "Other bakeries' prices may explain why more loaves were sold, but not why revenue rose when 10 percent more loaves at 25 percent lower prices should bring in less.",
+    "type": "Logic"
+   }
+  ],
+  "solution": "A is correct: if customers switched toward much more expensive loaves, the average price per loaf sold could rise even though every price was cut, and revenue could rise. B: The question is about revenue from bread only. C: An earlier price cut does not explain this year's revenue. D: Cheaper flour lowers costs; it does not raise revenue. E: Other bakeries' prices may explain why more loaves were sold, but not why revenue rose when 10 percent more loaves at 25 percent lower prices should bring in less."
+ },
+ {
+  "id": "vc35",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Explain discrepancy",
+  "subtopic": "Supply that rises and falls at once",
+  "skill": "Two factors",
+  "difficulty": 5,
+  "expectedSec": 120,
+  "stem": "Over the past ten years, the number of general practitioners per 1,000 residents in the country of Ostria has risen by 15 percent. Over the same period, however, the average time that patients in Ostria wait for an appointment with a general practitioner has also increased.\n\nWhich of the following, if true, most helps to explain the increase in waiting times?",
+  "choices": [
+   "Patients in Ostria increasingly prefer short appointments to long ones.",
+   "Over the past ten years, the number of medical schools in Ostria has increased.",
+   "Over the past ten years, the average number of hours that each general practitioner spends seeing patients has fallen sharply, as paperwork has taken up more of their time.",
+   "Waiting times for appointments in neighboring countries have risen even faster than in Ostria.",
+   "General practitioners' salaries in Ostria have risen over the past ten years."
+  ],
+  "answer": 2,
+  "hints": [
+   "More doctors should mean shorter waits. What else determines the supply of appointments?",
+   "Supply of appointments = doctors × hours each spends seeing patients.",
+   "Key idea: a rise in one factor can be outweighed by a fall in another.",
+   "Predict: each doctor provides fewer appointment hours."
+  ],
+  "method": "Appointments available = doctors × patient hours per doctor. C shows the second factor fell sharply, which can outweigh a 15% rise in doctors.",
+  "trap": "B explains the first fact (more doctors), not the second (longer waits).",
+  "diagnosis": [
+   {
+    "why": "Shorter appointments would let doctors see more patients, which would shorten waits.",
+    "type": "Logic"
+   },
+   {
+    "why": "More medical schools help explain the rise in doctors, not the longer waits.",
+    "type": "Reading"
+   },
+   null,
+   {
+    "why": "Other countries' trends do not explain Ostria's.",
+    "type": "Reading"
+   },
+   {
+    "why": "Higher pay does not explain longer waits.",
+    "type": "Reading"
+   }
+  ],
+  "solution": "C is correct: if each doctor spends far fewer hours with patients, the total number of appointment hours can fall even though there are more doctors. A: Shorter appointments would let doctors see more patients, which would shorten waits. B: More medical schools help explain the rise in doctors, not the longer waits. D: Other countries' trends do not explain Ostria's. E: Higher pay does not explain longer waits."
+ },
+ {
+  "id": "vc36",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Explain discrepancy",
+  "subtopic": "Paradox in health data",
+  "skill": "Contaminated comparison group",
+  "difficulty": 6,
+  "expectedSec": 130,
+  "stem": "Several large studies have found that people who drink small amounts of alcohol live longer, on average, than people who never drink alcohol. Yet medical research shows that alcohol harms the body even in small amounts.\n\nWhich of the following, if true, most helps to reconcile these findings?",
+  "choices": [
+   "The studies included people from many countries with different diets.",
+   "People who drink small amounts of alcohol exercise less, on average, than people who never drink.",
+   "Among drinkers, those who drink heavily have the shortest average life span.",
+   "The harmful effects of alcohol differ somewhat between types of alcoholic drinks.",
+   "Many of the people classified as never drinking had given up alcohol because of illness, including illnesses caused by earlier heavy drinking."
+  ],
+  "answer": 4,
+  "hints": [
+   "Who ends up in the group of people who never drink?",
+   "Could that group be less healthy for reasons that have nothing to do with alcohol?",
+   "Key idea: when a comparison group is unusual, a gap between groups can appear without any benefit from the factor studied.",
+   "Predict: the non-drinkers include many sick people."
+  ],
+  "method": "The 'non-drinkers' include former drinkers who quit because of illness. Their poor health lowers the group's life span, so light drinkers look healthier without alcohol helping them.",
+  "trap": "B describes a difference between the groups, but in the wrong direction: it deepens the puzzle.",
+  "diagnosis": [
+   {
+    "why": "A varied sample does not explain the gap between the two groups.",
+    "type": "Reading"
+   },
+   {
+    "why": "Less exercise among moderate drinkers would make their longer lives even harder to explain.",
+    "type": "Logic"
+   },
+   {
+    "why": "This is about heavy drinkers; it does not explain why light drinkers outlive non-drinkers.",
+    "type": "Reading"
+   },
+   {
+    "why": "Differences between drinks do not explain why light drinkers live longer than non-drinkers.",
+    "type": "Overthinking"
+   },
+   null
+  ],
+  "solution": "E is correct: if the 'never drink' group includes many people who stopped because they were ill, that group's shorter lives reflect their illness, not the absence of alcohol. A: A varied sample does not explain the gap between the two groups. B: Less exercise among moderate drinkers would make their longer lives even harder to explain. C: This is about heavy drinkers; it does not explain why light drinkers outlive non-drinkers. D: Differences between drinks do not explain why light drinkers live longer than non-drinkers."
+ },
+ {
+  "id": "vc37",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Plan/Method",
+  "subtopic": "Plan and its obstacle",
+  "skill": "Testing the plan’s assumption",
+  "difficulty": 3,
+  "expectedSec": 100,
+  "stem": "To attract more teenage visitors, the Dunmore Art Museum plans to let visitors under 18 enter free of charge. Currently, teenagers pay half the adult price.\n\nWhich of the following, if true, most strongly suggests that the museum's plan will not succeed?",
+  "choices": [
+   "Teenage visitors spend more in the museum's shop than adult visitors do.",
+   "Adult ticket prices will be raised slightly to make up for the lost revenue.",
+   "Several other museums in the region already offer free entry to students.",
+   "Most of the museum's visitors come on weekends.",
+   "Teenagers who do not visit the museum say the main reason is that its exhibits do not interest them, not the price."
+  ],
+  "answer": 4,
+  "hints": [
+   "What does the plan assume about why teenagers stay away?",
+   "What would show that the assumed reason is wrong?",
+   "Key idea: a plan fails when the obstacle it removes is not the real obstacle.",
+   "Predict: teenagers stay away for reasons other than cost."
+  ],
+  "method": "Plan: free entry → more teenagers. It assumes cost keeps teenagers away. E shows the real reason is lack of interest.",
+  "trap": "A feels relevant to teenagers, but it gives a benefit of the plan rather than evidence that it will work or fail.",
+  "diagnosis": [
+   {
+    "why": "Shop spending is a reason to want teenage visitors, not evidence about whether the plan brings them.",
+    "type": "Interpretation"
+   },
+   {
+    "why": "Adult prices affect revenue from adults, not whether more teenagers come.",
+    "type": "Interpretation"
+   },
+   {
+    "why": "What other museums do does not show whether this plan will attract teenagers here.",
+    "type": "Reading"
+   },
+   {
+    "why": "When visitors come is irrelevant to whether free entry attracts teenagers.",
+    "type": "Reading"
+   },
+   null
+  ],
+  "solution": "E is correct: if price is not what keeps teenagers away, removing the price will do little to bring them in. A: Shop spending is a reason to want teenage visitors, not evidence about whether the plan brings them. B: Adult prices affect revenue from adults, not whether more teenagers come. C: What other museums do does not show whether this plan will attract teenagers here. D: When visitors come is irrelevant to whether free entry attracts teenagers."
+ },
+ {
+  "id": "vc38",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Plan/Method",
+  "subtopic": "Dialogue",
+  "skill": "Describing a response",
+  "difficulty": 4,
+  "expectedSec": 100,
+  "stem": "Maya: The new tram line will reduce traffic in the city center, because many commuters who now drive will leave their cars at home.\n\nLeo: But building the tram line will take three years, and during construction two lanes of Main Street will be closed. Traffic in the center will get worse, not better.\n\nLeo responds to Maya by",
+  "choices": [
+   "claiming that the tram line will never be completed",
+   "questioning whether commuters will actually use the tram",
+   "arguing that the tram line will cost more than planned",
+   "pointing out an effect over a period that her argument does not address, without disputing her claim about what the tram will do once it runs",
+   "showing that her argument relies on an inaccurate figure"
+  ],
+  "answer": 3,
+  "hints": [
+   "What period of time does Maya talk about? And Leo?",
+   "Does Leo say Maya's conclusion is false?",
+   "Key idea: in method questions, describe what the second speaker does in abstract terms before reading the options.",
+   "Leo: 'in the short term, the opposite happens'."
+  ],
+  "method": "Maya: long term, less traffic. Leo: short term, more traffic. He adds a consideration about a different period without denying hers.",
+  "trap": "B is the objection you might raise yourself; Leo does not raise it.",
+  "diagnosis": [
+   {
+    "why": "Leo assumes construction will take three years, which implies it will finish.",
+    "type": "Overthinking"
+   },
+   {
+    "why": "Leo says nothing about whether commuters will ride the tram.",
+    "type": "Reading"
+   },
+   {
+    "why": "Leo mentions no costs.",
+    "type": "Reading"
+   },
+   null,
+   {
+    "why": "Maya cites no figures.",
+    "type": "Reading"
+   }
+  ],
+  "solution": "D is correct: Leo talks about the construction years; Maya's claim is about what happens once the tram runs, and Leo leaves that untouched. A: Leo assumes construction will take three years, which implies it will finish. B: Leo says nothing about whether commuters will ride the tram. C: Leo mentions no costs. E: Maya cites no figures."
+ },
+ {
+  "id": "vc39",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Plan/Method",
+  "subtopic": "Plan evaluation",
+  "skill": "Evidence that the mechanism works",
+  "difficulty": 5,
+  "expectedSec": 110,
+  "stem": "To reduce the amount of food waste sent to landfill, the town of Esker plans to give every household a free kitchen compost bin.\n\nWhich of the following, if true, most strongly suggests that the plan will achieve its goal?",
+  "choices": [
+   "Compost bins are inexpensive to produce.",
+   "Food waste makes up about a third of the trash that Esker sends to landfill.",
+   "Neighboring towns sell compost bins at a discount.",
+   "In a pilot neighborhood where households received free bins, the amount of food waste in household trash fell by 60 percent, and most households were still using the bins a year later.",
+   "Many Esker residents say they support efforts to reduce the amount of trash sent to landfill."
+  ],
+  "answer": 3,
+  "hints": [
+   "The plan works only if households use the bins. What would show that they will?",
+   "Is there evidence from people who actually received bins?",
+   "Key idea: the best support for a plan is evidence that its mechanism works in practice.",
+   "Predict: a trial in which free bins reduced food waste."
+  ],
+  "method": "Plan: free bins → less food waste in landfill. D gives direct evidence from a trial, including lasting use.",
+  "trap": "B makes the goal matter but says nothing about whether the plan reaches it.",
+  "diagnosis": [
+   {
+    "why": "Cost bears on whether the plan is affordable, not on whether it cuts food waste.",
+    "type": "Interpretation"
+   },
+   {
+    "why": "This shows the problem is large, not that the bins will solve it.",
+    "type": "Trap"
+   },
+   {
+    "why": "Other towns' prices do not show whether Esker households will use free bins.",
+    "type": "Reading"
+   },
+   null,
+   {
+    "why": "Stated support does not show that people will actually use the bins.",
+    "type": "Trap"
+   }
+  ],
+  "solution": "D is correct: the pilot shows that households given free bins actually used them, lasting over time, and that food waste in trash fell sharply. A: Cost bears on whether the plan is affordable, not on whether it cuts food waste. B: This shows the problem is large, not that the bins will solve it. C: Other towns' prices do not show whether Esker households will use free bins. E: Stated support does not show that people will actually use the bins."
+ },
+ {
+  "id": "vc40",
+  "set": "practice",
+  "block": "V",
+  "section": "Verbal",
+  "type": "CR",
+  "topic": "CR · Plan/Method",
+  "subtopic": "Cost-cutting plan",
+  "skill": "Income side of profit",
+  "difficulty": 6,
+  "expectedSec": 125,
+  "stem": "The publisher of Harbor Monthly plans to stop printing the magazine and to publish it only online. Since printing and postage account for 60 percent of the magazine's costs, the publisher expects the change to make the magazine more profitable.\n\nWhich of the following, if true, most strongly suggests that the plan will fail to make the magazine more profitable?",
+  "choices": [
+   "Some subscribers have said that they prefer reading printed magazines.",
+   "Publishing online will require the publisher to hire a web designer.",
+   "Several magazines that moved online have grown their readership.",
+   "Printing costs have risen steadily over the past five years.",
+   "Most of the magazine's income comes from advertising, and advertisers pay far higher rates for printed pages than for space on websites."
+  ],
+  "answer": 4,
+  "hints": [
+   "The plan cuts costs. What else determines profit?",
+   "Could the change reduce income?",
+   "Key idea: a cost-cutting plan fails if it cuts income by more than it saves.",
+   "Predict: moving online would reduce the magazine's main income."
+  ],
+  "method": "Profit = income − costs. The plan cuts 60% of costs, but E shows it would also cut the main source of income, possibly by more.",
+  "trap": "A points in the right direction but is far too weak to suggest failure.",
+  "diagnosis": [
+   {
+    "why": "'Some' subscribers is too weak to show the plan will fail.",
+    "type": "Overthinking"
+   },
+   {
+    "why": "One salary is small next to 60 percent of all costs; it does not show the plan will fail.",
+    "type": "Trap"
+   },
+   {
+    "why": "This suggests the plan could work.",
+    "type": "Logic"
+   },
+   {
+    "why": "Rising printing costs make dropping print more attractive.",
+    "type": "Logic"
+   },
+   null
+  ],
+  "solution": "E is correct: profit depends on income as well as costs; if moving online cuts the main source of income by more than the costs saved, profit falls. A: 'Some' subscribers is too weak to show the plan will fail. B: One salary is small next to 60 percent of all costs; it does not show the plan will fail. C: This suggests the plan could work. D: Rising printing costs make dropping print more attractive."
+ }
+]

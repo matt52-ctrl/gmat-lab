@@ -1,5 +1,7 @@
 {
  "files": [
-  "diagnostic.json"
+  "diagnostic.json",
+  "verbal-cr-1.json",
+  "verbal-rc-1.json"
  ]
 }

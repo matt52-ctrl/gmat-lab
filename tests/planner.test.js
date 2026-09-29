@@ -176,3 +176,17 @@ test('simulation readiness counts unseen questions per section', () => {
   const r = P.examReadiness(ctx(), ['Quant', 'Verbal']);
   assert.deepEqual(r.map(x => [x.section, x.have, x.need, x.ok]), [['Quant', 7, 21, false], ['Verbal', 2, 23, false]]);
 });
+
+test('generated questions fill in, but written questions at the same level come first', () => {
+  const G = require('../generators.js');
+  const gen = G.candidates({ seed: 7, topic: 'Probability', per: 3 }).map(x => ({ ...x, seen: false }));
+  const pool = [q('b1', 'Probability', 'Quant', 3), q('b2', 'Probability', 'Quant', 3), ...gen];
+  const rng = seeded(11);
+  let written = 0; const N = 400;
+  for (let i = 0; i < N; i++){ const id = P.nextAdaptive(ctx({ pool }), { n: 5, topic: 'Probability', level: 3, used: [] }, { rng }); if (!G.isGenerated(id)) written++; }
+  const share = 2 / (2 + gen.filter(x => x.difficulty === 3).length);
+  assert.ok(written / N > share * 1.5, `written picked ${written}/${N}`);
+  // with the written ones used up, a long topic set keeps going on generated questions
+  const used = ['b1', 'b2']; for (let i = 0; i < 15; i++){ const id = P.nextAdaptive(ctx({ pool }), { n: 20, topic: 'Probability', level: 4, used }, { rng }); assert.ok(id && !used.includes(id)); used.push(id); }
+  assert.ok(P.examReadiness(ctx({ pool: [...ctx().pool, ...G.candidates({ seed: 1, section: 'Quant' }).map(x => ({ ...x, seen: false }))] }), ['Quant'])[0].ok);
+});

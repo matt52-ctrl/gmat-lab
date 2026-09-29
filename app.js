@@ -94,7 +94,7 @@ function localApply(path, op, data){
   if (op === 'delete') delete map[id];
   else if (op === 'set') map[id] = { id, ...clone(data) };
   else map[id] = { ...(map[id] || { id }), ...clone(data) };
-  S[col] = map;
+  S[col] = col === 'bank' ? withGenerated(map) : map;
 }
 function dbErrorText(e){
   const c = e && e.code;
@@ -120,9 +120,29 @@ function subscribe(){
     S.db.collection(name).onSnapshot(snap => {
       const m = {};
       for (const d of snap.docs){ const v = d.data(); if (v) m[d.id] = { id: d.id, ...v }; }
-      S[name] = m; S.loaded.add(name); scheduleRender();
+      S[name] = name === 'bank' ? withGenerated(m) : m; S.loaded.add(name); scheduleRender();
     }, err => { S.dbStatus = 'error'; S.dbError = err && err.code; scheduleRender(); });
   }
+}
+
+/* Generated questions (generators.js) are rebuilt from their id, so the bank never stores them: a missing gen- id
+   is built on demand, and a local override (a report) is laid over the built question. */
+const GEN = window.GMATGen || null;
+let genSeed = Math.floor(Math.random() * 1e9);
+function withGenerated(m){
+  if (!GEN) return m;
+  for (const id of Object.keys(m)) if (GEN.isGenerated(id)){ const q = GEN.fromId(id); if (q) m[id] = { ...q, ...m[id] }; else delete m[id]; }
+  return new Proxy(m, { get: (t, k) => (typeof k === 'string' && !(k in t) && GEN.isGenerated(k)) ? (GEN.fromId(k) || undefined) : t[k] });
+}
+/* Fresh generated candidates for the planner and the practice form: two per template and level, more for one topic.
+   Like written practice questions, they open section by section once that section's diagnostic block is done. */
+function genPool(topic){
+  if (!GEN) return [];
+  const open = BLOCKS.filter(b => blockDone(b.key)).map(b => b.section);
+  const list = GEN.candidates({ seed: genSeed, per: 2 });
+  if (topic) list.push(...GEN.candidates({ seed: genSeed + 1, per: 8, topic }));
+  const own = id => Object.prototype.hasOwnProperty.call(S.bank, id);      // no build: overrides only
+  return list.filter(q => open.includes(q.section) && !(own(q.id) && S.bank[q.id].flagged));
 }
 
 /* ------------------------------------------------------------------ question model */
@@ -329,7 +349,7 @@ function solutionHTML(q){
   const L = lessonOf(q.topic);
   return `<div class="sol"><dl>${rows.map(([k,v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl>
     ${L ? `<details class="more"><summary>Theory: ${esc(q.topic)}</summary><div class="stack" style="margin-top:8px"><p class="muted">${inline(L.summary)}</p><div><p class="eyebrow">Key ideas</p><ul class="answer">${L.ideas.map(x => `<li>${inline(x)}</li>`).join('')}</ul></div><div><p class="eyebrow">Traps</p><ul class="answer">${L.traps.map(x => `<li>${inline(x)}</li>`).join('')}</ul></div></div></details>` : ''}
-    <p class="fine">Expected time ≈ ${fmtTime(expOf(q))} · ${esc(q.topic || '')}${q.subtopic ? ' · ' + esc(q.subtopic) : ''} · level ${q.difficulty || '—'}${q.set === 'generated' ? ' · written by Claude on request, not hand-checked' : ''} · <button class="linkbtn" data-act="report">Report a problem</button></p>
+    <p class="fine">Expected time ≈ ${fmtTime(expOf(q))} · ${esc(q.topic || '')}${q.subtopic ? ' · ' + esc(q.subtopic) : ''} · level ${q.difficulty || '—'}${q.set === 'generated' ? ' · generated question: new numbers every time, answer computed exactly' : ''} · <button class="linkbtn" data-act="report">Report a problem</button></p>
     <div id="report-box" hidden><label class="lab" for="report-note">What looks wrong?</label><textarea id="report-note" rows="2"></textarea><div class="row" style="margin-top:8px"><button class="btn small" data-act="reportsend">Send report</button><button class="btn small ghost" data-act="reportcancel">Cancel</button></div></div></div>`;
 }
 
@@ -391,7 +411,7 @@ function adaptivePush(r){
   const A = r.adaptive; if (!A || r.qids.length >= A.n) return false;
   const q = S.bank[r.qids[r.qids.length - 1]], a = r.answers[q.id] || {};
   A.level = GMATPlanner.levelAfter(A.level, { correct: isCorrect(q, a.answer), unanswered: !isComplete(q, a.answer), timeSec: a.timeSec || 0, expectedSec: expOf(q), confidence: a.confidence == null ? null : a.confidence });
-  const id = GMATPlanner.nextAdaptive(plannerCtx(todayMinutes()), { ...A, used: r.qids, last: { topic: q.topic, group: groupOf(q), correct: isCorrect(q, a.answer) } });
+  const id = GMATPlanner.nextAdaptive(plannerCtx(todayMinutes(), A.topic), { ...A, used: r.qids, last: { topic: q.topic, group: groupOf(q), correct: isCorrect(q, a.answer) } });
   if (!id){ A.n = r.qids.length; return false; }
   r.qids.push(id);
   write('sessions/' + r.id, 'update', { qids: r.qids });
@@ -421,7 +441,7 @@ function finishRun(timeUp){
 function endRun(goTab){
   const r = S.run; stopTicker();
   if (r && r.mode === 'learn' && !r.closed) write('sessions/' + r.id, 'update', { status:'done', end:new Date().toISOString(), durationSec: Math.round((Date.now() - r.started)/1000) });
-  S.run = null;
+  S.run = null; genSeed = Math.floor(Math.random() * 1e9);
   if (goTab){ S.tab = goTab; try { history.replaceState(null, '', '#' + goTab); } catch(e){} }
   render(); window.scrollTo(0,0);
 }
@@ -695,7 +715,7 @@ function todayMinutes(){
   const iv = interview(); const per = iv.hoursPerWeek ? iv.hoursPerWeek * 60 / ((iv.days || []).length || 5) : 45;
   return MINUTES.reduce((best, m) => Math.abs(m - per) < Math.abs(best - per) ? m : best, 45);
 }
-function plannerCtx(minutes){
+function plannerCtx(minutes, topic){
   const at = attemptsAll(); const seen = new Set(at.map(a => a.qid));
   const topics = SECTIONS.flatMap(sec => [...new Set([...SYLLABUS[sec], ...at.filter(a => a.section === sec).map(a => a.topic)])].map(t => ({ topic:t, section:sec, ...mastery(t) })));
   const pend = pendingReview(), nb = BLOCKS.find(b => !blockDone(b.key));
@@ -705,7 +725,8 @@ function plannerCtx(minutes){
     diagnosticDone: BLOCKS.every(b => blockDone(b.key)),
     due: dueErrors().map(e => ({ qid: e.qid, topic: e.topic, nextDue: e.nextDue })),
     attempts: at, topics, errors: Object.values(S.errors),
-    pool: practicePool().map(q => ({ id: q.id, topic: q.topic, section: q.section, type: q.type, group: groupOf(q), difficulty: q.difficulty || 3, seen: seen.has(q.id) })),
+    pool: practicePool().map(q => ({ id: q.id, topic: q.topic, section: q.section, type: q.type, group: groupOf(q), difficulty: q.difficulty || 3, seen: seen.has(q.id), gen: q.set === 'generated' }))
+      .concat(genPool(topic).map(q => ({ ...q, seen: seen.has(q.id) }))),
     mocks: Object.values(S.mocks), hoursPerWeek: interview().hoursPerWeek || null, claudePlan: S.profile.coach || null };
 }
 const CTA = { interview:'Open the interview', review:'Continue the review', diagnostic:'Start', retests:'Start retests', weak:'Start', mixed:'Start' };
@@ -725,7 +746,7 @@ function planCard(nx){
 }
 /* Coach sets are adaptive: weak topics first, difficulty following your answers. */
 function startSmart(mode, n, opts){
-  const ctx = plannerCtx(todayMinutes());
+  const ctx = plannerCtx(todayMinutes(), opts.topic);
   const A = { n, topic: opts.topic || null, section: opts.section || null, exam: false };
   A.level = GMATPlanner.startLevel(ctx, A);
   const first = GMATPlanner.nextAdaptive(ctx, { ...A, used: [] });
@@ -819,14 +840,17 @@ VIEWS.diagnostic = function(){
   return `<section><h1>Diagnostic</h1><p class="muted" style="max-width:70ch">Three blocks, one per section, at real test pace. Take them on different days if you like. Work as on test day: a quiet room, paper for scratch work, no phone. Answer every question, because unanswered questions cost points on the real exam. Rate how sure you are before moving on. At the end of a block you can change up to 3 answers if time is left. Then you review each miss and try it again before seeing the solution.</p></section>
     <section class="blocks">${cards}</section>`;
 };
-function practicePool(){ return Object.values(S.bank).filter(q => !q.flagged && (q.set !== 'diagnostic' || blockDone(q.block))); }
+/* Practice opens section by section once that section's diagnostic block is done, for written and generated questions alike. */
+function practicePool(){ return Object.values(S.bank).filter(q => !q.flagged && blockDone(q.block)); }
 VIEWS.practice = function(){
-  const P = S.ui.practice; const pool = practicePool();
+  const P = S.ui.practice; const pool = practicePool(), gen = genPool(P.topic);
   const seen = new Set(attemptsAll().map(a => a.qid));
-  const inSec = pool.filter(q => !P.section || q.section === P.section);
-  const topics = [...new Set(inSec.map(q => q.topic))].sort();
-  const match = inSec.filter(q => (!P.topic || q.topic === P.topic) && (!P.diff || String(q.difficulty) === P.diff || (P.diff === '5' && q.difficulty >= 5)) && (!P.unseen || !seen.has(q.id)));
-  const form = pool.length ? `<div class="card stack"><h2>Build a set</h2>
+  const inSec = pool.filter(q => !P.section || q.section === P.section), genSec = gen.filter(q => !P.section || q.section === P.section);
+  const topics = [...new Set([...inSec, ...genSec].map(q => q.topic))].sort();
+  const fits = q => (!P.topic || q.topic === P.topic) && (!P.diff || String(q.difficulty) === P.diff || (P.diff === '5' && q.difficulty >= 5));
+  const match = inSec.filter(q => fits(q) && (!P.unseen || !seen.has(q.id))), genMatch = genSec.filter(fits);
+  const can = genMatch.length ? +P.count : Math.min(match.length, +P.count);
+  const form = pool.length || gen.length ? `<div class="card stack"><h2>Build a set</h2>
       <div class="fgrid">
         <div><label class="lab" for="p-sec">Section</label><select id="p-sec" data-ui="practice.section">${['', ...SECTIONS].map(s => `<option value="${s}" ${P.section === s ? 'selected' : ''}>${s || 'All sections'}</option>`).join('')}</select></div>
         <div><label class="lab" for="p-top">Topic</label><select id="p-top" data-ui="practice.topic"><option value="">All topics</option>${topics.map(t => `<option ${P.topic === t ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select></div>
@@ -835,8 +859,8 @@ VIEWS.practice = function(){
         <div><label class="lab" for="p-mode">Mode</label><select id="p-mode" data-ui="practice.mode"><option value="learn" ${P.mode === 'learn' ? 'selected' : ''}>Learn: feedback after each question</option><option value="timed" ${P.mode === 'timed' ? 'selected' : ''}>Timed: real pace, review at the end</option></select></div>
       </div>
       <label class="checks"><input type="checkbox" id="p-unseen" data-ui="practice.unseen" ${P.unseen ? 'checked' : ''}> Only questions I have not seen</label>
-      <div class="row"><button class="btn primary" data-act="startpractice" ${match.length ? '' : 'disabled'}>Start ${Math.min(match.length, +P.count)} question${Math.min(match.length, +P.count) === 1 ? '' : 's'}</button><button class="btn" data-act="startsmartform" ${inSec.length ? '' : 'disabled'}>Let the coach pick</button><span class="fine">${match.length} match these filters. The coach picks within the section and topic, weighted toward your weak spots.</span></div></div>`
-    : `<div class="card stack"><h2>Your training sets are not here yet</h2><p class="muted">Practice opens section by section once you finish that section’s diagnostic block. After the diagnostic, Claude adds sets aimed at your weakest topics.</p><div class="row"><button class="btn primary" data-act="tab" data-arg="diagnostic">Go to the diagnostic</button></div></div>`;
+      <div class="row"><button class="btn primary" data-act="startpractice" ${can ? '' : 'disabled'}>Start ${can} question${can === 1 ? '' : 's'}</button><button class="btn" data-act="startsmartform" ${inSec.length || genSec.length ? '' : 'disabled'}>Let the coach pick</button><span class="fine">${match.length} written question${match.length === 1 ? '' : 's'} match${match.length === 1 ? 'es' : ''} these filters${genMatch.length ? ', plus new generated questions without limit (written ones come first)' : ''}. The coach picks within the section and topic, weighted toward your weak spots.</span></div></div>`
+    : `<div class="card stack"><h2>Your training sets are not here yet</h2><p class="muted">Practice opens section by section once you finish that section’s diagnostic block. Then Quant and Data Insights have new generated questions without limit, and Claude adds Verbal sets aimed at your weakest topics.</p><div class="row"><button class="btn primary" data-act="tab" data-arg="diagnostic">Go to the diagnostic</button></div></div>`;
   return `<section><h1>Practice</h1><p class="muted" style="max-width:70ch">Every set logs time, confidence and errors, like the diagnostic. In Learn mode a miss goes straight to review: retry, hints one at a time, then the solution.</p></section>
     <section class="grid2">${form}</section>`;
 };
@@ -892,7 +916,7 @@ function simulationCard(){
     <p class="muted" style="max-width:75ch">The real GMAT Focus format: three 45-minute sections (Quant 21, Verbal 23, Data Insights 20 questions) in the order you choose, one optional 10-minute break after the first or second section, questions that get harder or easier with your answers, no going back, bookmarks and up to 3 answer changes per section at the end, calculator only in Data Insights, no feedback until the end. Only questions you have never seen.</p>
     <div class="fgrid" style="max-width:520px"><div><label class="lab" for="ex-order">Section order</label><select id="ex-order" data-ui="exam.order">${EXAM_ORDERS.map((o, i) => `<option value="${i}" ${String((S.ui.exam || {}).order || 0) === String(i) ? 'selected' : ''}>${o.length > 1 ? o.join(' → ') : o[0] + ' section only'}</option>`).join('')}</select></div></div>
     <p class="fine">Unseen questions: ${ready.map(x => `<span class="${x.ok ? '' : 'res-no'}">${esc(x.section)} ${x.have}/${x.need}</span>`).join(' · ')}</p>
-    <div class="row"><button class="btn primary" data-act="startexam" ${ok ? '' : 'disabled'}>Start the simulation · ${order.length * 45} min</button>${ok ? '' : '<span class="fine">Claude’s daily review adds questions until every section has enough.</span>'}</div></section>`;
+    <div class="row"><button class="btn primary" data-act="startexam" ${ok ? '' : 'disabled'}>Start the simulation · ${order.length * 45} min</button>${ok ? '' : '<span class="fine">Quant and Data Insights open after their diagnostic block; Claude’s daily review adds Verbal questions until there are enough.</span>'}</div></section>`;
 }
 VIEWS.mocks = function(){
   const list = Object.values(S.mocks).sort((a,b) => String(a.date).localeCompare(String(b.date)));
@@ -995,7 +1019,7 @@ VIEWS.settings = function(){
   <section class="grid2">
     <div class="card stack"><h2>Your data</h2>
       <p class="muted">Progress is saved in this browser${sc.on ? ' and synced to GitHub' : ''}. ${sc.on ? 'Every device with sync on shares it.' : 'Other browsers and devices do not see it unless you turn on GitHub sync.'}</p>
-      ${sum ? `<ul class="facts"><li><b>Questions</b><span class="mono">${sum.questions} in the bank${sum.generated ? ` · ${sum.generated} generated or reported` : ''}</span></li><li><b>Progress</b><span class="mono">${sum.sessions} sessions · ${sum.errors} logged errors · ${sum.mocks} mocks</span></li><li><b>Size</b><span class="mono">${Math.max(1, Math.round(sum.bytes/1024))} KB of about 5,000 KB</span></li></ul>` : ''}
+      ${sum ? `<ul class="facts"><li><b>Questions</b><span class="mono">${sum.questions} in the bank${sum.generated ? ` · ${sum.generated} reported` : ''}${GEN ? ` · plus unlimited generated Quant and Data Insights questions` : ''}</span></li><li><b>Progress</b><span class="mono">${sum.sessions} sessions · ${sum.errors} logged errors · ${sum.mocks} mocks</span></li><li><b>Size</b><span class="mono">${Math.max(1, Math.round(sum.bytes/1024))} KB of about 5,000 KB</span></li></ul>` : ''}
       <div class="row"><button class="btn" data-act="exportdata" ${ok ? '' : 'disabled'}>Export backup</button><button class="btn" data-act="importpick" ${ok ? '' : 'disabled'}>Import backup</button><input type="file" id="import-file" accept=".json,application/json" hidden></div>
       <p class="fine">A backup is one JSON file. Importing adds it to what is here; for each item the newer version wins.</p>
       ${S.ui.erase ? `<div class="confirm"><span>Erase all progress in this browser?${sc.on ? ' The copy on GitHub stays and comes back at the next sync.' : ' Export a backup first if you may need it.'}</span><button class="btn small danger" data-act="eraseok">Erase</button><button class="btn small" data-act="eraseno">Keep</button></div>` : `<div class="row"><button class="btn ghost danger small" data-act="erase" ${ok ? '' : 'disabled'}>Erase data in this browser</button></div>`}
@@ -1076,7 +1100,13 @@ const ACTIONS = {
   sort(el){ const id = el.dataset.q, c = +el.dataset.c; const st = S.ui.sort[id] || { c:null, dir:1 }; S.ui.sort[id] = st.c === c ? { c, dir: -st.dir } : { c, dir: 1 }; const box = $(`.ta[data-q="${id}"]`); if (box) box.outerHTML = tableHTML(S.bank[id]); },
   startpractice(){ const P = S.ui.practice; const seen = new Set(attemptsAll().map(a => a.qid));
     let pool = practicePool().filter(q => (!P.section || q.section === P.section) && (!P.topic || q.topic === P.topic) && (!P.diff || String(q.difficulty) === P.diff || (P.diff === '5' && q.difficulty >= 5)) && (!P.unseen || !seen.has(q.id)));
-    pool = pool.sort(() => Math.random() - 0.5).slice(0, +P.count); if (!pool.length) return;
+    pool = pool.sort(() => Math.random() - 0.5).slice(0, +P.count);
+    if (pool.length < +P.count){      // top up with generated questions, one per template before any repeats
+      const g = genPool(P.topic).filter(q => (!P.section || q.section === P.section) && (!P.topic || q.topic === P.topic) && (!P.diff || String(q.difficulty) === P.diff || (P.diff === '5' && q.difficulty >= 5))).sort(() => Math.random() - 0.5);
+      const tpl = id => id.split('-')[1], firsts = g.filter((q, i) => g.findIndex(x => tpl(x.id) === tpl(q.id)) === i);
+      pool = pool.concat([...firsts, ...g.filter(q => !firsts.includes(q))].slice(0, +P.count - pool.length));
+    }
+    if (!pool.length) return;
     const label = `Practice · ${P.topic || P.section || 'mixed'}`;
     if (P.mode === 'timed'){ const lim = Math.round(pool.reduce((s,q) => s + PACE[q.section], 0)); startRun({ kind:'practice', qids: pool.map(q => q.id), mode:'test', timed:true, limitSec: lim, label: label + ' · timed' }); }
     else startLearn(pool.map(q => q.id), label, 'practice'); },
@@ -1183,7 +1213,7 @@ function lessonView(topic){
   const L = lessonOf(topic);
   if (!L){ S.ui.lesson = null; return VIEWS.learn(); }
   const all = SECTIONS.flatMap(sec => SYLLABUS[sec]).filter(t => lessonOf(t)), i = all.indexOf(topic);
-  const m = mastery(topic), avail = practicePool().filter(q => q.topic === topic).length;
+  const m = mastery(topic), avail = practicePool().filter(q => q.topic === topic).length + genPool(topic).filter(q => q.topic === topic).length;
   const list = (title, arr, tag) => arr && arr.length ? `<div class="stack" style="gap:6px"><h3>${title}</h3><${tag} class="answer">${arr.map(x => `<li>${inline(x)}</li>`).join('')}</${tag}></div>` : '';
   return `<section class="stack"><div class="row"><button class="btn small ghost" data-act="lessonback">← All lessons</button></div>
     <p class="eyebrow">${esc(L.section)}</p><h1>${esc(L.topic)}</h1><p class="muted" style="max-width:70ch">${inline(L.summary)}</p>
@@ -1196,7 +1226,7 @@ function lessonView(topic){
     ${list('Shortcuts', L.shortcuts, 'ul')}
     ${L.example ? `<div class="panel stack"><p class="eyebrow">Example</p><p>${inline(L.example.q)}</p><details class="more"><summary>Show the solution</summary><p style="margin-top:8px">${inline(L.example.a)}</p></details></div>` : ''}
   </section>
-  <section class="row">${avail ? `<button class="btn primary" data-act="startsmart" data-arg="learn|${esc(topic)}|${Math.min(5, avail)}">Practice ${esc(topic)}</button>` : '<span class="fine">No practice questions on this topic yet: the daily review adds them.</span>'}
+  <section class="row">${avail ? `<button class="btn primary" data-act="startsmart" data-arg="learn|${esc(topic)}|${Math.min(5, avail)}">Practice ${esc(topic)}</button>` : `<span class="fine">${BLOCKS.some(b => b.section === L.section && !blockDone(b.key)) ? `Practice on this topic opens when you finish the ${esc(L.section)} diagnostic block.` : 'No practice questions on this topic yet: the daily review adds them.'}</span>`}
     ${i > 0 ? `<button class="btn ghost" data-act="lesson" data-arg="${esc(all[i - 1])}">← ${esc(all[i - 1])}</button>` : ''}${i < all.length - 1 ? `<button class="btn ghost" data-act="lesson" data-arg="${esc(all[i + 1])}">${esc(all[i + 1])} →</button>` : ''}</section>`;
 }
 function guideView(id){

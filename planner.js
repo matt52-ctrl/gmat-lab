@@ -9,6 +9,7 @@ const LEARN_MIN = 3;        // minutes per question in learn mode, review includ
 const TIMED_MIN = 2.2;      // minutes per question at real test pace (about 2:09 Q, 1:57 V, 2:15 DI)
 const RETEST_MIN = 3;
 const STATUS_WEIGHT = [0.8, 0.9, 1.0, 0.7, 0.35, 0.15];   // by mastery status 0..5: not started … mastered
+const GEN_WEIGHT = 0.3;     // a generated question (pool entry with gen: true) counts less than a written one, so written ones come first
 
 const pad = n => String(n).padStart(2, '0');
 const ymd = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
@@ -79,7 +80,7 @@ function pickSet(ctx, n, opts){
       if ((used[q.topic] || 0) >= perTopic) return 0;
       const t = W[q.topic] || { weight: 0.8, status: 0 };
       const fit = 1 / (1 + Math.abs((q.difficulty || 3) - targetDifficulty(t.status)));
-      return t.weight * fit * (q.seen ? 0.3 : 1);
+      return t.weight * fit * (q.seen ? 0.3 : 1) * (q.gen ? GEN_WEIGHT : 1);
     });
     const total = ws.reduce((a, b) => a + b, 0);
     if (!total){ if (perTopic === Infinity) break; perTopic = Infinity; continue; }
@@ -125,7 +126,7 @@ function nextAdaptive(ctx, st, opts){
   const ws = src.map(q => {
     const topicW = st.exam ? 1 / (1 + (perTopic[q.topic] || 0)) : st.topic ? 1 : (W[q.topic] || 0.8);
     // a simulation stays close to the estimated level, as a real adaptive test does; practice allows a little more spread
-    return topicW * Math.exp(-(st.exam ? 2 : 1.2) * Math.abs((q.difficulty || 3) - st.level)) * (q.seen ? 0.3 : 1);
+    return topicW * Math.exp(-(st.exam ? 2 : 1.2) * Math.abs((q.difficulty || 3) - st.level)) * (q.seen ? 0.3 : 1) * (q.gen ? GEN_WEIGHT : 1);
   });
   const total = ws.reduce((a, b) => a + b, 0);
   let r = rng() * total;
