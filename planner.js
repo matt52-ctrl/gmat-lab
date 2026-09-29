@@ -91,6 +91,52 @@ function pickSet(ctx, n, opts){
   return out;
 }
 
+/* ------------------------------------------------------------------ adaptive sessions
+   Like the real GMAT Focus, difficulty moves question by question: up after a right answer, down after a wrong one.
+   Exam mode balances content the way a test does (no weakness weighting, topics spread out); practice mode leans
+   toward weak topics and, after a miss, often stays on the same topic. Reading passages keep their questions together. */
+const EXAM_COUNTS = { 'Quant': 21, 'Verbal': 23, 'Data Insights': 20 };
+const EXAM_MINUTES = 45;
+function levelAfter(level, res){
+  if (!res) return level;
+  if (res.unanswered || !res.correct) return clamp(level - 0.75, 1.5, 6);
+  const fast = !(res.timeSec > 1.2 * res.expectedSec), sure = res.confidence == null || res.confidence >= 60;
+  return clamp(level + (fast && sure ? 0.75 : 0.35), 1.5, 6);
+}
+function startLevel(ctx, st){
+  if (st.exam) return 3.5;                       // the real test starts everyone at a middle level
+  const ts = ctx.topics.filter(t => t.n > 0 && (!st.topic || t.topic === st.topic) && (!st.section || t.section === st.section));
+  const n = ts.reduce((s, t) => s + t.n, 0);
+  if (!n) return 3;
+  return clamp(2.5 + 0.5 * ts.reduce((s, t) => s + t.status * t.n, 0) / n, 2.5, 5);
+}
+function nextAdaptive(ctx, st, opts){
+  const rng = (opts && opts.rng) || Math.random;
+  const used = new Set(st.used || []);
+  const cands = ctx.pool.filter(q => !used.has(q.id) && (!st.topic || q.topic === st.topic) && (!st.section || q.section === st.section));
+  let src = cands.filter(q => !q.seen);
+  if (!src.length && !st.exam) src = cands;       // practice may reuse seen questions; a simulation may not
+  if (!src.length) return null;
+  const last = st.last;
+  if (last && last.group){ const same = src.filter(q => q.group === last.group); if (same.length) src = same; }
+  else if (!st.exam && !st.topic && last && !last.correct && rng() < 0.6){ const same = src.filter(q => q.topic === last.topic); if (same.length) src = same; }
+  const W = {}; if (!st.exam && !st.topic) for (const t of topicWeights(ctx)) W[t.topic] = t.weight;
+  const perTopic = {}; for (const id of used){ const q = ctx.pool.find(x => x.id === id); if (q) perTopic[q.topic] = (perTopic[q.topic] || 0) + 1; }
+  const ws = src.map(q => {
+    const topicW = st.exam ? 1 / (1 + (perTopic[q.topic] || 0)) : st.topic ? 1 : (W[q.topic] || 0.8);
+    // a simulation stays close to the estimated level, as a real adaptive test does; practice allows a little more spread
+    return topicW * Math.exp(-(st.exam ? 2 : 1.2) * Math.abs((q.difficulty || 3) - st.level)) * (q.seen ? 0.3 : 1);
+  });
+  const total = ws.reduce((a, b) => a + b, 0);
+  let r = rng() * total;
+  for (let i = 0; i < src.length; i++){ if (r < ws[i]) return src[i].id; r -= ws[i]; }
+  return src[src.length - 1].id;
+}
+/* Unseen questions per section against what a simulation needs. */
+function examReadiness(ctx, sections){
+  return sections.map(section => { const have = ctx.pool.filter(q => q.section === section && !q.seen).length; const need = EXAM_COUNTS[section]; return { section, have, need, ok: have >= need }; });
+}
+
 /* Today's plan within the minutes available. Order: interview, unfinished review, diagnostic, retests,
    weakest topic (learn mode), then a timed mixed set with what is left. */
 function plan(ctx){
@@ -123,7 +169,7 @@ function plan(ctx){
   if (ctx.diagnosticDone && ctx.phase === 0 && !claudeFocus(ctx).length)
     add({ id:'analyse', title:'Ask Claude to analyse your diagnostic', why:'Write “analizza il diagnostic” to Claude, with GitHub sync on (or attach a backup). Claude builds your profile, your plan and new questions on your weak topics.', minutes:0 });
   else if (ctx.diagnosticDone && !ctx.pool.some(q => !q.seen))
-    add({ id:'more', title:'You have seen every practice question', why:'Write “nuove domande” to Claude, or wait for the weekly review: it adds questions on your weak topics.', minutes:0 });
+    add({ id:'more', title:'You have seen every practice question', why:'Write “nuove domande” to Claude, or wait for tomorrow morning’s review: it adds questions on your weak topics.', minutes:0 });
   const mr = mockReadiness(ctx);
   const lastMock = ctx.mocks.map(m => m.date).sort().pop();
   if (mr.ready && (!lastMock || daysBetween(lastMock, ctx.today) >= 14))
@@ -258,7 +304,7 @@ function answer(ctx, key){
   return { title: (QUESTIONS.find(q => q[0] === key) || [key, key])[1], lines: L };
 }
 
-const api = { topicWeights, pickSet, plan, answer, QUESTIONS, mockReadiness, trend, errorStats, weekSplit, reason };
+const api = { topicWeights, pickSet, plan, answer, QUESTIONS, mockReadiness, trend, errorStats, weekSplit, reason, levelAfter, startLevel, nextAdaptive, examReadiness, EXAM_COUNTS, EXAM_MINUTES };
 root.GMATPlanner = api;
 if (typeof module === 'object' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

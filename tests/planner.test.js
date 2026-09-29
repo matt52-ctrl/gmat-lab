@@ -126,3 +126,53 @@ test('a Developing topic with high accuracy is not called a weakness', () => {
   const week = P.answer(c, 'week').lines;
   assert.ok(week.some(l => /Probability/.test(l)) && !week.some(l => /CR · Weaken/.test(l)), week.join(' | '));
 });
+
+test('adaptive level: up after a right answer, more when fast and sure; down after a miss; stays in range', () => {
+  assert.equal(P.levelAfter(3.5, { correct: true, timeSec: 80, expectedSec: 120, confidence: 80 }), 4.25);
+  assert.equal(P.levelAfter(3.5, { correct: true, timeSec: 200, expectedSec: 120, confidence: 80 }), 3.85);
+  assert.equal(P.levelAfter(3.5, { correct: false, timeSec: 80, expectedSec: 120 }), 2.75);
+  assert.equal(P.levelAfter(3.5, { unanswered: true }), 2.75);
+  assert.equal(P.levelAfter(5.8, { correct: true, timeSec: 60, expectedSec: 120 }), 6);
+  assert.equal(P.levelAfter(1.6, { correct: false }), 1.5);
+});
+
+test('simulations start at a middle level; practice starts from mastery', () => {
+  assert.equal(P.startLevel(ctx(), { exam: true }), 3.5);
+  assert.equal(P.startLevel(ctx({ topics: [] }), {}), 3);
+  assert.ok(P.startLevel(ctx(), { topic: 'Percents' }) > P.startLevel(ctx(), { topic: 'Probability' }));
+});
+
+test('the next question tracks the level, never repeats, and a simulation never reuses seen questions', () => {
+  const pool = [1, 2, 3, 4, 5, 6].map(d => q('d' + d, 'Percents', 'Quant', d));
+  const c = ctx({ pool });
+  const hits = {};
+  for (let i = 0; i < 300; i++){ const id = P.nextAdaptive(c, { level: 5, used: [], exam: true }, { rng: seeded(i + 1) }); hits[id] = (hits[id] || 0) + 1; }
+  assert.ok(hits.d5 / 300 > 0.6, 'most picks at the level: ' + JSON.stringify(hits));
+  assert.ok(!hits.d1 && (hits.d2 || 0) < 10, 'almost never 3+ levels away: ' + JSON.stringify(hits));
+  assert.equal(P.nextAdaptive(c, { level: 3, used: pool.map(x => x.id), exam: true }), null);
+  const seenOnly = ctx({ pool: [q('s1', 'Percents', 'Quant', 3, true)] });
+  assert.equal(P.nextAdaptive(seenOnly, { level: 3, used: [], exam: true }), null);
+  assert.equal(P.nextAdaptive(seenOnly, { level: 3, used: [] }), 's1');
+});
+
+test('a reading passage keeps its questions together', () => {
+  const pool = [ { ...q('r1', 'RC · Main idea', 'Verbal', 3), group: 'p1' }, { ...q('r2', 'RC · Detail', 'Verbal', 4), group: 'p1' }, q('c1', 'CR · Weaken', 'Verbal', 4), q('c2', 'CR · Weaken', 'Verbal', 3) ];
+  for (let i = 0; i < 20; i++) assert.equal(P.nextAdaptive(ctx({ pool }), { level: 4, used: ['r1'], exam: true, last: { group: 'p1', topic: 'RC · Main idea', correct: true } }, { rng: seeded(i + 1) }), 'r2');
+});
+
+test('simulation spreads topics; practice leans toward weak topics', () => {
+  const pool = [...Array.from({ length: 6 }, (_, i) => q('p' + i, 'Percents', 'Quant', 4)), ...Array.from({ length: 6 }, (_, i) => q('b' + i, 'Probability', 'Quant', 4))];
+  const c = ctx({ pool });
+  let examPerc = 0, pracProb = 0;
+  for (let i = 0; i < 300; i++){
+    if (P.nextAdaptive(c, { level: 4, used: ['p0', 'p1', 'p2'], exam: true }, { rng: seeded(i + 7) }).startsWith('b')) examPerc++;
+    if (P.nextAdaptive(c, { level: 4, used: [] }, { rng: seeded(i + 9) }).startsWith('b')) pracProb++;
+  }
+  assert.ok(examPerc > 200, 'after 3 Percents the simulation should move on: ' + examPerc);
+  assert.ok(pracProb > 150, 'practice should favour the weak topic: ' + pracProb);
+});
+
+test('simulation readiness counts unseen questions per section', () => {
+  const r = P.examReadiness(ctx(), ['Quant', 'Verbal']);
+  assert.deepEqual(r.map(x => [x.section, x.have, x.need, x.ok]), [['Quant', 7, 21, false], ['Verbal', 2, 23, false]]);
+});
