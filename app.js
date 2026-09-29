@@ -1,4 +1,4 @@
-/* GMAT Lab: views, test engine and analytics. Storage is in store.js, the Claude coach in coach.js. */
+/* GMAT Lab: views, test engine and analytics. Storage is in store.js; the rule-based coach and adaptive engine in planner.js. */
 (() => {
 'use strict';
 
@@ -39,7 +39,6 @@ const SYLLABUS = {
   'Data Insights': ['Data Sufficiency','Two-Part Analysis','Table Analysis','Graphics Interpretation','Multi-Source Reasoning'],
   'Verbal': ['CR · Strengthen','CR · Weaken','CR · Assumption','CR · Evaluate','CR · Inference','CR · Boldface/Role','CR · Flaw','CR · Explain discrepancy','CR · Plan/Method','RC · Main idea','RC · Detail','RC · Inference','RC · Function/Structure','RC · Application','RC · Tone/Style'],
 };
-const GEN_TYPE = { 'Quant':'PS', 'Data Insights':'DS', 'Verbal':'CR' };
 const STATUS = ['Not started','Introduced','Practicing','Developing','Strong','Mastered'];
 const PHASES = ['Diagnostic & setup','Foundations','Core mastery','Advanced problem solving','Timing & pressure','High-level (750+)','Full simulations','Final optimization'];
 const TARGETS = {
@@ -60,7 +59,7 @@ const RATING_ITEMS = [
 const RESOURCES = ['Official Starter Kit + Practice Exams 1–2 (free)','GMAT Official Guide 2026–2027','Official Quant Review','Official Verbal Review','Official Data Insights Review','Official Practice Exams 3–6','Other course or book'];
 
 /* ------------------------------------------------------------------ state + helpers */
-const S = { db:null, dbStatus:'connecting', sample:null, bank:{}, sessions:{}, errors:{}, mocks:{}, profile:{}, studylog:{}, loaded:new Set(), tab:'today', run:null, ui:{ practice:{ section:'Quant', topic:'', diff:'', count:'10', mode:'learn', unseen:true }, gen:{ section:'Quant', topic:'Percents', diff:'4' }, sort:{}, msrTab:0 }, coach:null };
+const S = { db:null, dbStatus:'connecting', bank:{}, sessions:{}, errors:{}, mocks:{}, profile:{}, studylog:{}, loaded:new Set(), tab:'today', run:null, ui:{ practice:{ section:'Quant', topic:'', diff:'', count:'10', mode:'learn', unseen:true }, sort:{}, msrTab:0 } };
 const COLLECTIONS = ['bank','sessions','errors','mocks','profile','studylog'];
 const $ = (sel, root) => (root || document).querySelector(sel);
 const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
@@ -240,12 +239,10 @@ function renderChrome(){
 function render(){
   renderChrome();
   const main = $('#main');
-  if (S.run){ main.innerHTML = runView(); postRender(); return; }
+  if (S.run){ main.innerHTML = runView(); return; }
   S.ui.dirty = false;
   main.innerHTML = (VIEWS[S.tab] || VIEWS.today)();
-  postRender();
 }
-function postRender(){ const t = $('#coach-log'); if (t) t.scrollTop = t.scrollHeight; }
 let rq = false;
 function scheduleRender(){
   if (rq) return; rq = true;
@@ -335,17 +332,6 @@ function solutionHTML(q){
     <p class="fine">Expected time ≈ ${fmtTime(expOf(q))} · ${esc(q.topic || '')}${q.subtopic ? ' · ' + esc(q.subtopic) : ''} · level ${q.difficulty || '—'}${q.set === 'generated' ? ' · written by Claude on request, not hand-checked' : ''} · <button class="linkbtn" data-act="report">Report a problem</button></p>
     <div id="report-box" hidden><label class="lab" for="report-note">What looks wrong?</label><textarea id="report-note" rows="2"></textarea><div class="row" style="margin-top:8px"><button class="btn small" data-act="reportsend">Send report</button><button class="btn small ghost" data-act="reportcancel">Cancel</button></div></div></div>`;
 }
-function coachBox(q, revealed){
-  if (!S.sample) return '';
-  if (!S.coach || S.coach.qid !== q.id) S.coach = { qid: q.id, turns: [], busy:false };
-  const log = S.coach.turns.map(t => `<div class="bubble ${t.role === 'user' ? 'me' : 'ai'}">${esc(t.content)}</div>`).join('');
-  return `<details class="coach card" ${S.ui.coachOpen ? 'open' : ''}><summary>Ask the coach about this question</summary>
-    <div class="coach-log" id="coach-log">${log}</div>
-    <label class="lab" for="coach-in">Your question, in English</label>
-    <textarea id="coach-in" rows="2" placeholder="${revealed ? 'e.g. Is there a faster way than the method shown?' : 'e.g. I think the answer depends on the base. Am I on the right track?'}"></textarea>
-    <div class="row" style="margin-top:8px"><button class="btn" id="coach-send" data-act="coachsend" data-rev="${revealed ? 1 : 0}">Ask</button><button class="btn ghost" id="coach-stop" data-act="coachstop" hidden>Stop</button></div>
-    <p class="fine" style="margin-top:6px">Uses your Anthropic API key (Settings). ${revealed ? 'The solution is open, so the coach can explain it fully.' : 'The coach answers with questions and will not reveal the answer before you do.'}</p></details>`;
-}
 
 /* ------------------------------------------------------------------ run engine */
 let ticker = null;
@@ -370,7 +356,7 @@ function startRun(o){
     idx:0, answers:{}, attempts:[], started:now, endsAt: o.timed ? now + o.limitSec*1000 : null, qStart:now,
     phase: o.mode === 'test' ? 'question' : 'learn', sub:'answer', editsUsed:0, reviewedQids:[],
     adaptive: o.adaptive || null, noConf: !!o.noConf, examId: o.examId || null };
-  S.ui.msrTab = 0; S.coach = null;
+  S.ui.msrTab = 0;
   write('sessions/' + id, 'set', { kind:o.kind, block:o.block || null, mode:o.mode, label:o.label, timed:!!o.timed, limitSec:o.limitSec || null, start:new Date(now).toISOString(), status:'active', attempts:[], qids:o.qids,
     ...(o.adaptive ? { adaptive:true } : {}), ...(o.examId ? { examId:o.examId, examSection:o.adaptive.section } : {}) });
   startTicker(); render(); window.scrollTo(0,0);
@@ -435,7 +421,7 @@ function finishRun(timeUp){
 function endRun(goTab){
   const r = S.run; stopTicker();
   if (r && r.mode === 'learn' && !r.closed) write('sessions/' + r.id, 'update', { status:'done', end:new Date().toISOString(), durationSec: Math.round((Date.now() - r.started)/1000) });
-  S.run = null; S.coach = null;
+  S.run = null;
   if (goTab){ S.tab = goTab; try { history.replaceState(null, '', '#' + goTab); } catch(e){} }
   render(); window.scrollTo(0,0);
 }
@@ -486,7 +472,7 @@ function recordRetest(q, correct){
 function debriefAdvance(){
   const r = S.run, d = r.debrief, it = d.list[d.i];
   if (r.mode === 'test'){ r.reviewedQids = [...(r.reviewedQids || []), it.qid]; write('sessions/' + r.id, 'update', { reviewedQids:r.reviewedQids }); }
-  if (d.i < d.list.length - 1){ Object.assign(d, { i:d.i+1, retry:null, hints:0, tries:0, solved:false, revealed:false, etype:null, msg:null }); S.coach = null; S.ui.msrTab = 0; render(); window.scrollTo(0,0); return; }
+  if (d.i < d.list.length - 1){ Object.assign(d, { i:d.i+1, retry:null, hints:0, tries:0, solved:false, revealed:false, etype:null, msg:null }); S.ui.msrTab = 0; render(); window.scrollTo(0,0); return; }
   if (r.mode === 'learn'){ r.phase = 'learn'; r.debrief = null; learnAdvance(); return; }
   write('sessions/' + r.id, 'update', { reviewed:true });
   const n = d.list.length, back = r.kind === 'diagnostic' ? 'diagnostic' : 'today';
@@ -495,7 +481,7 @@ function debriefAdvance(){
 function learnAdvance(){
   const r = S.run;
   if (r.idx === r.qids.length - 1) adaptivePush(r);
-  if (r.idx < r.qids.length - 1){ r.idx++; r.sub = 'answer'; r.qStart = Date.now(); S.ui.msrTab = 0; S.coach = null; render(); window.scrollTo(0,0); return; }
+  if (r.idx < r.qids.length - 1){ r.idx++; r.sub = 'answer'; r.qStart = Date.now(); S.ui.msrTab = 0; render(); window.scrollTo(0,0); return; }
   r.phase = 'done'; r.closed = true; stopTicker();
   write('sessions/' + r.id, 'update', { status:'done', end:new Date().toISOString(), durationSec: Math.round((Date.now() - r.started)/1000) });
   render(); window.scrollTo(0,0);
@@ -588,6 +574,17 @@ function resultsView(){
     ${todo.length ? '<p class="fine">You review wrong, unanswered, low-confidence and slow questions. You try each one again before any answer is shown.</p>' : ''}
   </section>`;
 }
+/* Why a wrong answer is tempting, from the question's own diagnosis (one note per wrong option). */
+function diagnose(q, ans){
+  if (ans == null) return [];
+  if (isMulti(q)) return q.parts.map((p, i) => Array.isArray(ans) && Number.isInteger(ans[i]) && ans[i] !== p.answer && p.diagnosis && p.diagnosis[ans[i]] ? { label: p.label, pick: p.options[ans[i]], ...p.diagnosis[ans[i]] } : null).filter(Boolean);
+  const d = Number.isInteger(ans) && q.diagnosis && q.diagnosis[ans];
+  return d ? [{ label: null, pick: LETTERS[ans], ...d }] : [];
+}
+function diagnosisHTML(list){
+  if (!list.length) return '';
+  return `<div class="panel stack"><p class="eyebrow">Why your answer was tempting</p><ul class="answer">${list.map(x => `<li>${x.label ? `<b>${inline(x.label)}</b> — you chose ${esc(x.pick)}. ` : `You chose ${esc(x.pick)}. `}${inline(x.why)} <span class="pill">${esc(x.type)}</span></li>`).join('')}</ul></div>`;
+}
 const REASON = { wrong:['bad','Wrong answer'], unanswered:['warn','Unanswered'], guessed:['warn','Low confidence'], slow:['acc','Slow'] };
 function debriefView(){
   const r = S.run, d = r.debrief, it = d.list[d.i], q = S.bank[it.qid], a = it.a;
@@ -605,13 +602,14 @@ function debriefView(){
   if (!open){
     actions = `<div class="row"><button class="btn primary" id="check-btn" data-act="dcheck" disabled>Check</button>${d.hints < q.hints.length ? `<button class="btn" data-act="hint">Show hint ${d.hints+1} of ${q.hints.length}</button>` : `<button class="btn" data-act="reveal">Show full solution</button>`}${d.hints > 0 && d.hints < q.hints.length ? '<button class="btn ghost" data-act="reveal">Skip to the solution</button>' : ''}</div>`;
   }
-  const defaultType = d.etype || ({ guessed:'Guessing', unanswered:'Timing' })[it.reason] || null;
+  const diag = it.reason === 'wrong' ? diagnose(q, a.answer) : [];
+  const defaultType = d.etype || (diag[0] && diag[0].type) || ({ guessed:'Guessing', unanswered:'Timing' })[it.reason] || null;
   if (open && !d.etype && defaultType) d.etype = defaultType;
   const classify = (it.reason === 'slow' && !d.logSlow) ? `<div class="row"><button class="btn" data-act="logslow">Log it as a Timing issue</button><button class="btn primary" data-act="skipitem">It was fine, next</button></div>` : `
     <div class="card stack"><h3>Log this ${it.reason === 'guessed' ? 'guess' : it.reason === 'slow' ? 'timing issue' : 'error'}</h3>
       <div class="chips" role="group" aria-label="Error type">${ERROR_TYPES.map(([k,desc]) => `<button class="chip" data-act="etype" data-v="${k}" title="${esc(desc)}" aria-pressed="${d.etype === k}">${k}</button>`).join('')}</div>
-      <p class="fine" id="etype-desc">${d.etype ? esc((ERROR_TYPES.find(e => e[0] === d.etype) || [])[1]) : 'Pick the main cause.'}</p>
-      <div><label class="lab" for="why">Why I missed it</label><textarea id="why" rows="2" placeholder="e.g. I took 10% of 40 and forgot that the total volume grows too."></textarea></div>
+      <p class="fine" id="etype-desc">${d.etype ? esc((ERROR_TYPES.find(e => e[0] === d.etype) || [])[1]) : 'Pick the main cause.'}${diag.length ? ' Suggested from the answer you chose; change it if the cause was different.' : ''}</p>
+      <div><label class="lab" for="why">Why I missed it</label><textarea id="why" rows="2" placeholder="${diag.length ? esc('In your own words, or leave empty to keep: ' + diag.map(x => x.why).join(' ').replace(/\*\*|\^\{|\}|_\{/g, '')) : 'e.g. I took 10% of 40 and forgot that the total volume grows too.'}"></textarea></div>
       <div><label class="lab" for="rule">Prevention rule</label><textarea id="rule" rows="2" placeholder="e.g. In mixture problems, write the new part AND the new total before any equation."></textarea></div>
       <div class="row"><button class="btn primary" data-act="saveerror">Save to error log</button>${it.reason !== 'wrong' && it.reason !== 'unanswered' ? '<button class="btn ghost" data-act="skipitem">Skip</button>' : ''}</div>
     </div>`;
@@ -622,9 +620,9 @@ function debriefView(){
     ${d.msg ? `<p class="msg ${d.msg.kind}">${esc(d.msg.text)}</p>` : ''}
     ${hints}
     ${actions}
+    ${open ? diagnosisHTML(diag) : ''}
     ${open ? solutionHTML(q) : ''}
     ${open ? (it.reason === 'slow' ? `<div class="panel stack"><p class="eyebrow">Solution review</p><ul class="hints"><li>Why did you choose your approach?</li><li>Could you have eliminated answers without calculating?</li><li>Was there an estimate, a smart number or a backsolve that saves time?</li><li>Would you finish it in ${fmtTime(a.expectedSec)} under pressure?</li></ul></div>` : '') + classify : ''}
-    ${coachBox(q, open)}
   </section>`;
 }
 function learnView(){
@@ -633,8 +631,8 @@ function learnView(){
   return `${testBar(runCounter(r))}
     ${qBody(q, a.answer, fb ? { locked:true, reveal:true, userAns:a.answer } : {})}
     ${q.section === 'Data Insights' && !fb ? calcWidget() : ''}
-    ${fb ? `<p class="msg good">Correct in ${fmtTime(att.timeSec)} (expected about ${fmtTime(att.expectedSec)}).</p>${solutionHTML(q)}<div class="panel stack"><p class="eyebrow">Before you move on</p><ul class="hints"><li>Was your route the fastest reliable one, or just the first one you saw?</li><li>Which answers could you have eliminated without calculating?</li></ul></div>${coachBox(q, true)}<div class="row"><button class="btn primary" data-act="lnext">${r.idx === runTotal(r) - 1 ? 'Finish' : 'Next question'}</button><button class="btn ghost" data-act="lend">End practice</button></div>`
-      : `<div class="qfoot">${confPicker(a.confidence)}<div class="row"><button class="btn ghost" data-act="lend">End practice</button><button class="btn primary" id="check-btn" data-act="lcheck" ${isComplete(q, a.answer) && a.confidence != null ? '' : 'disabled'}>Check</button></div></div>${coachBox(q, false)}`}`;
+    ${fb ? `<p class="msg good">Correct in ${fmtTime(att.timeSec)} (expected about ${fmtTime(att.expectedSec)}).</p>${solutionHTML(q)}<div class="panel stack"><p class="eyebrow">Before you move on</p><ul class="hints"><li>Was your route the fastest reliable one, or just the first one you saw?</li><li>Which answers could you have eliminated without calculating?</li></ul></div><div class="row"><button class="btn primary" data-act="lnext">${r.idx === runTotal(r) - 1 ? 'Finish' : 'Next question'}</button><button class="btn ghost" data-act="lend">End practice</button></div>`
+      : `<div class="qfoot">${confPicker(a.confidence)}<div class="row"><button class="btn ghost" data-act="lend">End practice</button><button class="btn primary" id="check-btn" data-act="lcheck" ${isComplete(q, a.answer) && a.confidence != null ? '' : 'disabled'}>Check</button></div></div>`}`;
 }
 function doneView(){
   const r = S.run, at = r.attempts; const c = at.filter(a => a.correct).length;
@@ -722,7 +720,7 @@ function planCard(nx){
     <h1>${esc(first.title)}</h1><p class="muted">${esc(first.why)}</p>
     ${first.act ? `<div class="row" style="margin-top:16px">${btn(first, 'primary')}${theory(first, '')}${first.minutes ? `<span class="fine mono">~${first.minutes} min</span>` : ''}</div>` : ''}
     ${rest.length ? `<ol class="plan">${rest.map(it => `<li><div><b>${esc(it.title)}</b><span class="fine">${esc(it.why)}</span></div><span class="mono fine">${it.minutes ? '~' + it.minutes + ' min' : ''}</span><span class="row" style="gap:6px;flex-wrap:nowrap">${theory(it, 'small')}${btn(it, 'small')}</span></li>`).join('')}</ol>` : ''}
-    <p class="fine" style="margin-top:12px">Built from your answers, times, confidence and error log. <button class="linkbtn" data-act="tab" data-arg="coach">Ask the coach why</button></p>
+    <p class="fine" style="margin-top:12px">Built from your answers, times, confidence and error log. <button class="linkbtn" data-act="tab" data-arg="coach">See why on the Coach tab</button></p>
   </div>`;
 }
 /* Coach sets are adaptive: weak topics first, difficulty following your answers. */
@@ -828,7 +826,6 @@ VIEWS.practice = function(){
   const inSec = pool.filter(q => !P.section || q.section === P.section);
   const topics = [...new Set(inSec.map(q => q.topic))].sort();
   const match = inSec.filter(q => (!P.topic || q.topic === P.topic) && (!P.diff || String(q.difficulty) === P.diff || (P.diff === '5' && q.difficulty >= 5)) && (!P.unseen || !seen.has(q.id)));
-  const gen = S.ui.gen;
   const form = pool.length ? `<div class="card stack"><h2>Build a set</h2>
       <div class="fgrid">
         <div><label class="lab" for="p-sec">Section</label><select id="p-sec" data-ui="practice.section">${['', ...SECTIONS].map(s => `<option value="${s}" ${P.section === s ? 'selected' : ''}>${s || 'All sections'}</option>`).join('')}</select></div>
@@ -840,22 +837,9 @@ VIEWS.practice = function(){
       <label class="checks"><input type="checkbox" id="p-unseen" data-ui="practice.unseen" ${P.unseen ? 'checked' : ''}> Only questions I have not seen</label>
       <div class="row"><button class="btn primary" data-act="startpractice" ${match.length ? '' : 'disabled'}>Start ${Math.min(match.length, +P.count)} question${Math.min(match.length, +P.count) === 1 ? '' : 's'}</button><button class="btn" data-act="startsmartform" ${inSec.length ? '' : 'disabled'}>Let the coach pick</button><span class="fine">${match.length} match these filters. The coach picks within the section and topic, weighted toward your weak spots.</span></div></div>`
     : `<div class="card stack"><h2>Your training sets are not here yet</h2><p class="muted">Practice opens section by section once you finish that section’s diagnostic block. After the diagnostic, Claude adds sets aimed at your weakest topics.</p><div class="row"><button class="btn primary" data-act="tab" data-arg="diagnostic">Go to the diagnostic</button></div></div>`;
-  const anyDone = BLOCKS.some(b => blockDone(b.key));
-  const genCard = S.sample && anyDone ? `<div class="card stack"><h2>Generate a fresh question</h2><p class="muted">Claude writes a new question on the topic and level you choose and checks its own answer key. It has not been checked by hand, so report anything that looks wrong.</p>
-      <div class="fgrid">
-        <div><label class="lab" for="g-sec">Section</label><select id="g-sec" data-ui="gen.section">${SECTIONS.map(s => `<option ${gen.section === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div>
-        <div><label class="lab" for="g-top">Topic</label><select id="g-top" data-ui="gen.topic">${genTopics(gen.section).map(t => `<option ${gen.topic === t ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select></div>
-        <div><label class="lab" for="g-diff">Level</label><select id="g-diff" data-ui="gen.diff">${[['3','3 · standard'],['4','4 · hard'],['5','5 · 750+']].map(([v,l]) => `<option value="${v}" ${gen.diff === v ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
-      </div>
-      <div class="row"><button class="btn" id="gen-btn" data-act="gen">Generate and start</button><span class="fine" id="gen-status"></span></div></div>` : '';
   return `<section><h1>Practice</h1><p class="muted" style="max-width:70ch">Every set logs time, confidence and errors, like the diagnostic. In Learn mode a miss goes straight to review: retry, hints one at a time, then the solution.</p></section>
-    <section class="grid2">${form}${genCard}</section>`;
+    <section class="grid2">${form}</section>`;
 };
-function genTopics(section){
-  if (section === 'Data Insights') return ['Integers & divisibility','Percents','Ratios & proportions','Statistics','Linear equations','Inequalities & absolute value','Rates & work','Word problems'];
-  if (section === 'Verbal') return SYLLABUS['Verbal'].filter(t => t.startsWith('CR'));
-  return SYLLABUS['Quant'];
-}
 VIEWS.retests = function(){
   const due = dueErrors(); const t = today();
   const upcoming = Object.values(S.errors).filter(e => e.status === 'active' && e.nextDue && e.nextDue > t).sort((a,b) => String(a.nextDue).localeCompare(String(b.nextDue)));
@@ -1005,9 +989,9 @@ function syncErrText(e){
 function onSyncStatus(){ renderChrome(); if (S.tab === 'settings' && !S.run && !S.ui.dirty) render(); }
 VIEWS.settings = function(){
   const ok = S.dbStatus === 'ok', sum = ok ? GMATStore.summary() : null;
-  const sc = GMATStore.sync.config(), st = GMATStore.sync.status(), key = GMATStore.claude.key();
+  const sc = GMATStore.sync.config(), st = GMATStore.sync.status();
   const pill = { off:['', 'Off'], ok:['good', 'Synced'], error:['bad', 'Error'], syncing:['acc', 'Syncing…'], pending:['acc', 'Changes waiting'] }[st.status] || ['', st.status];
-  return `<section><h1>Settings</h1><p class="muted" style="max-width:70ch">Where your progress is saved, and the optional Claude coach.</p></section>
+  return `<section><h1>Settings</h1><p class="muted" style="max-width:70ch">Where your progress is saved.</p></section>
   <section class="grid2">
     <div class="card stack"><h2>Your data</h2>
       <p class="muted">Progress is saved in this browser${sc.on ? ' and synced to GitHub' : ''}. ${sc.on ? 'Every device with sync on shares it.' : 'Other browsers and devices do not see it unless you turn on GitHub sync.'}</p>
@@ -1032,12 +1016,6 @@ VIEWS.settings = function(){
         <li>Pick an expiry date, generate, and paste the token here. Repeat on each device.</li></ol></details>
       <p class="fine">Use a <b>private</b> repository (by default <span class="mono">${esc(sc.repo || 'your-site-repo-progress')}</span>), not the public one that hosts this site. The token stays in this browser and is sent only to api.github.com.</p>
     </form>
-    <form class="card stack" data-form="claudekey" data-dirty><h2>Claude coach</h2>
-      <p class="muted">“Ask the coach” under each question and “Generate a fresh question” in Practice call Claude with your own Anthropic API key. Anthropic bills its use to that key, separately from any Claude subscription.</p>
-      <div><label class="lab" for="ck-key">Anthropic API key</label><input id="ck-key" type="password" autocomplete="off" spellcheck="false" placeholder="${key ? 'Saved. Paste a new key to replace it.' : 'sk-ant-…'}"><p class="hint">Create one at console.anthropic.com → API keys.</p></div>
-      <div class="row"><button class="btn primary" type="submit">Save key</button>${key ? '<button class="btn ghost" type="button" data-act="claudekeydel">Remove key</button>' : ''}<span class="fine">${key ? 'Coach on.' : 'Coach off.'}</span></div>
-      <p class="fine">The key stays in this browser and is sent only to api.anthropic.com.</p>
-    </form>
   </section>`;
 };
 function downloadJSON(obj, name){
@@ -1050,112 +1028,6 @@ function importFile(input){
   f.text().then(t => { const n = GMATStore.importData(JSON.parse(t)); toast(`Imported ${n} item${n === 1 ? '' : 's'}.`); render(); })
     .catch(e => toast(e && e.code === 'quota_exceeded' ? dbErrorText(e) : 'That file is not a GMAT Lab backup.'))
     .finally(() => { input.value = ''; });
-}
-
-/* ------------------------------------------------------------------ coach + generator */
-function coachData(q, revealed){
-  const d = { section:q.section, type:q.type, topic:q.topic, stem:q.stem };
-  if (q.type === 'DS'){ d.statements = q.statements; d.choices = DS_CHOICES; } else if (q.choices) d.choices = q.choices.map((c,i) => LETTERS[i] + ') ' + c);
-  if (q.parts) d.parts = q.parts.map(p => ({ label:p.label, options:p.options }));
-  if (q.passage) d.passage = String(q.passage.text).slice(0, 3000);
-  if (q.tabs) d.sources = q.tabs;
-  if (q.table) d.table = q.table;
-  if (q.chart) d.chart = q.chart;
-  const r = S.run; const it = r && r.debrief && r.debrief.list[r.debrief.i];
-  const a = it ? it.a : (r && r.answers[q.id]);
-  if (a && a.answer != null) d.studentAnswer = answerText(q, a.answer);
-  if (revealed){ d.correctAnswer = correctText(q); d.method = q.method; d.altMethod = q.altMethod; d.trap = q.trap; d.solution = q.solution; }
-  return JSON.stringify(d);
-}
-function coachRules(revealed){
-  return `You are a GMAT coach for a university economics student aiming for a very high GMAT score. The student writes in English to practise; it is not their first language.
-Rules:
-1. Reply in English, in under 150 words, plain text only (no headings, no markdown tables).
-2. Be Socratic: guide with one or two questions or one short explanation of the concept the student is missing. ${revealed ? 'The solution is already open, so you may explain it fully, including why the other options fail and whether a faster route exists.' : 'Do NOT reveal the correct answer, the correct letter or value, or the full solution. If the student asks for it, point to the hint button or "Show full solution".'}
-3. If the student states something wrong, say so plainly and explain why.
-4. If the student's last message contains English mistakes, end with a line starting "✏️ English:" and list up to 3 corrections as: what they wrote → correct version (short reason). If there are none, leave that line out.`;
-}
-function sampleErrText(e){
-  const c = e && e.code;
-  if (c === 'bad_key') return 'Your Anthropic API key was rejected. Check it in Settings.';
-  if (c === 'bad_model') return 'This API key cannot use the coach’s model. Check your Anthropic account.';
-  if (c === 'rate_limited') return 'Too many requests right now. Try again in a little while.';
-  if (c === 'overloaded') return 'Claude is overloaded right now. Try again in a minute.';
-  if (c === 'network' || c === 'load_failed') return 'Could not reach Claude. Check your connection and try again.';
-  if (c === 'refused') return 'Claude declined that request. Rephrase it and try again.';
-  if (c === 'invalid_json') return 'The question came back in a broken format. Try again.';
-  if (c === 'cancelled') return 'Stopped.';
-  return 'Something went wrong while asking Claude. Try again.';
-}
-let coachCtl = null;
-async function coachSend(rev){
-  const ta = $('#coach-in'); const msg = (ta && ta.value || '').trim(); if (!msg || !S.sample || S.coach.busy) return;
-  const q = curTarget().q; const revealed = !!rev;
-  S.coach.turns.push({ role:'user', content: msg }); ta.value = '';
-  const log = $('#coach-log');
-  log.insertAdjacentHTML('beforeend', `<div class="bubble me">${esc(msg)}</div><div class="bubble ai" id="coach-live">Thinking…</div>`);
-  log.scrollTop = log.scrollHeight;
-  const live = $('#coach-live'); live.removeAttribute('id');
-  S.coach.busy = true; $('#coach-send').disabled = true; $('#coach-stop').hidden = false;
-  coachCtl = new AbortController();
-  const turns = S.coach.turns.slice(-10);
-  const system = coachRules(revealed) + '\n\nQuestion data (JSON):\n' + coachData(q, revealed);
-  try {
-    const { text } = await S.sample(turns, { system, signal: coachCtl.signal, onText: ({ text }) => { live.textContent = text; log.scrollTop = log.scrollHeight; } });
-    S.coach.turns.push({ role:'assistant', content: text }); live.textContent = text;
-  } catch (e){
-    live.textContent = (e && e.text ? e.text + '\n\n' : '') + sampleErrText(e);
-    S.coach.turns.pop();
-  } finally {
-    S.coach.busy = false; const sb = $('#coach-send'); if (sb) sb.disabled = false; const st = $('#coach-stop'); if (st) st.hidden = true;
-  }
-}
-function genPrompt(g){
-  const type = GEN_TYPE[g.section];
-  const kind = { PS:'Problem Solving: arithmetic or algebra only (no geometry), solvable without a calculator in about 2 minutes by the best method; five answer choices with exactly one correct; wrong choices built from real student mistakes.',
-    DS:'Data Sufficiency: a question and two statements. The answer index refers to the five standard choices: 0 = statement (1) alone sufficient, 1 = statement (2) alone sufficient, 2 = both together needed, 3 = each alone sufficient, 4 = not sufficient together.',
-    CR:'Critical Reasoning: an argument of under 100 words and a question stem, five answer choices, exactly one defensible; wrong choices use the typical traps (out of scope, reversed, too strong, irrelevant comparison).' }[type];
-  return `Write ONE original practice question in the style of the current GMAT exam. Do not copy or paraphrase any published or official question.
-Section: ${g.section}. Type: ${type}. ${kind}
-Topic: ${g.topic}. Difficulty: ${g.diff} on a 1–6 scale (3 = standard GMAT, 4 = hard, 5 = very hard, aimed at the 99th percentile).
-Before replying, solve the question yourself twice using two different methods and make sure the answer key is correct and unique. Do this checking silently.
-Write in plain text. Write exponents as x^{2}. In a CR boldface question, mark the bold parts with **double asterisks**.
-Reply with only one JSON object with exactly these keys:
-{"type":"${type}","topic":"${g.topic}","subtopic":"short name","skill":"the skill trained","difficulty":${g.diff},"stem":"…",${type === 'DS' ? '"statements":["statement 1 without numbering","statement 2 without numbering"],' : '"choices":["…","…","…","…","…"],'}"answer":0,"trap":"the trap in one sentence","expectedSec":120,"method":"the fastest reliable method, step by step","altMethod":"a second route","hints":["a small nudge phrased as a question","the direction","the key concept","the first step only"],"solution":"why the answer is right and why each other choice is wrong"}`;
-}
-function genSchema(type){
-  const str = { type:'string' }, list = { type:'array', items:{ type:'string' } };
-  const props = { type:str, topic:str, subtopic:str, skill:str, difficulty:{ type:'integer' }, stem:str, answer:{ type:'integer', enum:[0,1,2,3,4] }, trap:str, expectedSec:{ type:'integer' }, method:str, altMethod:str, hints:list, solution:str };
-  if (type === 'DS') props.statements = list; else props.choices = list;
-  return { type:'object', properties: props, required: Object.keys(props), additionalProperties: false };
-}
-function validateGen(o, g){
-  const type = GEN_TYPE[g.section];
-  if (!o || typeof o !== 'object' || typeof o.stem !== 'string' || !o.stem.trim()) throw { code:'invalid_json' };
-  const ans = Number(o.answer); if (!Number.isInteger(ans) || ans < 0 || ans > 4) throw { code:'invalid_json' };
-  const hints = Array.isArray(o.hints) ? o.hints.map(String).slice(0,4) : [];
-  if (hints.length < 4) throw { code:'invalid_json' };
-  const q = { set:'generated', section:g.section, block: g.section === 'Quant' ? 'Q' : g.section === 'Verbal' ? 'V' : 'DI', type, topic: type === 'DS' ? 'Data Sufficiency' : g.topic,
-    subtopic: String(o.subtopic || (type === 'DS' ? g.topic : '')), skill: String(o.skill || ''), difficulty: Number(g.diff), stem: String(o.stem), answer: ans,
-    trap: String(o.trap || ''), expectedSec: Math.max(45, Math.min(240, Number(o.expectedSec) || 120)), method: String(o.method || ''), altMethod: String(o.altMethod || ''),
-    hints, solution: String(o.solution || ''), createdAt: new Date().toISOString() };
-  if (type === 'DS'){ if (!Array.isArray(o.statements) || o.statements.length !== 2) throw { code:'invalid_json' }; q.statements = o.statements.map(s => String(s).replace(/^\s*\(\d\)\s*/, '')); }
-  else { if (!Array.isArray(o.choices) || o.choices.length !== 5) throw { code:'invalid_json' }; q.choices = o.choices.map(c => String(c).replace(/^\s*[A-E][).]\s+/, '')); }
-  return q;
-}
-async function generate(){
-  const btn = $('#gen-btn'), st = $('#gen-status'); if (!S.sample || !btn) return;
-  btn.disabled = true; st.textContent = 'Claude is writing and checking a question. This can take up to a minute…';
-  try {
-    const out = await S.sample.json(genPrompt(S.ui.gen), { schema: genSchema(GEN_TYPE[S.ui.gen.section]) });
-    const q = validateGen(out, S.ui.gen); const id = uid('gen');
-    const ok = await write('bank/' + id, 'set', q);
-    if (!ok) throw { code:'save' };
-    startLearn([id], `Generated · ${q.topic}`, 'practice');
-  } catch (e){
-    const b = $('#gen-btn'); if (b) b.disabled = false;
-    const s = $('#gen-status'); if (s) s.textContent = e && e.code === 'save' ? 'The question could not be saved.' : sampleErrText(e);
-  }
 }
 
 /* ------------------------------------------------------------------ actions */
@@ -1193,7 +1065,7 @@ const ACTIONS = {
   logslow(){ const d = S.run.debrief; d.logSlow = true; d.etype = 'Timing'; render(); },
   async saveerror(){ const r = S.run, d = r.debrief, it = d.list[d.i], q = S.bank[it.qid];
     if (!d.etype){ toast('Pick the error type first.'); return; }
-    const why = ($('#why') || {}).value || '', rule = ($('#rule') || {}).value || '';
+    const why = ($('#why') || {}).value.trim() || (it.reason === 'wrong' ? diagnose(q, it.a.answer).map(x => x.why).join(' ') : ''), rule = ($('#rule') || {}).value || '';
     saveError(q, it, d.etype, why.trim(), rule.trim()); d.logSlow = false; debriefAdvance(); },
   skipitem(){ S.run.debrief.logSlow = false; debriefAdvance(); },
   lcheck(){ learnCheck(); },
@@ -1202,15 +1074,12 @@ const ACTIONS = {
   closedone(){ endRun('today'); },
   msrtab(el){ const q = curTarget().q; const t = +el.dataset.t; S.ui.msrTab = t; $$('[data-act="msrtab"]').forEach(b => b.setAttribute('aria-selected', String(+b.dataset.t === t))); const body = $('#msr-body'); if (body) body.innerHTML = rich(q.tabs[t].body); },
   sort(el){ const id = el.dataset.q, c = +el.dataset.c; const st = S.ui.sort[id] || { c:null, dir:1 }; S.ui.sort[id] = st.c === c ? { c, dir: -st.dir } : { c, dir: 1 }; const box = $(`.ta[data-q="${id}"]`); if (box) box.outerHTML = tableHTML(S.bank[id]); },
-  coachsend(el){ coachSend(el.dataset.rev === '1'); },
-  coachstop(){ if (coachCtl) coachCtl.abort(); },
   startpractice(){ const P = S.ui.practice; const seen = new Set(attemptsAll().map(a => a.qid));
     let pool = practicePool().filter(q => (!P.section || q.section === P.section) && (!P.topic || q.topic === P.topic) && (!P.diff || String(q.difficulty) === P.diff || (P.diff === '5' && q.difficulty >= 5)) && (!P.unseen || !seen.has(q.id)));
     pool = pool.sort(() => Math.random() - 0.5).slice(0, +P.count); if (!pool.length) return;
     const label = `Practice · ${P.topic || P.section || 'mixed'}`;
     if (P.mode === 'timed'){ const lim = Math.round(pool.reduce((s,q) => s + PACE[q.section], 0)); startRun({ kind:'practice', qids: pool.map(q => q.id), mode:'test', timed:true, limitSec: lim, label: label + ' · timed' }); }
     else startLearn(pool.map(q => q.id), label, 'practice'); },
-  gen(){ generate(); },
   report(){ const b = $('#report-box'); if (b) b.hidden = false; },
   reportcancel(){ const b = $('#report-box'); if (b) b.hidden = true; },
   async reportsend(){ const q = curTarget().q; const note = ($('#report-note') || {}).value || ''; const ok = await write('bank/' + q.id, 'update', { flagged:true, flagNote: note.trim(), flaggedAt: new Date().toISOString() }); if (ok){ toast('Reported. Claude will check this question.'); const b = $('#report-box'); if (b) b.hidden = true; } },
@@ -1232,7 +1101,6 @@ const ACTIONS = {
   eraseok(){ GMATStore.eraseLocal(); S.ui.erase = false; render(); toast('Progress erased in this browser.'); },
   async syncnow(){ S.ui.dirty = false; await GMATStore.sync.now(); const st = GMATStore.sync.status(); toast(st.status === 'ok' ? 'Synced with GitHub.' : syncErrText(st.error)); render(); },
   syncoff(){ GMATStore.sync.disable(); S.ui.dirty = false; render(); toast('Sync turned off. Progress stays in this browser.'); },
-  claudekeydel(){ GMATStore.claude.setKey(''); S.sample = null; S.ui.dirty = false; render(); toast('Key removed. The coach is off.'); },
 };
 function learnAdvanceEnd(){ const r = S.run; if (r.adaptive) r.adaptive.n = r.qids.length; r.idx = r.qids.length - 1; learnAdvance(); }
 const SUBMITS = {
@@ -1265,10 +1133,6 @@ const SUBMITS = {
     try { await GMATStore.sync.enable({ repo: $('#sy-repo').value, branch: $('#sy-branch').value, token: $('#sy-token').value.trim(), allowPublic: !!($('#sy-public') || {}).checked }); S.ui.syncPublic = false; toast('Sync is on. Your progress is on GitHub.'); }
     catch (e){ if (e && e.code === 'gh_public') S.ui.syncPublic = true; toast(syncErrText(e)); }
     S.ui.dirty = false; render(); },
-  claudekey(f){
-    const key = $('#ck-key').value.trim(); if (!key){ toast('Paste your API key first.'); return; }
-    try { GMATStore.claude.setKey(key); } catch (e){ toast(dbErrorText(e)); return; }
-    S.sample = makeSample(); S.coach = null; S.ui.dirty = false; render(); toast('Key saved. The coach appears under each question.'); },
 };
 
 /* ------------------------------------------------------------------ events */
@@ -1283,7 +1147,6 @@ document.addEventListener('change', e => {
   if (el.matches('select[data-p]')){ const t = curTarget(); if (!t) return; const p = +el.dataset.p; const v = Array.isArray(t.get()) ? [...t.get()] : t.q.parts.map(() => null); v[p] = el.value === '' ? null : +el.value; t.set(v); syncReady(); return; }
   if (el.dataset.ui){ const [grp, key] = el.dataset.ui.split('.'); S.ui[grp] = S.ui[grp] || {}; S.ui[grp][key] = el.type === 'checkbox' ? el.checked : el.value;
     if (grp === 'practice' && key === 'section') S.ui.practice.topic = '';
-    if (grp === 'gen' && key === 'section') S.ui.gen.topic = genTopics(el.value)[0];
     render(); }
 });
 document.addEventListener('input', e => {
@@ -1293,19 +1156,9 @@ document.addEventListener('input', e => {
   if (el.closest('form[data-dirty]')) S.ui.dirty = true;
 });
 document.addEventListener('submit', e => { e.preventDefault(); const f = e.target; const fn = SUBMITS[f.dataset.form]; if (fn) fn(f); });
-document.addEventListener('toggle', e => { if (e.target.classList && e.target.classList.contains('coach')) S.ui.coachOpen = e.target.open; }, true);
-document.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && e.target.id === 'coach-in'){ e.preventDefault(); const b = $('#coach-send'); if (b && !b.disabled) b.click(); } });
 window.addEventListener('hashchange', () => { const t = location.hash.slice(1); if (VIEWS[t] && !S.run){ S.tab = t; render(); } });
 
 /* ------------------------------------------------------------------ boot */
-function makeSample(){
-  const key = GMATStore.claude.key(); if (!key) return null;
-  let mod = null;
-  const load = () => mod || (mod = import('./coach.js').catch(() => { mod = null; throw { code:'load_failed' }; }));
-  const f = async (messages, opts) => (await load()).chat(key, messages, opts);
-  f.json = async (prompt, opts) => (await load()).json(key, prompt, opts);
-  return f;
-}
 /* ------------------------------------------------------------------ knowledge base: lessons and guides in knowledge/*.json */
 function loadKnowledge(){
   const get = f => fetch('knowledge/' + f, { cache:'no-cache' }).then(r => { if (!r.ok) throw 0; return r.json(); });
@@ -1355,7 +1208,6 @@ function guideView(id){
 function boot(){
   const h = location.hash.slice(1); if (VIEWS[h]) S.tab = h;
   loadKnowledge();
-  S.sample = makeSample();
   GMATStore.onStatus(onSyncStatus);
   render();
   GMATStore.open()

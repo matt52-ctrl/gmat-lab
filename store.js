@@ -8,7 +8,7 @@
 const COLLECTIONS = ['bank','sessions','errors','mocks','profile','studylog'];
 const LS_DATA = 'gmatlab.data.v1';
 const LS_SYNC = 'gmatlab.sync.v1';
-const LS_CLAUDE = 'gmatlab.claude.v1';
+const LS_OLD_KEY = 'gmatlab.claude.v1';   // an API key saved by an older version: deleted at start
 const PUSH_DELAY = 5000, PUSH_MAX_WAIT = 30000;
 
 const clone = o => o == null ? o : JSON.parse(JSON.stringify(o));
@@ -245,6 +245,7 @@ const db = {
 async function open(){
   try { localStorage.setItem('gmatlab.probe', '1'); localStorage.removeItem('gmatlab.probe'); }
   catch(e){ throw { code:'no_storage' }; }
+  lsDel(LS_OLD_KEY);
   state = normalize(readJSON(LS_DATA));
   try { base = await loadBank(); } catch(e){ base = {}; bankError = location.protocol === 'file:' ? 'file' : 'fetch'; }
   window.addEventListener('storage', e => { if (e.key === LS_DATA){ state = normalize(readJSON(LS_DATA)); emitAll(); } });
@@ -274,10 +275,6 @@ window.GMATStore = {
     },
     disable(){ const c = readJSON(LS_SYNC) || {}; lsDel(LS_SYNC); if (c.repo) lsSet(LS_SYNC, JSON.stringify({ repo:c.repo, branch:c.branch, path:c.path })); clearTimeout(Sync.timer); Sync.sha = null; Sync.set('off'); },
     now: () => Sync.run(),
-  },
-  claude: {
-    key: () => (readJSON(LS_CLAUDE) || {}).key || '',
-    setKey: k => { if (k) lsSet(LS_CLAUDE, JSON.stringify({ key:k })); else lsDel(LS_CLAUDE); },
   },
 };
 })();

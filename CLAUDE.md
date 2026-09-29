@@ -9,7 +9,7 @@ Static GMAT training app served by GitHub Pages. No build step, no dependencies 
 
 ## Layout
 
-- `index.html` – markup and CSS. `app.js` – UI: views, test engine, debrief, analytics. `store.js` – `window.GMATStore`: localStorage, backup import/export, GitHub sync. `planner.js` – `window.GMATPlanner`: the rule-based coach (today's plan, topic weights, answers on the Coach tab) and the adaptive engine used by coach sets and the GMAT simulation (`levelAfter`, `nextAdaptive`, `examReadiness`); pure functions, no DOM. `coach.js` – optional Claude calls through `vendor/anthropic-sdk.js` with the student's own API key.
+- `index.html` – markup and CSS. `app.js` – UI: views, test engine, debrief, analytics. `store.js` – `window.GMATStore`: localStorage, backup import/export, GitHub sync. `planner.js` – `window.GMATPlanner`: the rule-based coach (today's plan, topic weights, answers on the Coach tab) and the adaptive engine used by coach sets and the GMAT simulation (`levelAfter`, `nextAdaptive`, `examReadiness`); pure functions, no DOM. The app contains no AI and makes no AI calls: its knowledge is in `knowledge/`, in the questions and in `planner.js`.
 - `app.js` talks to storage only through `GMATStore.open()` → `db.doc(path).set|update|delete` and `db.collection(name).onSnapshot`. Collections: `bank`, `sessions`, `errors`, `mocks`, `profile`, `studylog`. The `bank` collection is `questions/*.json` merged with local overrides (generated questions, `flagged` reports).
 - `knowledge/` – the built-in GMAT knowledge: one lesson per SYLLABUS topic (`quant.json`, `di.json`, `verbal.json`: `topic`, `section`, `summary`, `ideas`, `formulas`, `method`, `traps`, `shortcuts`, optional `example {q, a}`) and exam guides (`guides.json`: `id`, `title`, `points`). Shown on the Learn tab, inside every solution (“Theory: …”) and from the plan. Same inline markup as questions. `tests/knowledge.test.js` requires one complete lesson per topic.
 - Checks (run them before every commit): `node tools/validate-questions.js` and `node --test tests/*.test.js`. To try the app: `python3 -m http.server`, then a browser.
@@ -56,6 +56,7 @@ One JSON array per file in `questions/`, listed in `questions/index.json`. Ids m
 - `id`, `set` (`diagnostic` | `practice`), `block` (`Q` | `DI` | `V`), `section` (`Quant` | `Data Insights` | `Verbal`), `type` (`PS` `DS` `TPA` `TA` `GI` `MSR` `CR` `RC`), `topic` (a name from `SYLLABUS` in `app.js`), `subtopic`, `skill`, `difficulty` (1–6; 3 = standard, 4 = hard, 5+ = 750-level), `expectedSec`.
 - `stem`: plain text; blank line = new paragraph, `**bold**`, `x^{2}`, `x_{1}`.
 - `hints`: exactly 4, from a nudge to the first step. `method`, `altMethod`, `trap`, `solution` (why each wrong option fails).
+- `diagnosis` (required): one entry per option, in the same order; `null` for the right option, and for every wrong one `{ "why": "the mistake that leads to it, in one or two sentences", "type": "<one of ERROR_TYPES in app.js>" }`. It must not give away the right answer beyond what the solution shows. DS uses the five standard choices; multi-part questions put `diagnosis` inside each part, aligned with that part's options. The app shows it after a miss and pre-selects the error type.
 - Diagnostic questions also have `order` within their block.
 
 By type:

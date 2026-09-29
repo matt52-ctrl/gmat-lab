@@ -24,7 +24,6 @@ jobs:
       - name: JavaScript syntax
         run: |
           for f in app.js store.js planner.js tools/validate-questions.js; do node --check "$f"; done
-          node --input-type=module --check < coach.js
       - name: Question files
         run: node tools/validate-questions.js
       - name: Unit tests
@@ -45,7 +44,7 @@ jobs:
       - name: Collect the site files
         run: |
           mkdir _site
-          cp -r index.html app.js store.js planner.js coach.js questions knowledge vendor _site/
+          cp -r index.html app.js store.js planner.js questions knowledge _site/
           # a version on each script URL, so browsers never mix old and new files after a deploy
           sed -i -E "s#src=\"([a-z]+)\.js\"#src=\"\1.js?v=${GITHUB_SHA::8}\"#g" _site/index.html
           grep -q "app.js?v=" _site/index.html
