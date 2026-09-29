@@ -1,0 +1,57 @@
+name: Checks and deploy
+
+on:
+  push:
+    branches-ignore: [gmat-progress]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: site-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: JavaScript syntax
+        run: |
+          for f in app.js store.js planner.js tools/validate-questions.js; do node --check "$f"; done
+          node --input-type=module --check < coach.js
+      - name: Question files
+        run: node tools/validate-questions.js
+      - name: Unit tests
+        run: node --test tests/*.test.js
+
+  deploy:
+    needs: checks
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Collect the site files
+        run: |
+          mkdir _site
+          cp -r index.html app.js store.js planner.js coach.js questions vendor _site/
+          # a version on each script URL, so browsers never mix old and new files after a deploy
+          sed -i -E "s#src=\"([a-z]+)\.js\"#src=\"\1.js?v=${GITHUB_SHA::8}\"#g" _site/index.html
+          grep -q "app.js?v=" _site/index.html
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v5

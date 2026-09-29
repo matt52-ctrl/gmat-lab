@@ -1,0 +1,1137 @@
+[
+ {
+  "id": "dq01",
+  "altMethod": "Smart number: start from 100 → 120 → 90 → 99.",
+  "answer": 1,
+  "block": "Q",
+  "choices": [
+   "95%",
+   "99%",
+   "100%",
+   "105%",
+   "110%"
+  ],
+  "difficulty": 3,
+  "expectedSec": 90,
+  "hints": [
+   "Would +20% followed by −20% bring a price back to where it started? Why or why not?",
+   "Each change applies to a different base. Think of every step as a multiplication.",
+   "Key idea: +20% means ×1.20, −25% means ×0.75, +10% means ×1.10.",
+   "Start from an original price of 100 and apply the first step: 100 → 120. Continue."
+  ],
+  "method": "Turn every change into a multiplier: 1.20 × 0.75 = 0.90, then 0.90 × 1.10 = 0.99 → 99%.",
+  "order": 1,
+  "section": "Quant",
+  "set": "diagnostic",
+  "skill": "Multiplier chains",
+  "stem": "The price of a laptop is increased by 20%. The new price is then reduced by 25%, and a 10% sales tax is added to the reduced price. The final amount paid is what percent of the original price?",
+  "subtopic": "Successive percent changes",
+  "topic": "Percents",
+  "trap": "Adding the percents (+20 − 25 + 10 = +5) gives 105%, but each change acts on a different base.",
+  "type": "PS"
+ },
+ {
+  "id": "dq02",
+  "altMethod": "Exactly one = French only + Spanish only = (45 − 15) + (38 − 15) = 30 + 23 = 53.",
+  "answer": 2,
+  "block": "Q",
+  "choices": [
+   "38",
+   "45",
+   "53",
+   "56",
+   "68"
+  ],
+  "difficulty": 3,
+  "expectedSec": 100,
+  "hints": [
+   "How many students study at least one of the two languages?",
+   "If you add 45 and 38, which students have you counted twice?",
+   "Key idea: Total = French + Spanish − Both + Neither.",
+   "Set up 80 = 45 + 38 − Both + 12 and find Both first."
+  ],
+  "method": "At least one language: 80 − 12 = 68. Both: 45 + 38 − 68 = 15. Exactly one: 68 − 15 = 53.",
+  "order": 2,
+  "section": "Quant",
+  "set": "diagnostic",
+  "skill": "Inclusion–exclusion",
+  "stem": "In a group of 80 students, 45 study French, 38 study Spanish, and 12 study neither language. How many students study exactly one of the two languages?",
+  "subtopic": "Two-set overlap",
+  "topic": "Overlapping sets",
+  "trap": "68 is the number who study at least one language, not exactly one.",
+  "type": "PS"
+ },
+ {
+  "id": "dq03",
+  "altMethod": "Backsolve: x = 5 gives 17/45 ≈ 37.8% (too low), x = 8 gives 20/48 ≈ 41.7% (too high); only 6 2/3 sits between.",
+  "answer": 2,
+  "block": "Q",
+  "choices": [
+   "4",
+   "5",
+   "6 2/3",
+   "8",
+   "10"
+  ],
+  "difficulty": 3,
+  "expectedSec": 120,
+  "hints": [
+   "When you pour in pure alcohol, which two quantities change?",
+   "Write the new amount of alcohol and the new total volume in terms of x.",
+   "Key idea: concentration = alcohol ÷ total, and both grow by x.",
+   "Set up (12 + x) / (40 + x) = 0.40."
+  ],
+  "method": "Alcohol becomes 12 + x, total becomes 40 + x. (12 + x)/(40 + x) = 0.4 → 12 + x = 16 + 0.4x → 0.6x = 4 → x = 20/3 = 6 2/3.",
+  "order": 3,
+  "section": "Quant",
+  "set": "diagnostic",
+  "skill": "Concentration equation",
+  "stem": "A 40-liter solution is 30% alcohol by volume. How many liters of pure alcohol must be added to obtain a solution that is 40% alcohol by volume?",
+  "subtopic": "Adding a pure component",
+  "topic": "Mixtures",
+  "trap": "4 liters is 10% of 40: it forgets that adding alcohol also increases the total volume.",
+  "type": "PS"
+ },
+ {
+  "id": "dq04",
+  "altMethod": "Let the tank be 18 units (LCM of 6 and 9). A fills 3 units/h, B fills 2 units/h. Two hours together: 10 units. Remaining 8 units at 2 units/h → 4 hours.",
+  "answer": 3,
+  "block": "Q",
+  "choices": [
+   "2",
+   "3",
+   "3 1/2",
+   "4",
+   "5"
+  ],
+  "difficulty": 3,
+  "expectedSec": 110,
+  "hints": [
+   "What fraction of the tank does each pipe fill in one hour?",
+   "Work = rate × time. First find how much of the tank is full after 2 hours.",
+   "Key idea: rates add, times don't. Combined rate = 1/6 + 1/9.",
+   "Pick a tank size that both 6 and 9 divide, such as 18 units, and find each pipe's units per hour."
+  ],
+  "method": "Combined rate = 1/6 + 1/9 = 5/18 tank per hour. In 2 hours: 10/18 = 5/9 of the tank. The remaining 4/9 at 1/9 per hour takes 4 hours.",
+  "order": 4,
+  "section": "Quant",
+  "set": "diagnostic",
+  "skill": "Work = rate × time",
+  "stem": "Pipe A can fill a tank in 6 hours and pipe B can fill it in 9 hours. Both pipes are opened together, and after 2 hours pipe A is closed. How many more hours will pipe B need to fill the rest of the tank?",
+  "subtopic": "Combined work, then one worker",
+  "topic": "Rates & work",
+  "trap": "Subtracting times (9 − 2 = 7) or averaging them mixes up time and work.",
+  "type": "PS"
+ },
+ {
+  "id": "dq05",
+  "altMethod": "Sequential: P(all blue) = 6/10 × 5/9 × 4/8 = 1/6, so the answer is 5/6.",
+  "answer": 3,
+  "block": "Q",
+  "choices": [
+   "1/6",
+   "1/2",
+   "2/3",
+   "5/6",
+   "29/30"
+  ],
+  "difficulty": 3,
+  "expectedSec": 100,
+  "hints": [
+   "'At least one' could mean one, two or three red marbles. Is there a single case that is easier to count?",
+   "Think about the opposite event.",
+   "Key idea: P(at least one) = 1 − P(none).",
+   "Compute the probability that all three marbles are blue."
+  ],
+  "method": "P(no red) = C(6,3)/C(10,3) = 20/120 = 1/6. P(at least one red) = 1 − 1/6 = 5/6.",
+  "order": 5,
+  "section": "Quant",
+  "set": "diagnostic",
+  "skill": "Complement rule",
+  "stem": "A bag contains 4 red marbles and 6 blue marbles. Three marbles are drawn at random without replacement. What is the probability that at least one of them is red?",
+  "subtopic": "At least one",
+  "topic": "Probability",
+  "trap": "1/6 is the probability of drawing no red marble: the complement, not the answer.",
+  "type": "PS"
+ },
+ {
+  "id": "dq06",
+  "altMethod": "Divide top and bottom by 3^{9}: (27 − 3)/(9 + 1) = 24/10 = 12/5.",
+  "answer": 1,
+  "block": "Q",
+  "choices": [
+   "9/5",
+   "12/5",
+   "8/3",
+   "3",
+   "24/5"
+  ],
+  "difficulty": 4,
+  "expectedSec": 120,
+  "hints": [
+   "Can you simplify a sum of powers by cancelling exponents? Test it on (3² + 3)/3.",
+   "Look for a common factor in the numerator and another in the denominator.",
+   "Key idea: factor out the smallest power, e.g. 3^{12} − 3^{10} = 3^{10}(3² − 1).",
+   "Rewrite the numerator as 3^{10}(9 − 1) and treat the denominator the same way."
+  ],
+  "method": "Factor the smallest power. Numerator: 3^{10}(3² − 1) = 8·3^{10}. Denominator: 3^{9}(3² + 1) = 10·3^{9}. Ratio = 8·3/10 = 12/5.",
+  "order": 6,
+  "section": "Quant",
+  "set": "diagnostic",
+  "skill": "Factor the smallest power",
+  "stem": "What is the value of (3^{12} − 3^{10}) / (3^{11} + 3^{9}) ?",
+  "subtopic": "Factoring sums of powers",
+  "topic": "Exponents & roots",
+  "trap": "You cannot cancel exponents term by term across + and − (12 − 11, 10 − 9).",
+  "type": "PS"
+ },
+ {
+  "id": "dq07",
+  "altMethod": "Direct cases: 2W2M = 10 × 6 = 60; 3W1M = 10 × 4 = 40; 4W = 5. Total 105.",
+  "answer": 2,
+  "block": "Q",
+  "choices": [
+   "60",
+   "100",
+   "105",
+   "120",
+   "210"
+  ],
+  "difficulty": 4,
+  "expectedSec": 120,
+  "hints": [
+   "List the possible numbers of women on a 4-person committee.",
+   "You can add the allowed cases or subtract the forbidden ones. Which list is shorter?",
+   "Key idea: count each case with combinations, e.g. 2 women and 2 men = C(5,2) × C(4,2).",
+   "Compute the total C(9,4), then the committees with 0 women and with exactly 1 woman."
+  ],
+  "method": "Total: C(9,4) = 126. Committees with 0 women: C(4,4) = 1. With exactly 1 woman: 5 × C(4,3) = 20. 126 − 21 = 105.",
+  "order": 7,
+  "section": "Quant",
+  "set": "diagnostic",
+  "skill": "Complement counting",
+  "stem": "A 4-person committee is to be chosen from 5 women and 4 men. How many different committees include at least 2 women?",
+  "subtopic": "Combinations with a condition",
+  "topic": "Counting",
+  "trap": "Choosing 2 women first and then any 2 of the other 7 people (10 × 21 = 210) counts the same committee several times.",
+  "type": "PS"
+ },
+ {
+  "id": "dq08",
+  "altMethod": "Test the edges: 3² = 9 fails and 4² = 16 works; 7 satisfies the first condition and 8 does not.",
+  "answer": 1,
+  "block": "Q",
+  "choices": [
+   "3",
+   "4",
+   "5",
+   "6",
+   "8"
+  ],
+  "difficulty": 4,
+  "expectedSec": 120,
+  "hints": [
+   "What does |something| < 9 tell you about 'something'?",
+   "Turn the absolute value into a double inequality, then list the integers.",
+   "Key idea: |A| < k ⇔ −k < A < k.",
+   "Write −9 < 2x − 7 < 9 and isolate x."
+  ],
+  "method": "|2x − 7| < 9 → −9 < 2x − 7 < 9 → −1 < x < 8, so x ∈ {0, 1, …, 7}. x² > 10 keeps only 4, 5, 6, 7 → 4 integers.",
+  "order": 8,
+  "section": "Quant",
+  "set": "diagnostic",
+  "skill": "Double inequality",
+  "stem": "How many integers x satisfy both |2x − 7| < 9 and x^{2} > 10 ?",
+  "subtopic": "Absolute value + quadratic condition",
+  "topic": "Inequalities & absolute value",
+  "trap": "8 counts every integer allowed by the first condition; 3 forgets that x = 7 still works (|14 − 7| = 7 < 9).",
+  "type": "PS"
+ },
+ {
+  "id": "dq09",
+  "altMethod": "Backsolve from the middle: p = 20 → 1.2 × 0.8 = 0.96 ✓.",
+  "answer": 3,
+  "block": "Q",
+  "choices": [
+   "2",
+   "4",
+   "10",
+   "20",
+   "40"
+  ],
+  "difficulty": 4,
+  "expectedSec": 120,
+  "hints": [
+   "If a price rises 10% and then falls 10%, is it back where it started?",
+   "Write each change as a multiplier that contains p.",
+   "Key idea: (1 + p/100)(1 − p/100) = 1 − (p/100)².",
+   "Set (1 + p/100)(1 − p/100) = 0.96."
+  ],
+  "method": "(1 + p/100)(1 − p/100) = 0.96 → 1 − p²/10,000 = 0.96 → p² = 400 → p = 20.",
+  "order": 9,
+  "section": "Quant",
+  "set": "diagnostic",
+  "skill": "(1 + r)(1 − r)",
+  "stem": "A company's revenue increased by p% in 2024 and then decreased by p% in 2025. Revenue at the end of 2025 was 4% lower than at the start of 2024. What is the value of p?",
+  "subtopic": "Symmetric increase and decrease",
+  "topic": "Percents",
+  "trap": "2 or 4 treat the two changes as if they added up. A rise and a fall of p% always leave a net fall of p²/100 percent.",
+  "type": "PS"
+ },
+ {
+  "id": "dq10",
+  "altMethod": "Divisors of 360 that are multiples of 6 = 6 × (divisors of 60). 60 = 2² × 3 × 5 has 3 × 2 × 2 = 12 divisors.",
+  "answer": 2,
+  "block": "Q",
+  "choices": [
+   "8",
+   "10",
+   "12",
+   "16",
+   "24"
+  ],
+  "difficulty": 4,
+  "expectedSec": 110,
+  "hints": [
+   "Write 360 as a product of prime powers.",
+   "What must a divisor contain to be a multiple of 6?",
+   "Key idea: build each divisor by choosing an exponent for each prime; force the exponents of 2 and 3 to be at least 1.",
+   "360 = 2³ × 3² × 5. How many choices are there for the exponent of 2 if it must be at least 1?"
+  ],
+  "method": "360 = 2³ × 3² × 5. A multiple of 6 needs at least one 2 and one 3: exponent of 2 ∈ {1, 2, 3} (3 ways), of 3 ∈ {1, 2} (2 ways), of 5 ∈ {0, 1} (2 ways) → 3 × 2 × 2 = 12.",
+  "order": 10,
+  "section": "Quant",
+  "set": "diagnostic",
+  "skill": "Prime factorization",
+  "stem": "How many positive divisors of 360 are multiples of 6?",
+  "subtopic": "Counting divisors with a condition",
+  "topic": "Primes & factors",
+  "trap": "24 is the total number of divisors of 360.",
+  "type": "PS"
+ },
+ {
+  "id": "dq11",
+  "altMethod": "Discriminant: 36 − 4k = 0 → k = 9, then f(9) = 36.",
+  "answer": 3,
+  "block": "Q",
+  "choices": [
+   "0",
+   "9",
+   "27",
+   "36",
+   "81"
+  ],
+  "difficulty": 4,
+  "expectedSec": 110,
+  "hints": [
+   "What does a quadratic with exactly one solution look like when you factor it?",
+   "Think of the discriminant, or of a perfect square.",
+   "Key idea: x² − 6x + k has one real root exactly when it equals (x − 3)², i.e. when 36 − 4k = 0.",
+   "Find k first; then substitute x = k into f."
+  ],
+  "method": "One real solution means a perfect square: x² − 6x + 9 = (x − 3)², so k = 9. f(9) = 81 − 54 + 9 = 36.",
+  "order": 11,
+  "section": "Quant",
+  "set": "diagnostic",
+  "skill": "Perfect square / discriminant",
+  "stem": "f(x) = x^{2} − 6x + k, where k is a constant. If the equation f(x) = 0 has exactly one real solution, what is the value of f(k)?",
+  "subtopic": "One real root",
+  "topic": "Quadratics & functions",
+  "trap": "Stopping at k = 9 or at the root x = 3. The question asks for f(k).",
+  "type": "PS"
+ },
+ {
+  "id": "dq12",
+  "altMethod": "n + 2 is divisible by 6 (4 + 2) and by 9 (7 + 2), so n + 2 is a multiple of 18 and n leaves remainder 16.",
+  "answer": 4,
+  "block": "Q",
+  "choices": [
+   "4",
+   "7",
+   "10",
+   "13",
+   "16"
+  ],
+  "difficulty": 4,
+  "expectedSec": 120,
+  "hints": [
+   "List a few numbers that leave remainder 7 when divided by 9.",
+   "Which of those also leaves remainder 4 when divided by 6?",
+   "Key idea: once one number meets both conditions, the next one is LCM(6, 9) further along.",
+   "Check 7, 16, 25 … against the division by 6."
+  ],
+  "method": "Numbers with remainder 7 when divided by 9: 7, 16, 25, 34, … The first with remainder 4 when divided by 6 is 16. The pattern repeats every LCM(6, 9) = 18, so n = 16 + 18k and the remainder is 16.",
+  "order": 12,
+  "section": "Quant",
+  "set": "diagnostic",
+  "skill": "Listing + LCM",
+  "stem": "When the positive integer n is divided by 6, the remainder is 4. When n is divided by 9, the remainder is 7. What is the remainder when n is divided by 18?",
+  "subtopic": "Two remainder conditions",
+  "topic": "Remainders",
+  "trap": "Picking 4 or 7, or combining the remainders (4 + 7), treats the two conditions separately.",
+  "type": "PS"
+ },
+ {
+  "id": "dq13",
+  "altMethod": "Find the smallest n that works: n = 12. Anything that must divide every valid n must divide 12, and 12 itself divides every valid n.",
+  "answer": 1,
+  "block": "Q",
+  "choices": [
+   "6",
+   "12",
+   "24",
+   "36",
+   "72"
+  ],
+  "difficulty": 5,
+  "expectedSec": 120,
+  "hints": [
+   "Try small values of n whose square is divisible by 72. What is the smallest one?",
+   "Write 72 as a product of primes. How do the prime exponents of n relate to those of n²?",
+   "Key idea: each prime exponent in n² is exactly double the exponent in n.",
+   "72 = 2³ × 3². For n² to contain 2³, what is the smallest power of 2 that n must contain?"
+  ],
+  "method": "72 = 2³ × 3². Every prime exponent in n² is double the one in n. To get at least 2³ in n², n needs 2² (2¹ would give only 2²). To get 3² in n², n needs 3¹. So n is divisible by 2² × 3 = 12. Check: n = 12 gives 144 = 2 × 72.",
+  "order": 13,
+  "section": "Quant",
+  "set": "diagnostic",
+  "skill": "Prime exponents in n vs n²",
+  "stem": "If n is a positive integer and n^{2} is divisible by 72, what is the largest positive integer that must divide n?",
+  "subtopic": "Divisibility of a square",
+  "topic": "Integers & divisibility",
+  "trap": "6 misses that n needs 2², not just 2. 36 and 72 assume n itself must contain all of 72.",
+  "type": "PS"
+ },
+ {
+  "id": "dq14",
+  "altMethod": "Test each value. x = 2: mean 42/6 = 7, median 7 ✓. x = 9.5: mean 49.5/6 = 8.25, median (7 + 9.5)/2 = 8.25 ✓. x = 11: mean 51/6 = 8.5, median 8.5 ✓.",
+  "answer": 4,
+  "block": "Q",
+  "choices": [
+   "I only",
+   "II only",
+   "I and III only",
+   "II and III only",
+   "I, II, and III"
+  ],
+  "difficulty": 5,
+  "expectedSec": 150,
+  "hints": [
+   "What is the mean of the new set, written with x?",
+   "Does the median of the new six-number set depend on where x falls?",
+   "Key idea: split into cases by the position of x (x ≤ 7, between 7 and 10, x ≥ 10).",
+   "The sum of S is 40, so the new mean is (40 + x)/6. Find the median in the case x ≤ 7."
+  ],
+  "method": "Sum of S = 40, so the new mean is (40 + x)/6. If x ≤ 7 the median is 7 → x = 2 ✓. If 7 ≤ x ≤ 10 the median is (7 + x)/2 → x = 9.5 ✓. If x ≥ 10 the median is (7 + 10)/2 = 8.5 → x = 11 ✓. All three work.",
+  "order": 14,
+  "section": "Quant",
+  "set": "diagnostic",
+  "skill": "Case analysis",
+  "stem": "Set S = {3, 7, 7, 10, 13}. A number x is added to S, and the median of the new set equals its mean. Which of the following could be the value of x?\n\nI. 2\nII. 9.5\nIII. 11",
+  "subtopic": "Median vs mean with an added value",
+  "topic": "Statistics",
+  "trap": "Assuming only one value of x works. The median changes formula depending on where x lands.",
+  "type": "PS"
+ },
+ {
+  "id": "dd01",
+  "altMethod": "Test values on (1): n = 2 and n = 3 both satisfy it, with different answers → not sufficient.",
+  "answer": 1,
+  "block": "DI",
+  "difficulty": 3,
+  "expectedSec": 90,
+  "hints": [
+   "For statement (1), try n = 2 and n = 3. What happens?",
+   "Factor n² + n.",
+   "Key idea: the product of two consecutive integers is always even.",
+   "For statement (2): if 3n + 1 is even, what must 3n be?"
+  ],
+  "method": "(1) n(n + 1) is even for every integer n → not sufficient. (2) 3n + 1 even → 3n odd → n odd → sufficient. Answer B.",
+  "order": 1,
+  "section": "Data Insights",
+  "set": "diagnostic",
+  "skill": "Always-even products",
+  "statements": [
+   "n^{2} + n is even.",
+   "3n + 1 is even."
+  ],
+  "stem": "Is the integer n odd?",
+  "subtopic": "Odd/even",
+  "topic": "Data Sufficiency",
+  "trap": "Statement (1) looks informative, but n² + n = n(n + 1) is a product of consecutive integers and is always even.",
+  "type": "DS"
+ },
+ {
+  "id": "dd02",
+  "altMethod": "Rephrase the question first: you need x + y. Statement (1) is (x + y)(x − y), so you only need x − y, which (2) gives.",
+  "answer": 2,
+  "block": "DI",
+  "difficulty": 4,
+  "expectedSec": 100,
+  "hints": [
+   "What does the question ask for: x and y, or something else?",
+   "Can you rewrite x² − y² so that x + y appears in it?",
+   "Key idea: x² − y² = (x + y)(x − y).",
+   "Test statement (1) alone with two different pairs of numbers first."
+  ],
+  "method": "(1) Many pairs work: x = 5, y = 1 (sum 6) and x = 7, y = 5 (sum 12) → not sufficient. (2) Any pair 4 apart → not sufficient. Together: (x + y)(x − y) = 24 → (x + y) × 4 = 24 → x + y = 6. Answer C.",
+  "order": 2,
+  "section": "Data Insights",
+  "set": "diagnostic",
+  "skill": "Difference of squares",
+  "statements": [
+   "x^{2} − y^{2} = 24",
+   "x − y = 4"
+  ],
+  "stem": "What is the value of x + y ?",
+  "subtopic": "Algebra: target expression",
+  "topic": "Data Sufficiency",
+  "trap": "Choosing E because you think you need x and y separately. The question only asks for x + y.",
+  "type": "DS"
+ },
+ {
+  "id": "dd03",
+  "altMethod": "Smart numbers: March price $10, revenue $1,200. April revenue $1,320 at $9.50 → about 139 shirts > 120.",
+  "answer": 2,
+  "block": "DI",
+  "difficulty": 4,
+  "expectedSec": 120,
+  "hints": [
+   "Write revenue in terms of price and quantity.",
+   "Test each statement alone: can the price move in a way that flips the answer?",
+   "Key idea: Revenue = Price × Quantity, so Quantity = Revenue ÷ Price.",
+   "Combine: new quantity = (1.10 × R) ÷ (0.95 × P). Compare it with R ÷ P."
+  ],
+  "method": "Revenue = price × quantity. (1) Revenue up, but the price may have risen too → not sufficient. (2) Price down, but revenue unknown → not sufficient. Together: April quantity = (1.10 × R)/(0.95 × P) ≈ 1.16 × March quantity → yes. Answer C.",
+  "order": 3,
+  "section": "Data Insights",
+  "set": "diagnostic",
+  "skill": "Revenue decomposition",
+  "statements": [
+   "The store's revenue from shirts was 10% higher in April than in March.",
+   "The average price per shirt sold was 5% lower in April than in March."
+  ],
+  "stem": "A store sold 120 shirts in March. Did the store sell more shirts in April than in March?",
+  "subtopic": "Word problem: price × quantity",
+  "topic": "Data Sufficiency",
+  "trap": "Choosing A: higher revenue feels like more shirts, but a price increase could explain it.",
+  "type": "DS"
+ },
+ {
+  "id": "dd04",
+  "altMethod": "Try to build a counter-example for (1): push the three middle values to the center. You still cannot bring the SD under 3, so (1) is sufficient.",
+  "answer": 0,
+  "block": "DI",
+  "difficulty": 5,
+  "expectedSec": 150,
+  "hints": [
+   "Is this a 'value' question or a 'yes/no' question? What counts as sufficient for a yes/no question?",
+   "Standard deviation measures how far the values sit from the mean. What does a range of 20 force?",
+   "Key idea: two values 20 apart must, on average, sit about 10 away from the mean.",
+   "Build the least spread-out set with range 20 you can, e.g. {1, 10, 11, 12, 21}, and estimate its SD."
+  ],
+  "method": "(1) The smallest and largest values are 20 apart, so together they sit about 10 from the mean on average. Even the tightest possible set, like {1, 10, 11, 12, 21}, has an SD of about 6.4, and no set with range 20 can go below about 6.3 → always yes → sufficient. (2) {8, 9, 10, 11, 12} has SD ≈ 1.4 (no), {1, 2, 10, 17, 20} has SD ≈ 7.7 (yes) → not sufficient. Answer A.",
+  "order": 4,
+  "section": "Data Insights",
+  "set": "diagnostic",
+  "skill": "Bounding spread",
+  "statements": [
+   "The range of S is 20.",
+   "The mean of S is 10."
+  ],
+  "stem": "S is a set of 5 different positive integers. Is the standard deviation of S greater than 3?",
+  "subtopic": "Statistics: standard deviation",
+  "topic": "Data Sufficiency",
+  "trap": "Thinking you need the exact values to compute the SD. A yes/no question only needs a guaranteed answer.",
+  "type": "DS"
+ },
+ {
+  "id": "dd05",
+  "altMethod": "From the listed values, only (30, 6) and (15, 15) use exactly 120 hours. Profit: (30, 6) → $1,560 ✓; (15, 15) → $1,500 ✗.",
+  "block": "DI",
+  "difficulty": 4,
+  "expectedSec": 150,
+  "hints": [
+   "How many unknowns are there, and how many conditions?",
+   "Write one equation for labor and one for profit.",
+   "Key idea: two linear equations in two unknowns — eliminate one variable.",
+   "Multiply the labor equation by 12 so that the Q terms match the profit equation."
+  ],
+  "method": "3P + 5Q = 120 and 40P + 60Q = 1,560. Multiply the first by 12: 36P + 60Q = 1,440. Subtract: 4P = 120 → P = 30, then Q = (120 − 90)/5 = 6.",
+  "order": 5,
+  "partStyle": "tpa",
+  "parts": [
+   {
+    "answer": 5,
+    "label": "Units of P",
+    "options": [
+     "6",
+     "10",
+     "15",
+     "20",
+     "25",
+     "30"
+    ]
+   },
+   {
+    "answer": 0,
+    "label": "Units of Q",
+    "options": [
+     "6",
+     "10",
+     "15",
+     "20",
+     "25",
+     "30"
+    ]
+   }
+  ],
+  "section": "Data Insights",
+  "set": "diagnostic",
+  "skill": "Simultaneous equations",
+  "stem": "A workshop makes two products. Each unit of product P needs 3 hours of labor and earns a profit of $40. Each unit of product Q needs 5 hours of labor and earns a profit of $60. Last week the workshop used exactly 120 hours of labor and earned a total profit of exactly $1,560 from these two products.\n\nSelect for **Units of P** and for **Units of Q** the values consistent with this information. Make only two selections, one in each column.",
+  "subtopic": "Two linear conditions",
+  "topic": "Two-Part Analysis",
+  "trap": "(15, 15) satisfies the labor condition but gives a profit of $1,500. Every condition must be checked.",
+  "type": "TPA"
+ },
+ {
+  "id": "dd06",
+  "altMethod": "Statement 3 by comparison: the three non-South stores total 1,240 + 1,510 + 870 = 3,620, already more than South's 3,450.",
+  "block": "DI",
+  "difficulty": 4,
+  "expectedSec": 150,
+  "hints": [
+   "Which statements need a calculation, and which can you settle by estimating?",
+   "Statement 1 needs a ratio for each store. Which two columns does it use?",
+   "Key idea: sort by the column that answers the question, then compute only what you need.",
+   "Compute revenue ÷ employees for the stores that look strongest: Dresden, Florence, Bern."
+  ],
+  "method": "1) Revenue per employee: Dresden 870/18 ≈ 48.3 is the highest (Florence 45.0, Bern ≈ 44.5), and Dresden has the highest growth (9.6%) → Yes. 2) Sorted: 870, 980, 1,120, 1,240, 1,350, 1,510 → median (1,120 + 1,240)/2 = 1,180 → Yes. 3) South = 980 + 1,120 + 1,350 = 3,450; total 7,070; half 3,535 → No.",
+  "order": 6,
+  "partStyle": "yesno",
+  "parts": [
+   {
+    "answer": 0,
+    "label": "The store with the highest revenue per employee also had the highest growth.",
+    "options": [
+     "Yes",
+     "No"
+    ]
+   },
+   {
+    "answer": 0,
+    "label": "The median revenue of the six stores is greater than $1,150,000.",
+    "options": [
+     "Yes",
+     "No"
+    ]
+   },
+   {
+    "answer": 1,
+    "label": "The three South stores together account for more than half of the chain's total revenue.",
+    "options": [
+     "Yes",
+     "No"
+    ]
+   }
+  ],
+  "section": "Data Insights",
+  "set": "diagnostic",
+  "skill": "Sort and compute only what's needed",
+  "stem": "The table shows 2026 data for the six stores of a retail chain. Growth compares 2026 revenue with 2025 revenue. You can sort the table by any column.\n\nFor each statement, select **Yes** if it is true based on the table. Otherwise select **No**.",
+  "subtopic": "Ratios, median, shares",
+  "table": {
+   "columns": [
+    "Store",
+    "Region",
+    "Revenue ($000)",
+    "Employees",
+    "Growth vs 2025 (%)"
+   ],
+   "numeric": [
+    false,
+    false,
+    true,
+    true,
+    true
+   ],
+   "rows": [
+    [
+     "Amsterdam",
+     "North",
+     1240,
+     31,
+     4.5
+    ],
+    [
+     "Bern",
+     "South",
+     980,
+     22,
+     7.2
+    ],
+    [
+     "Cork",
+     "West",
+     1510,
+     40,
+     -1.8
+    ],
+    [
+     "Dresden",
+     "North",
+     870,
+     18,
+     9.6
+    ],
+    [
+     "Evora",
+     "South",
+     1120,
+     29,
+     2.1
+    ],
+    [
+     "Florence",
+     "South",
+     1350,
+     30,
+     -0.5
+    ]
+   ]
+  },
+  "topic": "Table Analysis",
+  "trap": "Statement 1: judging revenue per employee by revenue alone points to Cork, which actually has the lowest ratio.",
+  "type": "TA"
+ },
+ {
+  "id": "dd07",
+  "altMethod": "Part 2 by estimation: 21 is a bit less than a third of 66 (a third would be 22), so just under 33%.",
+  "block": "DI",
+  "chart": {
+   "kind": "bar",
+   "labels": [
+    "Q1",
+    "Q2",
+    "Q3",
+    "Q4"
+   ],
+   "max": 25,
+   "step": 5,
+   "title": "Quarterly sales, 2025",
+   "unit": "$ million",
+   "values": [
+    12,
+    16,
+    17,
+    21
+   ]
+  },
+  "difficulty": 4,
+  "expectedSec": 120,
+  "hints": [
+   "In part 1, which quarter is the starting point of the comparison?",
+   "Percent change = change ÷ starting value.",
+   "Key idea: 'greater than Q1 by x%' means (Q4 − Q1) ÷ Q1.",
+   "Read Q1 and Q4 from the chart; for part 2 add all four bars."
+  ],
+  "method": "1) (21 − 12)/12 = 9/12 = 75%. 2) Total = 12 + 16 + 17 + 21 = 66; 21/66 ≈ 31.8% ≈ 32%.",
+  "order": 7,
+  "partStyle": "dropdown",
+  "parts": [
+   {
+    "answer": 2,
+    "label": "Sales in Q4 were greater than sales in Q1 by approximately",
+    "options": [
+     "25%",
+     "50%",
+     "75%",
+     "100%"
+    ]
+   },
+   {
+    "answer": 1,
+    "label": "Q4 sales accounted for approximately this share of total 2025 sales:",
+    "options": [
+     "26%",
+     "32%",
+     "38%",
+     "44%"
+    ]
+   }
+  ],
+  "section": "Data Insights",
+  "set": "diagnostic",
+  "skill": "Choosing the base",
+  "stem": "The chart shows a company's quarterly sales in 2025. Use the drop-down menus to complete each statement.",
+  "subtopic": "Bar chart: percent change and share",
+  "topic": "Graphics Interpretation",
+  "trap": "Using Q4 as the base in part 1 (9/21 ≈ 43%), or reading the difference of 9 as a percent.",
+  "type": "GI"
+ },
+ {
+  "id": "dd08",
+  "altMethod": "Statement 3 by estimation: the permanent staff alone costs 10,800, leaving 700 — barely one temporary packer, and you need 4.",
+  "block": "DI",
+  "difficulty": 4,
+  "expectedSec": 180,
+  "hints": [
+   "Which facts come from which tab? Write down the numbers you need.",
+   "How many extra orders per week does March bring?",
+   "Key idea: a temporary packer handles 75% of 150 orders, and staff counts must be whole numbers.",
+   "Compute 1,800 × 20% first, then divide by one temporary packer's weekly output."
+  ],
+  "method": "March orders: 1,800 × 1.2 = 2,160, so 360 extra per week. A temporary packer in the first month handles 150 × 0.75 = 112.5 → 360/112.5 = 3.2 → 4 needed (Yes). Two permanent packers add 300 < 360 (No). Cost with 4 temps: 12 × 900 + 4 × 600 = 13,200 > 11,500 (No).",
+  "order": 8,
+  "partStyle": "yesno",
+  "parts": [
+   {
+    "answer": 0,
+    "label": "If no permanent packers are hired, at least 4 temporary packers will be needed in March.",
+    "options": [
+     "Yes",
+     "No"
+    ]
+   },
+   {
+    "answer": 1,
+    "label": "Hiring 2 additional permanent packers would cover the March increase in orders.",
+    "options": [
+     "Yes",
+     "No"
+    ]
+   },
+   {
+    "answer": 1,
+    "label": "Covering the March increase with temporary packers alone keeps weekly packing costs within the March budget.",
+    "options": [
+     "Yes",
+     "No"
+    ]
+   }
+  ],
+  "section": "Data Insights",
+  "set": "diagnostic",
+  "skill": "Combining sources + whole numbers",
+  "stem": "For each statement, select **Yes** if it is supported by the information in the two sources. Otherwise select **No**.",
+  "subtopic": "Staffing and budget across two sources",
+  "tabs": [
+   {
+    "body": "From: Operations lead\n\nOur warehouse currently ships 1,800 orders per week with 12 permanent packers, each handling 150 orders per week. Orders are forecast to rise by 20% in March. Temporary packers are 25% less productive than permanent packers during their first month.",
+    "title": "Operations email"
+   },
+   {
+    "body": "From: Finance\n\nPermanent packers cost €900 per week and temporary packers cost €600 per week. The packing budget for March is €11,500 per week.",
+    "title": "Budget memo"
+   }
+  ],
+  "topic": "Multi-Source Reasoning",
+  "trap": "Statement 1: rounding 3.2 packers down to 3. Staff counts are whole numbers and 3 would leave orders unpacked.",
+  "type": "MSR"
+ },
+ {
+  "id": "dv01",
+  "altMethod": "Ask of each option: does it make a cause other than the fee more likely? Only B does.",
+  "answer": 1,
+  "block": "V",
+  "choices": [
+   "The revenue from the fee was used to add buses on routes into the city center.",
+   "During the same twelve months, the region's largest employer moved 4,000 jobs from the city center to a suburban business park.",
+   "Some drivers now enter the city center shortly before 7 a.m. to avoid paying the fee.",
+   "Car traffic into the city center on weekends, when no fee is charged, did not decline during those twelve months.",
+   "Several other cities that introduced similar fees also saw traffic into their centers decline."
+  ],
+  "difficulty": 3,
+  "expectedSec": 100,
+  "hints": [
+   "State the council's conclusion in one short sentence. Is it about what happened, or about why it happened?",
+   "The argument moves from 'X happened, then Y happened' to 'X caused Y'. What kind of fact would break that link?",
+   "Key idea: a causal conclusion is weakened by an alternative cause that could produce the same effect.",
+   "Before reading the options, predict: 'something else, at the same time, reduced the number of people driving into the center'."
+  ],
+  "method": "Conclusion: the fee caused the 18% fall. A causal claim is weakened by another cause of the same effect. B gives one: thousands of commuters no longer need to drive into the center.",
+  "order": 1,
+  "section": "Verbal",
+  "set": "diagnostic",
+  "skill": "Alternative cause",
+  "solution": "B is correct: 4,000 jobs left the center at the same time, which could explain fewer cars without the fee. A: extra buses are funded by the fee, so they are part of the fee's effect, not a rival cause. C: shifting trips before 7 a.m. is still a reaction to the fee. D strengthens: where there was no fee, traffic did not fall. E strengthens by analogy.",
+  "stem": "Last year Townsville began charging drivers a fee to enter the city center by car on weekdays between 7 a.m. and 7 p.m. During the following twelve months, the number of cars entering the center during those hours fell by 18 percent compared with the previous twelve months. The city council concluded that the fee caused the decline.\n\nWhich of the following, if true, most seriously weakens the council's conclusion?",
+  "subtopic": "Causal conclusion",
+  "topic": "CR · Weaken",
+  "trap": "A and C look like they cut against the fee, but both still show the fee changing behavior: they fit the council's conclusion.",
+  "type": "CR"
+ },
+ {
+  "id": "dv02",
+  "altMethod": "Negation test on every option: only the negation of B destroys the argument.",
+  "answer": 1,
+  "block": "V",
+  "choices": [
+   "Most children who skip breakfast do so because their families cannot afford it.",
+   "The higher scores of children who eat breakfast are not mainly the result of some other factor that also makes those children more likely to eat breakfast.",
+   "Attention-test scores are the best available measure of children's academic performance.",
+   "Children who already eat breakfast at home will not also eat the free breakfast at school.",
+   "The free school breakfasts will be at least as nutritious as the breakfasts children eat at home."
+  ],
+  "difficulty": 4,
+  "expectedSec": 110,
+  "hints": [
+   "What is the evidence, and what is the conclusion? Is the conclusion a stronger kind of claim than the evidence?",
+   "The evidence shows two things go together. The conclusion says one will produce the other. What must be true for that jump?",
+   "Key idea: a correlation supports causation only if no third factor explains both. Use the negation test on each option.",
+   "Negate option A: 'Most children who skip breakfast do NOT do so because of cost.' Does the conclusion fail? Repeat for the others."
+  ],
+  "method": "The evidence is a correlation (breakfast goes with higher scores); the conclusion is causal (giving breakfast will raise scores). The argument needs the correlation not to come from a third factor. Negate B — 'the higher scores ARE mainly due to another factor' — and the conclusion collapses.",
+  "order": 2,
+  "section": "Verbal",
+  "set": "diagnostic",
+  "skill": "Negation test",
+  "solution": "B is required: if something else (say, more structured family routines) caused both breakfast-eating and higher scores, feeding children at school would not raise their scores. A: why children skip breakfast doesn't matter, since the program provides it anyway. C: the argument is only about attention-test scores. D: whether other children eat twice is irrelevant to those who now skip. E is too strong: children who skip breakfast have no home breakfast to compare with.",
+  "stem": "Nutritionist: Children who eat breakfast every day score higher on attention tests at school than children who regularly skip breakfast. So a program that provides free breakfasts at school will raise the attention-test scores of children who now skip breakfast.\n\nThe nutritionist's argument depends on which of the following assumptions?",
+  "subtopic": "Correlation → causation",
+  "topic": "CR · Assumption",
+  "trap": "A and E sound helpful to the program, but the argument survives without them. An assumption must be required, not merely supportive.",
+  "type": "CR"
+ },
+ {
+  "id": "dv03",
+  "altMethod": "Predict the gap first ('the four-day teams were not special'), then look for the option that closes it.",
+  "answer": 1,
+  "block": "V",
+  "choices": [
+   "Employees on the four-day week reported higher job satisfaction than employees on the five-day week.",
+   "The teams that moved to the four-day week were chosen at random from all of the company's product teams.",
+   "Several of the company's competitors already offer a four-day week to their engineers.",
+   "The number of updates shipped is only one of several measures the company uses to judge team productivity.",
+   "Before the change, the teams that later moved to the four-day week had already been shipping more updates than the other teams."
+  ],
+  "difficulty": 4,
+  "expectedSec": 110,
+  "hints": [
+   "What does the plan assume will happen when ALL teams switch?",
+   "The evidence compares two groups of teams. Why might those groups differ, apart from the work week?",
+   "Key idea: a comparison supports a causal plan only if the groups were comparable to begin with.",
+   "Ask yourself: how were the teams that moved to the four-day week chosen?"
+  ],
+  "method": "The plan rests on a comparison between two groups of teams. The main threat is that the groups differed from the start. B removes that threat: with random assignment, the gap in output is much more likely to come from the schedule.",
+  "order": 3,
+  "section": "Verbal",
+  "set": "diagnostic",
+  "skill": "Ruling out self-selection",
+  "solution": "B: random selection means the four-day teams were not, for example, the most motivated ones, so their higher output is more plausibly caused by the schedule — exactly what the plan needs. A: satisfaction is not the goal. C: what competitors do says nothing about this company's output. D: other measures are irrelevant to the goal of shipping more updates. E weakens: the four-day teams were already ahead before the change.",
+  "stem": "Last year a software company let some of its product teams move to a four-day work week. Over the year, the teams on the four-day week shipped more product updates per month than the teams that kept the five-day week. The company's managers now plan to move all teams to a four-day week in order to increase the number of updates the company ships.\n\nWhich of the following, if true, most strongly supports the managers' plan?",
+  "subtopic": "Comparison groups",
+  "topic": "CR · Strengthen",
+  "trap": "E does the opposite of supporting: it suggests the four-day teams were stronger to begin with. A is appealing but says nothing about updates shipped.",
+  "type": "CR"
+ },
+ {
+  "id": "dv04",
+  "altMethod": "Variance test: answer each option 'yes' and then 'no'. Only B flips the argument.",
+  "answer": 1,
+  "block": "V",
+  "choices": [
+   "Whether the highway carries more traffic at night than during the day",
+   "Whether deer in the area will use the underpasses instead of crossing the road surface",
+   "Whether building the underpasses would cost more than installing warning signs",
+   "Whether animals other than deer also cross that stretch of highway",
+   "How many deer live in the forests on either side of the highway"
+  ],
+  "difficulty": 4,
+  "expectedSec": 100,
+  "hints": [
+   "What exactly does the argument claim will happen?",
+   "For the underpasses to cut collisions, what must the deer actually do?",
+   "Key idea: in Evaluate questions, the right answer is a question whose 'yes' strengthens and whose 'no' weakens the argument.",
+   "Take one option, answer it 'yes' and then 'no'. Does the conclusion move in opposite directions?"
+  ],
+  "method": "In Evaluate questions the right answer is a question whose two answers push the conclusion in opposite directions. If deer use the underpasses, collisions fall (strengthens); if they keep crossing the road, nothing changes (weakens). That is B.",
+  "order": 4,
+  "section": "Verbal",
+  "set": "diagnostic",
+  "skill": "Variance test",
+  "solution": "B: if deer use the underpasses, fewer will be on the road and collisions fall; if they ignore them, the plan fails. A: when traffic is heavy doesn't tell you whether the underpasses change deer behavior. C: cost compares plans; it doesn't test whether this plan reduces collisions. D: other animals are outside the scope (deer–vehicle collisions). E: the number of deer doesn't decide whether the underpasses reduce collisions.",
+  "stem": "Wildlife officials propose building underpasses beneath a stretch of highway so that deer can cross safely. They argue that the underpasses will reduce the number of collisions between deer and vehicles on that stretch of highway.\n\nWhich of the following would be most useful to establish in order to evaluate the officials' argument?",
+  "subtopic": "Plan effectiveness",
+  "topic": "CR · Evaluate",
+  "trap": "C is about whether the plan is worth its cost; the argument only claims that collisions will fall.",
+  "type": "CR"
+ },
+ {
+  "id": "dv05",
+  "altMethod": "Label each bold part before reading the options, then eliminate any option that calls a premise a conclusion (B, D) or says the economist rejects bold 1 (C).",
+  "answer": 0,
+  "block": "V",
+  "choices": [
+   "The first is a general claim that the economist does not dispute; the second is evidence that a condition on which the analysts' prediction relies will not be met.",
+   "The first is the conclusion of the analysts' argument; the second is the conclusion of the economist's argument.",
+   "The first is a claim that the economist rejects; the second is evidence offered against that claim.",
+   "The first is evidence offered in support of the economist's main conclusion; the second is that conclusion.",
+   "The first is a prediction that the economist supports; the second is a consideration that weighs against that prediction."
+  ],
+  "difficulty": 5,
+  "expectedSec": 130,
+  "hints": [
+   "Find the economist's own conclusion. Is it in boldface?",
+   "Who uses the first bold sentence as a reason, and for which conclusion?",
+   "Key idea: in role questions, label each bold part (premise or conclusion, and whose) before reading the options.",
+   "The economist says the tax will not reduce consumption. Does the economist deny that higher prices reduce purchases, or deny that prices will rise?"
+  ],
+  "method": "Map the argument first. Analysts' conclusion: consumption will fall. Their premise (bold 1): higher prices → people buy less. Economist's conclusion (not bold): 'the tax is unlikely to have this effect here'. Economist's premise (bold 2): prices will not rise. So bold 1 is a generalization the economist leaves intact, and bold 2 shows its trigger will not occur.",
+  "order": 5,
+  "section": "Verbal",
+  "set": "diagnostic",
+  "skill": "Label premise/conclusion before reading options",
+  "solution": "A: bold 1 is a generalization the analysts rely on and the economist never disputes; bold 2 shows the condition the generalization needs — higher prices — will not happen. B: bold 1 is the analysts' premise, and bold 2 is the economist's premise. C: the economist accepts the generalization. D: bold 2 is evidence, not the conclusion (the conclusion is the unbolded 'the tax is unlikely to have this effect here'). E: bold 1 is not a prediction, and the economist does not support the analysts' prediction.",
+  "stem": "Economist: Many analysts predict that the new tax on sugary drinks will reduce consumption in our region, **since higher prices generally lead consumers to buy less of a product**. But the tax is unlikely to have this effect here. **Most sugary drinks in our region are sold through vending machines whose operators have committed to absorbing the tax, rather than raising prices, for at least two years.**\n\nIn the economist's argument, the two portions in boldface play which of the following roles?",
+  "subtopic": "Argument structure",
+  "topic": "CR · Boldface/Role",
+  "trap": "C is the classic trap: the economist does not reject the idea that higher prices reduce purchases. The point is that prices will not rise.",
+  "type": "CR"
+ },
+ {
+  "id": "dv06",
+  "altMethod": "Summarize each paragraph in five words, then combine them into one sentence and match it.",
+  "answer": 1,
+  "block": "V",
+  "choices": [
+   "argue that early electric motors were technically inferior to the steam engines they replaced",
+   "explain why the productivity gains from electrifying factories were slow to appear",
+   "describe how steam-powered factories transmitted power to their machines",
+   "compare the costs of single-story and multi-story factory buildings",
+   "criticize economists who have compared electrification with the spread of computers"
+  ],
+  "difficulty": 3,
+  "expectedSec": 150,
+  "hints": [
+   "What question does the first paragraph raise?",
+   "Does the rest of the passage answer that question, or move to another subject?",
+   "Key idea: the primary purpose must cover every paragraph, not just one.",
+   "Summarize each paragraph in five words, then combine the summaries."
+  ],
+  "method": "Paragraph 1 poses a puzzle (no immediate gains) and names the better explanation (organization, not technology). Paragraphs 2–3 develop it; paragraph 4 extends it. The purpose must cover the whole passage: explaining the delay.",
+  "order": 6,
+  "passage": {
+   "text": "When electric motors began to replace steam engines in American factories at the end of the nineteenth century, many observers expected an immediate surge in manufacturing productivity. For roughly three decades, however, the measured gains were modest. Some historians have concluded that early electric motors were simply not much better than the steam technology they replaced. A more persuasive explanation, advanced by the economist Paul David, locates the delay not in the technology itself but in the way factories were organized around it.\n\nA steam-powered factory was built around a single engine that turned a long central shaft; belts running from that shaft drove every machine in the building. Because power was transmitted mechanically, machines had to be clustered near the shaft, and buildings were often several stories tall to keep the shaft short. The first factory owners to adopt electricity typically installed one large motor in place of the engine and left the rest of the arrangement untouched. They therefore obtained few of the benefits that electricity could offer.\n\nThose benefits appeared only when firms moved to “unit drive,” in which each machine had its own small motor. Freed from the shaft, managers could arrange machines in the order of the production process, build lighter single-story plants, and add or remove equipment without halting the whole factory. Such redesigns, however, were expensive, and they made economic sense chiefly when a firm was building a new plant anyway. As a result, the spread of unit drive followed the slow pace at which old factories were replaced.\n\nDavid's account has since been used to explain why the productivity gains from computers took years to appear: in both cases, the decisive investment was not in the new machine but in reorganizing work around it.",
+   "title": "Electrification and productivity"
+  },
+  "section": "Verbal",
+  "set": "diagnostic",
+  "skill": "Cover every paragraph",
+  "solution": "B covers the whole passage. A is the historians' view that the author calls less persuasive. C describes only paragraph 2. D is never compared in cost. E: the author mentions the comparison with computers approvingly, not critically.",
+  "stem": "The primary purpose of the passage is to",
+  "subtopic": "Primary purpose",
+  "topic": "RC · Main idea",
+  "trap": "C and D are details from the middle of the passage; A is the view the passage calls less persuasive.",
+  "type": "RC"
+ },
+ {
+  "id": "dv07",
+  "altMethod": "Scan for the words 'stories tall', read that sentence only, and match the reason.",
+  "answer": 1,
+  "block": "V",
+  "choices": [
+   "single-story buildings were more expensive to heat",
+   "keeping the central shaft short meant placing machines on several floors",
+   "electric motors could not be installed on upper floors",
+   "managers wanted machines arranged in the order of production",
+   "land in industrial districts was scarce"
+  ],
+  "difficulty": 3,
+  "expectedSec": 70,
+  "hints": [
+   "Which paragraph describes the layout of steam-powered factories?",
+   "Find the sentence that mentions tall buildings and read the reason it gives.",
+   "Key idea: detail questions are answered by a paraphrase of one sentence in the passage.",
+   "Reread: '…buildings were often several stories tall to keep the shaft short.'"
+  ],
+  "method": "Paragraph 2: machines had to be clustered near the shaft, and buildings were tall 'to keep the shaft short'. B paraphrases that sentence.",
+  "order": 7,
+  "passage": {
+   "text": "When electric motors began to replace steam engines in American factories at the end of the nineteenth century, many observers expected an immediate surge in manufacturing productivity. For roughly three decades, however, the measured gains were modest. Some historians have concluded that early electric motors were simply not much better than the steam technology they replaced. A more persuasive explanation, advanced by the economist Paul David, locates the delay not in the technology itself but in the way factories were organized around it.\n\nA steam-powered factory was built around a single engine that turned a long central shaft; belts running from that shaft drove every machine in the building. Because power was transmitted mechanically, machines had to be clustered near the shaft, and buildings were often several stories tall to keep the shaft short. The first factory owners to adopt electricity typically installed one large motor in place of the engine and left the rest of the arrangement untouched. They therefore obtained few of the benefits that electricity could offer.\n\nThose benefits appeared only when firms moved to “unit drive,” in which each machine had its own small motor. Freed from the shaft, managers could arrange machines in the order of the production process, build lighter single-story plants, and add or remove equipment without halting the whole factory. Such redesigns, however, were expensive, and they made economic sense chiefly when a firm was building a new plant anyway. As a result, the spread of unit drive followed the slow pace at which old factories were replaced.\n\nDavid's account has since been used to explain why the productivity gains from computers took years to appear: in both cases, the decisive investment was not in the new machine but in reorganizing work around it.",
+   "title": "Electrification and productivity"
+  },
+  "section": "Verbal",
+  "set": "diagnostic",
+  "skill": "Locate and paraphrase",
+  "solution": "B restates the passage's reason. A, C and E are never mentioned. D is a benefit of unit drive, not a reason for tall steam-era buildings.",
+  "stem": "According to the passage, steam-powered factories were often several stories tall because",
+  "subtopic": "Stated reason",
+  "topic": "RC · Detail",
+  "trap": "D describes what unit drive later made possible, the opposite of the steam-era layout. E sounds realistic but is not in the passage.",
+  "type": "RC"
+ },
+ {
+  "id": "dv08",
+  "altMethod": "Eliminate options that need outside knowledge (D) or contradict the passage (E), then pick the one tied to a specific sentence.",
+  "answer": 1,
+  "block": "V",
+  "choices": [
+   "had recently replaced a steam engine with one large electric motor",
+   "was planning to construct a new factory building",
+   "operated a multi-story plant arranged around a central shaft",
+   "expected the price of electric motors to fall within a few years",
+   "wanted to keep power transmission entirely mechanical"
+  ],
+  "difficulty": 4,
+  "expectedSec": 90,
+  "hints": [
+   "Which paragraph says when redesigns made economic sense?",
+   "An inference must be supported by the text, not just plausible.",
+   "Key idea: correct inferences stay very close to what the passage says.",
+   "Reread the sentence that begins 'Such redesigns, however, were expensive…'"
+  ],
+  "method": "Paragraph 3: redesigns 'made economic sense chiefly when a firm was building a new plant anyway'. B follows directly.",
+  "order": 8,
+  "passage": {
+   "text": "When electric motors began to replace steam engines in American factories at the end of the nineteenth century, many observers expected an immediate surge in manufacturing productivity. For roughly three decades, however, the measured gains were modest. Some historians have concluded that early electric motors were simply not much better than the steam technology they replaced. A more persuasive explanation, advanced by the economist Paul David, locates the delay not in the technology itself but in the way factories were organized around it.\n\nA steam-powered factory was built around a single engine that turned a long central shaft; belts running from that shaft drove every machine in the building. Because power was transmitted mechanically, machines had to be clustered near the shaft, and buildings were often several stories tall to keep the shaft short. The first factory owners to adopt electricity typically installed one large motor in place of the engine and left the rest of the arrangement untouched. They therefore obtained few of the benefits that electricity could offer.\n\nThose benefits appeared only when firms moved to “unit drive,” in which each machine had its own small motor. Freed from the shaft, managers could arrange machines in the order of the production process, build lighter single-story plants, and add or remove equipment without halting the whole factory. Such redesigns, however, were expensive, and they made economic sense chiefly when a firm was building a new plant anyway. As a result, the spread of unit drive followed the slow pace at which old factories were replaced.\n\nDavid's account has since been used to explain why the productivity gains from computers took years to appear: in both cases, the decisive investment was not in the new machine but in reorganizing work around it.",
+   "title": "Electrification and productivity"
+  },
+  "section": "Verbal",
+  "set": "diagnostic",
+  "skill": "Supported vs plausible",
+  "solution": "B is supported by the sentence on when redesigns made economic sense. A: these owners kept the shaft layout. C: an existing shaft-based plant is exactly the case where redesign was costly. D: the passage never discusses motor prices. E contradicts unit drive, which replaced mechanical transmission.",
+  "stem": "It can be inferred from the passage that a factory owner in the 1910s would have been most likely to adopt unit drive if the owner",
+  "subtopic": "Stay close to the text",
+  "topic": "RC · Inference",
+  "trap": "A describes the owners who got few benefits; nothing says they then switched to unit drive. D may be plausible but is outside the passage.",
+  "type": "RC"
+ },
+ {
+  "id": "dv09",
+  "altMethod": "Ask 'why did the author add this paragraph?' before reading the options.",
+  "answer": 1,
+  "block": "V",
+  "choices": [
+   "qualify the explanation presented in the preceding paragraphs",
+   "suggest that the explanation discussed in the passage applies beyond electrification",
+   "present evidence that contradicts the view of some historians",
+   "summarize the costs of reorganizing a factory",
+   "introduce an objection to David's account"
+  ],
+  "difficulty": 4,
+  "expectedSec": 80,
+  "hints": [
+   "What does the final paragraph talk about that the rest of the passage does not?",
+   "Does it weaken, support, or extend David's account?",
+   "Key idea: function questions ask why the author included a paragraph, not what it says.",
+   "The last paragraph moves from factories to computers. What does that do to David's explanation?"
+  ],
+  "method": "The final paragraph moves from factories to computers and says the same mechanism applies. It extends the explanation to a new case: B.",
+  "order": 9,
+  "passage": {
+   "text": "When electric motors began to replace steam engines in American factories at the end of the nineteenth century, many observers expected an immediate surge in manufacturing productivity. For roughly three decades, however, the measured gains were modest. Some historians have concluded that early electric motors were simply not much better than the steam technology they replaced. A more persuasive explanation, advanced by the economist Paul David, locates the delay not in the technology itself but in the way factories were organized around it.\n\nA steam-powered factory was built around a single engine that turned a long central shaft; belts running from that shaft drove every machine in the building. Because power was transmitted mechanically, machines had to be clustered near the shaft, and buildings were often several stories tall to keep the shaft short. The first factory owners to adopt electricity typically installed one large motor in place of the engine and left the rest of the arrangement untouched. They therefore obtained few of the benefits that electricity could offer.\n\nThose benefits appeared only when firms moved to “unit drive,” in which each machine had its own small motor. Freed from the shaft, managers could arrange machines in the order of the production process, build lighter single-story plants, and add or remove equipment without halting the whole factory. Such redesigns, however, were expensive, and they made economic sense chiefly when a firm was building a new plant anyway. As a result, the spread of unit drive followed the slow pace at which old factories were replaced.\n\nDavid's account has since been used to explain why the productivity gains from computers took years to appear: in both cases, the decisive investment was not in the new machine but in reorganizing work around it.",
+   "title": "Electrification and productivity"
+  },
+  "section": "Verbal",
+  "set": "diagnostic",
+  "skill": "Why, not what",
+  "solution": "B: the paragraph applies David's idea to computers. A and E: nothing is qualified or objected to. C: the historians are discussed in paragraph 1, not here. D: costs appear in paragraph 3.",
+  "stem": "The final paragraph of the passage serves primarily to",
+  "subtopic": "Role of a paragraph",
+  "topic": "RC · Function/Structure",
+  "trap": "A and E imply the last paragraph weakens David's account; it extends it.",
+  "type": "RC"
+ }
+]
