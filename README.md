@@ -18,7 +18,9 @@ The **Today** tab shows a plan for the time you have (15 minutes to 2 hours): un
 
 The **Coach** tab answers "What should I study today?", "What is my main weakness?", "Am I improving?", "Which mistakes do I repeat?", "Am I ready for a mock?", "What is my level?" and "How should I spread this week's hours?" from your own data. It runs in the page (`planner.js`), with no AI and no cost. It never turns GMAT Lab's own questions into a GMAT score: only official practice exams give one.
 
-**Coach sets** (from the plan, or "Let the coach pick" in Practice) draw topics in proportion to how much work they need, so weak topics come up most and strong ones now and then.
+**Coach sets** (from the plan, or "Let the coach pick" in Practice) are adaptive: weak topics come up most and strong ones now and then, and each question is harder after a right answer and easier after a wrong one.
+
+**GMAT simulation** (Mocks tab) follows the real GMAT Focus format: three 45-minute sections (Quant 21, Verbal 23, Data Insights 20 questions) in the order you choose, one optional 10-minute break after the first or second section, question-by-question adaptive difficulty starting from a middle level, no going back, bookmarks and up to 3 answer changes per section at the end, calculator only in Data Insights, no confidence ratings and no feedback until the end, reading passages with their questions together. It uses only questions you have never seen, so it opens once every section has enough. It does not produce a GMAT score: only official practice exams can.
 
 ## Where your progress is saved
 
@@ -28,7 +30,7 @@ The **Coach** tab answers "What should I study today?", "What is my main weaknes
 
 ## Claude
 
-- **Weekly review.** Every Sunday evening Claude reads your synced progress, writes a review with this week's focus (on the Coach tab), and adds new questions on your weak topics. It uses your Claude subscription, not an API key. The procedure is in [CLAUDE.md](CLAUDE.md).
+- **Daily review.** Every morning Claude reads your synced progress, writes a review with the week's focus (on the Coach tab), and adds new questions on your weak topics and for the GMAT simulation. It uses your Claude subscription, not an API key. The procedure is in [CLAUDE.md](CLAUDE.md).
 - **Coach chat and question generator (optional).** "Ask the coach" under each question and "Generate a fresh question" in Practice call Claude (`claude-opus-5-5`) from the browser with your own Anthropic API key (Settings → Claude coach), billed by Anthropic separately from a Claude subscription. `vendor/anthropic-sdk.js` is the official `@anthropic-ai/sdk` 0.129.0 (MIT), bundled for the browser. Requests enable Anthropic's server-side refusal fallback (`fallbacks: "default"`).
 
 ## Questions

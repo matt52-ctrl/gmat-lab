@@ -224,7 +224,7 @@ function calibration(){
 function renderChrome(){
   const days = daysBetween(today(), examDate());
   $('#countdown').textContent = (days > 0 ? `${days} days to ${fmtDate(examDate())}` : `Exam date: ${fmtDate(examDate())}`) + (S.dbStatus === 'ok' ? ' · ' + saveText() : '');
-  const inTest = S.run && ['question','review','edit'].includes(S.run.phase);
+  const inTest = S.run && LOCKED.includes(S.run.phase);
   const nav = $('#tabs'); nav.hidden = !!inTest;
   const due = S.dbStatus === 'ok' ? dueErrors().length : 0;
   const tabs = [['today','Today'],['coach','Coach'],['diagnostic','Diagnostic'],['practice','Practice'],['retests','Retests', due],['errors','Error log'],['mastery','Mastery'],['mocks','Mocks'],['profile','Profile'],['settings','Settings']];
@@ -359,14 +359,18 @@ function tick(){
   const r = S.run; if (!r){ stopTicker(); return; }
   const el = $('#clock'); if (el){ el.textContent = clockText(); el.classList.toggle('low', !!r.endsAt && r.endsAt - Date.now() < 5*60000); }
   if (r.endsAt && Date.now() >= r.endsAt && ['question','review','edit'].includes(r.phase)) finishRun(true);
+  if (r.phase === 'break'){ const b = $('#breakclock'); const left = (r.breakEnds - Date.now()) / 1000; if (b) b.textContent = fmtTime(left); if (left <= 0) examNext(); }
 }
+const LOCKED = ['question','review','edit','between','break','examdone'];   // no tabs while these are on screen
 function startRun(o){
   const id = uid('s'); const now = Date.now();
   S.run = { id, kind:o.kind, block:o.block || null, mode:o.mode, label:o.label, qids:o.qids, timed:!!o.timed, limitSec:o.limitSec || null,
     idx:0, answers:{}, attempts:[], started:now, endsAt: o.timed ? now + o.limitSec*1000 : null, qStart:now,
-    phase: o.mode === 'test' ? 'question' : 'learn', sub:'answer', editsUsed:0, reviewedQids:[] };
+    phase: o.mode === 'test' ? 'question' : 'learn', sub:'answer', editsUsed:0, reviewedQids:[],
+    adaptive: o.adaptive || null, noConf: !!o.noConf, examId: o.examId || null };
   S.ui.msrTab = 0; S.coach = null;
-  write('sessions/' + id, 'set', { kind:o.kind, block:o.block || null, mode:o.mode, label:o.label, timed:!!o.timed, limitSec:o.limitSec || null, start:new Date(now).toISOString(), status:'active', attempts:[], qids:o.qids });
+  write('sessions/' + id, 'set', { kind:o.kind, block:o.block || null, mode:o.mode, label:o.label, timed:!!o.timed, limitSec:o.limitSec || null, start:new Date(now).toISOString(), status:'active', attempts:[], qids:o.qids,
+    ...(o.adaptive ? { adaptive:true } : {}), ...(o.examId ? { examId:o.examId, examSection:o.adaptive.section } : {}) });
   startTicker(); render(); window.scrollTo(0,0);
 }
 function curQ(){ const r = S.run; return S.bank[r.phase === 'edit' ? r.qids[r.editIdx] : r.qids[r.idx]]; }
@@ -380,7 +384,7 @@ function curTarget(){
 function syncReady(){
   const r = S.run; if (!r) return; const t = curTarget(); if (!t || !t.q) return;
   const complete = isComplete(t.q, t.get());
-  const conf = r.answers[t.q.id] && r.answers[t.q.id].confidence != null;
+  const conf = r.noConf || (r.answers[t.q.id] && r.answers[t.q.id].confidence != null);
   const nb = $('#next-btn'); if (nb) nb.disabled = !(complete && conf);
   const cb = $('#check-btn'); if (cb) cb.disabled = r.phase === 'debrief' ? !complete : !(complete && conf);
   const sb = $('#savechange-btn'); if (sb) sb.disabled = !complete || r.editsUsed >= 3;
@@ -391,6 +395,19 @@ function stampTime(){
   const dt = (Date.now() - r.qStart)/1000;
   if (r.phase === 'edit') a.reviewSec = (a.reviewSec || 0) + dt; else a.timeSec = (a.timeSec || 0) + dt;
   r.qStart = Date.now();
+}
+/* Adaptive runs grow one question at a time: the next one depends on the answer just given. */
+const runTotal = r => r.adaptive ? r.adaptive.n : r.qids.length;
+const groupOf = q => q && q.passage ? 'p:' + (q.passage.title || '') + ':' + String(q.passage.text || '').length : null;
+function adaptivePush(r){
+  const A = r.adaptive; if (!A || r.qids.length >= A.n) return false;
+  const q = S.bank[r.qids[r.qids.length - 1]], a = r.answers[q.id] || {};
+  A.level = GMATPlanner.levelAfter(A.level, { correct: isCorrect(q, a.answer), unanswered: !isComplete(q, a.answer), timeSec: a.timeSec || 0, expectedSec: expOf(q), confidence: a.confidence == null ? null : a.confidence });
+  const id = GMATPlanner.nextAdaptive(plannerCtx(todayMinutes()), { ...A, used: r.qids, last: { topic: q.topic, group: groupOf(q), correct: isCorrect(q, a.answer) } });
+  if (!id){ A.n = r.qids.length; return false; }
+  r.qids.push(id);
+  write('sessions/' + r.id, 'update', { qids: r.qids });
+  return true;
 }
 function saveDraft(){ const r = S.run; write('sessions/' + r.id, 'update', { draft: clone(r.answers), lastIdx: r.idx }); }
 function mkAttempt(q, a, extra){
@@ -407,8 +424,9 @@ function finishRun(timeUp){
     return mkAttempt(q, a, { reviewSec: Math.round(a.reviewSec || 0), bookmarked: !!a.bookmarked, edited: !!a.edited, changedFrom: a.changedFrom == null ? null : clone(a.changedFrom) }); });
   const dur = Math.round((Date.now() - r.started)/1000);
   r.durationSec = r.limitSec ? Math.min(dur, r.limitSec) : dur;
-  r.phase = 'results'; r.timeUp = !!timeUp;
-  write('sessions/' + r.id, 'update', { attempts:r.attempts, end:new Date().toISOString(), durationSec:r.durationSec, status:'done', timeUp:!!timeUp, editsUsed:r.editsUsed, draft:null, reviewed:false, reviewedQids:[] });
+  r.phase = r.examId && S.exam ? (S.exam.i < S.exam.order.length - 1 ? 'between' : 'examdone') : 'results'; r.timeUp = !!timeUp;
+  write('sessions/' + r.id, 'update', { attempts:r.attempts, end:new Date().toISOString(), durationSec:r.durationSec, status:'done', timeUp:!!timeUp, editsUsed:r.editsUsed, draft:null, reviewed:false, reviewedQids:[], ...(r.adaptive ? { adaptiveLevel: Math.round(r.adaptive.level * 100) / 100 } : {}) });
+  if (r.examId && S.exam) S.exam.sids.push(r.id);
   if (timeUp) toast('Time is up. Unanswered questions count as wrong, as on the real exam.');
   render(); window.scrollTo(0,0);
 }
@@ -474,6 +492,7 @@ function debriefAdvance(){
 }
 function learnAdvance(){
   const r = S.run;
+  if (r.idx === r.qids.length - 1) adaptivePush(r);
   if (r.idx < r.qids.length - 1){ r.idx++; r.sub = 'answer'; r.qStart = Date.now(); S.ui.msrTab = 0; S.coach = null; render(); window.scrollTo(0,0); return; }
   r.phase = 'done'; r.closed = true; stopTicker();
   write('sessions/' + r.id, 'update', { status:'done', end:new Date().toISOString(), durationSec: Math.round((Date.now() - r.started)/1000) });
@@ -491,6 +510,10 @@ function learnCheck(){
 }
 
 /* ------------------------------------------------------------------ run views */
+function runCounter(r){
+  const base = `Question ${r.idx + 1} of ${runTotal(r)}`;
+  return r.adaptive && !r.examId ? `${base} · adaptive, level ${Math.round(r.adaptive.level * 2) / 2}` : base;
+}
 function testBar(extra){
   const r = S.run;
   return `<div class="testbar"><div class="tb-left"><strong>${esc(r.label)}</strong>${extra ? `<span class="muted">${extra}</span>` : ''}</div><div class="tb-right">${r.phase === 'question' ? (() => { const a = r.answers[r.qids[r.idx]] || {}; return `<button class="flag" data-act="bookmark" aria-pressed="${!!a.bookmarked}">${a.bookmarked ? 'Bookmarked' : 'Bookmark'}</button>`; })() : ''}<button class="clock" id="clock" data-act="toggleclock" aria-label="Timer; click to hide or show">${clockText()}</button></div></div>`;
@@ -505,17 +528,20 @@ function runView(){
     case 'debrief': return debriefView();
     case 'learn': return learnView();
     case 'done': return doneView();
+    case 'between': return betweenView();
+    case 'break': return breakView();
+    case 'examdone': return examDoneView();
   }
   return '';
 }
 function questionView(){
   const r = S.run, q = curQ(), a = r.answers[q.id] || {};
-  const last = r.idx === r.qids.length - 1;
-  const ready = isComplete(q, a.answer) && a.confidence != null;
-  return `${testBar(`Question ${r.idx+1} of ${r.qids.length}`)}
+  const last = r.idx === runTotal(r) - 1;
+  const ready = isComplete(q, a.answer) && (r.noConf || a.confidence != null);
+  return `${testBar(runCounter(r))}
     ${qBody(q, a.answer, {})}
     ${q.section === 'Data Insights' ? calcWidget() : ''}
-    <div class="qfoot">${confPicker(a.confidence)}<div class="row"><button class="btn ghost" data-act="endprompt">End section</button><button class="btn primary" id="next-btn" data-act="next" ${ready ? '' : 'disabled'}>${last ? 'Finish section' : 'Next'}</button></div></div>
+    <div class="qfoot">${r.noConf ? '<span></span>' : confPicker(a.confidence)}<div class="row">${r.examId ? '' : '<button class="btn ghost" data-act="endprompt">End section</button>'}<button class="btn primary" id="next-btn" data-act="next" ${ready ? '' : 'disabled'}>${last ? 'Finish section' : 'Next'}</button></div></div>
     <div id="endconfirm" hidden><div class="confirm"><span>End the section now? Questions you have not answered count as wrong.</span><button class="btn small danger" data-act="endnow">End section</button><button class="btn small" data-act="endcancel">Keep going</button></div></div>`;
 }
 function reviewView(){
@@ -602,10 +628,10 @@ function debriefView(){
 function learnView(){
   const r = S.run, q = curQ(), a = r.answers[q.id] || {};
   const fb = r.sub === 'feedback'; const att = r.attempts[r.attempts.length - 1];
-  return `${testBar(`Question ${r.idx+1} of ${r.qids.length}`)}
+  return `${testBar(runCounter(r))}
     ${qBody(q, a.answer, fb ? { locked:true, reveal:true, userAns:a.answer } : {})}
     ${q.section === 'Data Insights' && !fb ? calcWidget() : ''}
-    ${fb ? `<p class="msg good">Correct in ${fmtTime(att.timeSec)} (expected about ${fmtTime(att.expectedSec)}).</p>${solutionHTML(q)}<div class="panel stack"><p class="eyebrow">Before you move on</p><ul class="hints"><li>Was your route the fastest reliable one, or just the first one you saw?</li><li>Which answers could you have eliminated without calculating?</li></ul></div>${coachBox(q, true)}<div class="row"><button class="btn primary" data-act="lnext">${r.idx === r.qids.length - 1 ? 'Finish' : 'Next question'}</button><button class="btn ghost" data-act="lend">End practice</button></div>`
+    ${fb ? `<p class="msg good">Correct in ${fmtTime(att.timeSec)} (expected about ${fmtTime(att.expectedSec)}).</p>${solutionHTML(q)}<div class="panel stack"><p class="eyebrow">Before you move on</p><ul class="hints"><li>Was your route the fastest reliable one, or just the first one you saw?</li><li>Which answers could you have eliminated without calculating?</li></ul></div>${coachBox(q, true)}<div class="row"><button class="btn primary" data-act="lnext">${r.idx === runTotal(r) - 1 ? 'Finish' : 'Next question'}</button><button class="btn ghost" data-act="lend">End practice</button></div>`
       : `<div class="qfoot">${confPicker(a.confidence)}<div class="row"><button class="btn ghost" data-act="lend">End practice</button><button class="btn primary" id="check-btn" data-act="lcheck" ${isComplete(q, a.answer) && a.confidence != null ? '' : 'disabled'}>Check</button></div></div>${coachBox(q, false)}`}`;
 }
 function doneView(){
@@ -679,7 +705,7 @@ function plannerCtx(minutes){
     diagnosticDone: BLOCKS.every(b => blockDone(b.key)),
     due: dueErrors().map(e => ({ qid: e.qid, topic: e.topic, nextDue: e.nextDue })),
     attempts: at, topics, errors: Object.values(S.errors),
-    pool: practicePool().map(q => ({ id: q.id, topic: q.topic, section: q.section, difficulty: q.difficulty || 3, seen: seen.has(q.id) })),
+    pool: practicePool().map(q => ({ id: q.id, topic: q.topic, section: q.section, type: q.type, group: groupOf(q), difficulty: q.difficulty || 3, seen: seen.has(q.id) })),
     mocks: Object.values(S.mocks), hoursPerWeek: interview().hoursPerWeek || null, claudePlan: S.profile.coach || null };
 }
 const CTA = { interview:'Open the interview', review:'Continue the review', diagnostic:'Start', retests:'Start retests', weak:'Start', mixed:'Start' };
@@ -696,12 +722,61 @@ function planCard(nx){
     <p class="fine" style="margin-top:12px">Built from your answers, times, confidence and error log. <button class="linkbtn" data-act="tab" data-arg="coach">Ask the coach why</button></p>
   </div>`;
 }
+/* Coach sets are adaptive: weak topics first, difficulty following your answers. */
 function startSmart(mode, n, opts){
-  const ids = GMATPlanner.pickSet(plannerCtx(todayMinutes()), n, opts);
-  if (!ids.length){ toast('No questions are available for this yet.'); return; }
+  const ctx = plannerCtx(todayMinutes());
+  const A = { n, topic: opts.topic || null, section: opts.section || null, exam: false };
+  A.level = GMATPlanner.startLevel(ctx, A);
+  const first = GMATPlanner.nextAdaptive(ctx, { ...A, used: [] });
+  if (!first){ toast('No questions are available for this yet.'); return; }
   const label = `Coach set · ${opts.topic || opts.section || 'mixed'}`;
-  if (mode === 'timed'){ const lim = Math.round(ids.reduce((s, id) => s + PACE[S.bank[id].section], 0)); startRun({ kind:'practice', qids: ids, mode:'test', timed:true, limitSec: lim, label: label + ' · timed' }); }
-  else startLearn(ids, label, 'practice');
+  if (mode === 'timed'){ const pace = A.section ? PACE[A.section] : (PACE['Quant'] + PACE['Verbal'] + PACE['Data Insights']) / 3; startRun({ kind:'practice', qids:[first], mode:'test', timed:true, limitSec: Math.round(n * pace), label: label + ' · timed', adaptive: A }); }
+  else startRun({ kind:'practice', qids:[first], mode:'learn', timed:false, label, adaptive: A });
+}
+/* ------------------------------------------------------------------ GMAT simulation: the real exam's format */
+const EXAM_ORDERS = [['Quant','Verbal','Data Insights'],['Quant','Data Insights','Verbal'],['Verbal','Quant','Data Insights'],['Verbal','Data Insights','Quant'],['Data Insights','Quant','Verbal'],['Data Insights','Verbal','Quant'],['Quant'],['Verbal'],['Data Insights']];
+const SHORT = { 'Quant':'Q', 'Verbal':'V', 'Data Insights':'DI' };
+function examOrder(){ const i = +((S.ui.exam || {}).order || 0); return EXAM_ORDERS[i] || EXAM_ORDERS[0]; }
+function startExam(){
+  const order = examOrder();
+  const ready = GMATPlanner.examReadiness(plannerCtx(todayMinutes()), order);
+  if (!ready.every(x => x.ok)){ toast('Not enough unseen questions for this simulation yet.'); return; }
+  S.exam = { id: uid('x'), order, i: 0, sids: [], breakUsed: false };
+  startExamSection();
+}
+function startExamSection(){
+  const X = S.exam, section = X.order[X.i];
+  const A = { n: GMATPlanner.EXAM_COUNTS[section], section, topic: null, exam: true, level: 3.5 };
+  const first = GMATPlanner.nextAdaptive(plannerCtx(todayMinutes()), { ...A, used: [] });
+  if (!first){ toast('Not enough unseen questions for this section.'); S.exam = null; endRun('mocks'); return; }
+  const label = X.order.length > 1 ? `Simulation · ${section} · section ${X.i + 1} of ${X.order.length}` : `Simulation · ${section}`;
+  startRun({ kind:'exam', mode:'test', timed:true, limitSec: GMATPlanner.EXAM_MINUTES * 60, qids:[first], label, adaptive: A, noConf: true, examId: X.id });
+}
+function examNext(){ const X = S.exam; if (!X) return; stopTicker(); X.i++; startExamSection(); }
+function betweenView(){
+  const X = S.exam, next = X.order[X.i + 1];
+  return `<section class="card stack"><p class="eyebrow">Section ${X.i + 1} of ${X.order.length} complete</p><h1>Next: ${esc(next)}</h1>
+    <p class="muted">${X.breakUsed ? 'You have used your break. The next section starts when you continue.' : 'You may take the optional 10-minute break now or after the next section. On the real exam it is the only break.'}</p>
+    <div class="row"><button class="btn primary" data-act="examnext">Start ${esc(next)}</button>${X.breakUsed ? '' : '<button class="btn" data-act="exambreak">Take the 10-minute break</button>'}</div></section>`;
+}
+function breakView(){
+  const r = S.run, next = S.exam.order[S.exam.i + 1];
+  return `<section class="card stack"><p class="eyebrow">Optional break</p><h1 class="mono" id="breakclock">${fmtTime((r.breakEnds - Date.now()) / 1000)}</h1>
+    <p class="muted">Stand up, drink some water, stay off your phone. ${esc(next)} starts automatically when the break ends.</p>
+    <div class="row"><button class="btn primary" data-act="examnext">End the break and start ${esc(next)}</button></div></section>`;
+}
+function examDoneView(){
+  const X = S.exam;
+  const rows = X.sids.map(sid => S.sessions[sid]).filter(Boolean).map(s => {
+    const at = s.attempts || [], c = at.filter(a => a.correct).length, right = at.filter(a => a.correct && a.difficulty);
+    const avgRight = right.length ? right.reduce((t, a) => t + a.difficulty, 0) / right.length : null;
+    return `<tr><td>${esc(s.examSection || s.label)}</td><td class="num">${c}/${at.length}</td><td class="num">${fmtTime(s.durationSec)} / ${fmtTime(s.limitSec)}</td><td class="num">${at.filter(a => a.unanswered).length}</td><td class="num">${s.editsUsed || 0}/3</td><td class="num">${avgRight == null ? '—' : avgRight.toFixed(1)}</td><td><button class="linkbtn" data-act="openResults" data-arg="${esc(s.id)}">Results and review</button></td></tr>`;
+  }).join('');
+  return `<section class="stack"><p class="eyebrow">GMAT simulation · ${X.order.map(x => SHORT[x]).join(' → ')}</p><h1>Simulation complete</h1>
+    <p class="muted" style="max-width:70ch">This is not a GMAT score. The real test scores you with questions calibrated on thousands of test takers; GMAT Lab’s questions are not, so it shows what you got right and how hard it got instead. For a score, take an Official Practice Exam and log it below.</p>
+    <div class="box scroll"><table class="tbl"><thead><tr><th>Section</th><th class="num">Correct</th><th class="num">Time</th><th class="num">Unanswered</th><th class="num">Changes</th><th class="num">Avg level of right answers</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
+    <div class="row"><button class="btn primary" data-act="examclose">Done</button></div>
+    <p class="fine">Each section is also in Today → recent sessions, and its misses wait for review like any test.</p></section>`;
 }
 VIEWS.coach = function(){
   if (!planReady()) return `<section><h1>Coach</h1><p class="muted">${esc(nextStep().why)}</p></section>`;
@@ -716,14 +791,14 @@ VIEWS.coach = function(){
   <section class="grid2">
     <div class="stack"><h2>Where your practice goes</h2><p class="muted">Coach sets draw topics in proportion to these weights: weak topics come up most, strong ones now and then so they stay sharp.</p>
       ${w.length ? `<div class="box scroll"><table class="tbl"><thead><tr><th>Topic</th><th>Status</th><th>Weight</th><th class="num">Unseen</th></tr></thead><tbody>${w.map(t => `<tr><td>${esc(t.topic)}</td><td><span class="status st${t.status}"></span>${STATUS[t.status]}</td><td><div class="wbar" role="img" aria-label="weight ${t.weight.toFixed(2)}"><span style="width:${Math.round(t.weight / maxW * 100)}%"></span></div></td><td class="num">${t.unseen}</td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">Nothing to weigh yet. Take the diagnostic first.</p>'}</div>
-    <div class="stack"><h2>Claude’s weekly review</h2>
+    <div class="stack"><h2>Claude’s review</h2>
       ${cp ? `<div class="card stack"><p class="eyebrow">${cp.weekOf ? 'Week of ' + esc(fmtDate(cp.weekOf)) + ' · ' : ''}written ${esc(fmtDate(String(cp.updatedAt || '').slice(0, 10)))}${fresh ? '' : ' · older than a week'}</p>
         ${cp.summary ? `<div class="stack">${rich(cp.summary)}</div>` : ''}
         ${Array.isArray(cp.focus) && cp.focus.length ? `<div><p class="eyebrow">Focus</p><ul class="answer">${cp.focus.map(f => `<li><b>${esc(f.topic)}</b>${f.why ? ': ' + esc(f.why) : ''}</li>`).join('')}</ul></div>` : ''}
         ${Array.isArray(cp.tasks) && cp.tasks.length ? `<div><p class="eyebrow">This week</p><ul class="answer">${cp.tasks.map(t => `<li>${esc(t)}</li>`).join('')}</ul></div>` : ''}
         ${cp.newQuestions ? `<p class="fine">${esc(String(cp.newQuestions))} new questions added to Practice.</p>` : ''}
         ${fresh && Array.isArray(cp.focus) && cp.focus.length ? '<p class="fine">Focus topics get extra weight in your plan and coach sets.</p>' : ''}</div>`
-      : `<p class="muted">Every Sunday evening Claude reads your synced progress, writes a review here and adds new questions on your weak topics. It needs GitHub sync on (Settings).</p>`}</div>
+      : `<p class="muted">Every morning Claude reads your synced progress, writes a review here and adds new questions on your weak topics and for the GMAT simulation. It needs GitHub sync on (Settings).</p>`}</div>
   </section>`;
 };
 VIEWS.diagnostic = function(){
@@ -822,10 +897,20 @@ VIEWS.mastery = function(){
       <li><b>Mastered</b>: Strong, plus 80%+ on at least 6 timed questions at level 4+ within 1.2× the expected time, plus a correct retest at least 7 days after your last error on the topic.</li></ul></details></section>
     ${secs}`;
 };
+function simulationCard(){
+  if (!planReady()) return '';
+  const order = examOrder(), ready = GMATPlanner.examReadiness(plannerCtx(todayMinutes()), order), ok = ready.every(x => x.ok);
+  return `<section class="card stack"><h2>GMAT simulation</h2>
+    <p class="muted" style="max-width:75ch">The real GMAT Focus format: three 45-minute sections (Quant 21, Verbal 23, Data Insights 20 questions) in the order you choose, one optional 10-minute break after the first or second section, questions that get harder or easier with your answers, no going back, bookmarks and up to 3 answer changes per section at the end, calculator only in Data Insights, no feedback until the end. Only questions you have never seen.</p>
+    <div class="fgrid" style="max-width:520px"><div><label class="lab" for="ex-order">Section order</label><select id="ex-order" data-ui="exam.order">${EXAM_ORDERS.map((o, i) => `<option value="${i}" ${String((S.ui.exam || {}).order || 0) === String(i) ? 'selected' : ''}>${o.length > 1 ? o.join(' → ') : o[0] + ' section only'}</option>`).join('')}</select></div></div>
+    <p class="fine">Unseen questions: ${ready.map(x => `<span class="${x.ok ? '' : 'res-no'}">${esc(x.section)} ${x.have}/${x.need}</span>`).join(' · ')}</p>
+    <div class="row"><button class="btn primary" data-act="startexam" ${ok ? '' : 'disabled'}>Start the simulation · ${order.length * 45} min</button>${ok ? '' : '<span class="fine">Claude’s daily review adds questions until every section has enough.</span>'}</div></section>`;
+}
 VIEWS.mocks = function(){
   const list = Object.values(S.mocks).sort((a,b) => String(a.date).localeCompare(String(b.date)));
   const tg = target();
   return `<section><h1>Mocks</h1><p class="muted" style="max-width:70ch">Log every full practice exam here. Official Practice Exams use the real scoring algorithm, and there are only a few, so keep them for when the numbers matter. After each mock, tell Claude “analizza il mock” for the full post-mock report.</p></section>
+    ${simulationCard()}
     ${list.length ? `<section class="card">${mockChart(list, tg)}</section>` : ''}
     <section class="grid2">
       <form class="card stack" data-form="mock" data-dirty><h2>Add a mock result</h2>
@@ -1071,7 +1156,7 @@ async function generate(){
 
 /* ------------------------------------------------------------------ actions */
 const ACTIONS = {
-  tab(el){ const t = el.dataset.arg; if (S.run){ const inTest = ['question','review','edit'].includes(S.run.phase); if (inTest) return; endRun(t); return; } S.tab = t; try { history.replaceState(null, '', '#' + t); } catch(e){} render(); window.scrollTo(0,0); },
+  tab(el){ const t = el.dataset.arg; if (S.run){ if (LOCKED.includes(S.run.phase)) return; endRun(t); return; } S.tab = t; try { history.replaceState(null, '', '#' + t); } catch(e){} render(); window.scrollTo(0,0); },
   startBlock(el){ startBlock(el.dataset.arg); },
   restartBlock(el){ for (const s of diagSessions(el.dataset.arg).filter(s => s.status === 'active')) write('sessions/' + s.id, 'update', { status:'abandoned' }); startBlock(el.dataset.arg); },
   openResults(el){ openResults(el.dataset.arg); },
@@ -1081,7 +1166,7 @@ const ACTIONS = {
   conf(el){ const q = curTarget().q; const r = S.run; r.answers[q.id] = r.answers[q.id] || {}; r.answers[q.id].confidence = +el.dataset.v; $$('button', el.parentElement).forEach(b => b.setAttribute('aria-pressed', String(b === el))); syncReady(); },
   bookmark(el){ const r = S.run; const q = curQ(); const a = r.answers[q.id] = r.answers[q.id] || {}; a.bookmarked = !a.bookmarked; el.setAttribute('aria-pressed', String(a.bookmarked)); el.textContent = a.bookmarked ? 'Bookmarked' : 'Bookmark'; },
   toggleclock(){ S.ui.clockHidden = !S.ui.clockHidden; tick(); },
-  next(){ const r = S.run; stampTime(); saveDraft(); if (r.idx < r.qids.length - 1){ r.idx++; r.qStart = Date.now(); S.ui.msrTab = 0; render(); window.scrollTo(0,0); } else { r.phase = 'review'; render(); window.scrollTo(0,0); } },
+  next(){ const r = S.run; stampTime(); if (r.idx === r.qids.length - 1) adaptivePush(r); saveDraft(); if (r.idx < r.qids.length - 1){ r.idx++; r.qStart = Date.now(); S.ui.msrTab = 0; render(); window.scrollTo(0,0); } else { r.phase = 'review'; render(); window.scrollTo(0,0); } },
   endprompt(){ $('#endconfirm').hidden = false; },
   endcancel(){ $('#endconfirm').hidden = true; },
   endnow(){ finishRun(false); },
@@ -1130,6 +1215,10 @@ const ACTIONS = {
   coachq(el){ S.ui.coachQ = el.dataset.v; render(); },
   startsmart(el){ const [mode, topic, n] = el.dataset.arg.split('|'); startSmart(mode, +n, { topic: topic || null }); },
   startsmartform(){ const P = S.ui.practice; startSmart(P.mode === 'timed' ? 'timed' : 'learn', +P.count, { section: P.section || null, topic: P.topic || null }); },
+  startexam(){ startExam(); },
+  examnext(){ examNext(); },
+  exambreak(){ const r = S.run; S.exam.breakUsed = true; r.phase = 'break'; r.breakEnds = Date.now() + 10 * 60000; startTicker(); render(); window.scrollTo(0,0); },
+  examclose(){ S.exam = null; endRun('mocks'); },
   exportdata(){ downloadJSON(GMATStore.exportData(), `gmat-lab-backup-${today()}.json`); },
   importpick(){ const i = $('#import-file'); if (i) i.click(); },
   erase(){ S.ui.erase = true; render(); },
@@ -1139,7 +1228,7 @@ const ACTIONS = {
   syncoff(){ GMATStore.sync.disable(); S.ui.dirty = false; render(); toast('Sync turned off. Progress stays in this browser.'); },
   claudekeydel(){ GMATStore.claude.setKey(''); S.sample = null; S.ui.dirty = false; render(); toast('Key removed. The coach is off.'); },
 };
-function learnAdvanceEnd(){ const r = S.run; r.idx = r.qids.length - 1; learnAdvance(); }
+function learnAdvanceEnd(){ const r = S.run; if (r.adaptive) r.adaptive.n = r.qids.length; r.idx = r.qids.length - 1; learnAdvance(); }
 const SUBMITS = {
   async studylog(f){ const min = Number($('#sl-min').value), date = $('#sl-date').value || today(), note = $('#sl-note').value.trim();
     if (!min || min < 1){ toast('Enter the minutes you studied.'); return; }
