@@ -28,7 +28,26 @@
   "subtopic": "Successive percent changes",
   "topic": "Percents",
   "trap": "Adding the percents (+20 − 25 + 10 = +5) gives 105%, but each change acts on a different base.",
-  "type": "PS"
+  "type": "PS",
+  "diagnosis": [
+   {
+    "why": "Adding +20% and −25% as −5% and leaving out the 10% tax gives 95%. Each change multiplies the price from the step before.",
+    "type": "Trap"
+   },
+   null,
+   {
+    "why": "Adding the tax as 10% of the original price (90 + 10) gives 100%. The tax is 10% of the reduced price: 90 × 1.10 = 99.",
+    "type": "Procedural"
+   },
+   {
+    "why": "Adding the percents (+20 − 25 + 10 = +5) gives 105%, but each change acts on a different base.",
+    "type": "Trap"
+   },
+   {
+    "why": "Treating the 20% rise and the 25% cut as if they cancelled, and keeping only the 10% tax, gives 110%. A rise and a fall never simply cancel.",
+    "type": "Conceptual"
+   }
+  ]
  },
  {
   "id": "dq02",
@@ -59,7 +78,26 @@
   "subtopic": "Two-set overlap",
   "topic": "Overlapping sets",
   "trap": "68 is the number who study at least one language, not exactly one.",
-  "type": "PS"
+  "type": "PS",
+  "diagnosis": [
+   {
+    "why": "38 is the number who study Spanish, not the number who study exactly one language.",
+    "type": "Reading"
+   },
+   {
+    "why": "45 is the number who study French, not the number who study exactly one language.",
+    "type": "Reading"
+   },
+   null,
+   {
+    "why": "68 − 12 = 56 subtracts the “neither” group twice. Subtract the 15 who study both: 68 − 15 = 53.",
+    "type": "Procedural"
+   },
+   {
+    "why": "68 is the number who study at least one language; the question asks for exactly one.",
+    "type": "Trap"
+   }
+  ]
  },
  {
   "id": "dq03",
@@ -90,7 +128,26 @@
   "subtopic": "Adding a pure component",
   "topic": "Mixtures",
   "trap": "4 liters is 10% of 40: it forgets that adding alcohol also increases the total volume.",
-  "type": "PS"
+  "type": "PS",
+  "diagnosis": [
+   {
+    "why": "4 L is 10% of 40: it forgets that adding alcohol also increases the total volume.",
+    "type": "Trap"
+   },
+   {
+    "why": "Check it: (12 + 5)/45 ≈ 38%, still below 40%. The added alcohol also raises the total, so more is needed.",
+    "type": "Calculation"
+   },
+   null,
+   {
+    "why": "Check it: (12 + 8)/48 ≈ 42%, above 40%. A slip in 12 + x = 16 + 0.4x (for example 0.5x = 4) gives 8; the correct step is 0.6x = 4.",
+    "type": "Calculation"
+   },
+   {
+    "why": "10 turns the 10-point gap between 30% and 40% into litres. Set up (12 + x)/(40 + x) = 0.4 instead.",
+    "type": "Conceptual"
+   }
+  ]
  },
  {
   "id": "dq04",
@@ -121,7 +178,26 @@
   "subtopic": "Combined work, then one worker",
   "topic": "Rates & work",
   "trap": "Subtracting times (9 − 2 = 7) or averaging them mixes up time and work.",
-  "type": "PS"
+  "type": "PS",
+  "diagnosis": [
+   {
+    "why": "2 is the time both pipes already ran, not the time pipe B still needs.",
+    "type": "Interpretation"
+   },
+   {
+    "why": "Subtracting fill times (9 − 6 = 3) mixes up time and work. Add rates: 1/6 + 1/9 = 5/18 per hour.",
+    "type": "Conceptual"
+   },
+   {
+    "why": "Halving or averaging times, for example (9 − 2)/2, gives 3½. Times don’t combine like that; rates do.",
+    "type": "Conceptual"
+   },
+   null,
+   {
+    "why": "5 comes from the 5/9 already filled. The work left is 4/9, which B does at 1/9 per hour: 4 hours.",
+    "type": "Interpretation"
+   }
+  ]
  },
  {
   "id": "dq05",
@@ -152,7 +228,26 @@
   "subtopic": "At least one",
   "topic": "Probability",
   "trap": "1/6 is the probability of drawing no red marble: the complement, not the answer.",
-  "type": "PS"
+  "type": "PS",
+  "diagnosis": [
+   {
+    "why": "1/6 is the probability of drawing no red marble: the complement, not the answer.",
+    "type": "Trap"
+   },
+   {
+    "why": "1/2 is the probability of exactly one red marble. “At least one” also includes two or three red.",
+    "type": "Interpretation"
+   },
+   {
+    "why": "1 − (6/10)(5/9) = 2/3 stops after two draws. Three marbles are drawn: 1 − (6/10)(5/9)(4/8) = 5/6.",
+    "type": "Careless"
+   },
+   null,
+   {
+    "why": "29/30 subtracts the chance that all three are red (1/30). “At least one red” is the complement of “none red”.",
+    "type": "Conceptual"
+   }
+  ]
  },
  {
   "id": "dq06",
@@ -183,7 +278,26 @@
   "subtopic": "Factoring sums of powers",
   "topic": "Exponents & roots",
   "trap": "You cannot cancel exponents term by term across + and − (12 − 11, 10 − 9).",
-  "type": "PS"
+  "type": "PS",
+  "diagnosis": [
+   {
+    "why": "An arithmetic slip after factoring. Check: 8·3^{10}/(10·3^{9}) = 24/10 = 12/5.",
+    "type": "Calculation"
+   },
+   null,
+   {
+    "why": "8/3 treats the denominator as 3^{11} only, dropping + 3^{9}. Factor it too: 3^{9}(9 + 1) = 10·3^{9}.",
+    "type": "Procedural"
+   },
+   {
+    "why": "Cancelling term by term (3^{12}/3^{11} and 3^{10}/3^{9}) gives 3; you can’t split a fraction across + and −.",
+    "type": "Trap"
+   },
+   {
+    "why": "24/5 doubles the right answer: a slip in the last step. 24/10 reduces to 12/5.",
+    "type": "Calculation"
+   }
+  ]
  },
  {
   "id": "dq07",
@@ -214,7 +328,26 @@
   "subtopic": "Combinations with a condition",
   "topic": "Counting",
   "trap": "Choosing 2 women first and then any 2 of the other 7 people (10 × 21 = 210) counts the same committee several times.",
-  "type": "PS"
+  "type": "PS",
+  "diagnosis": [
+   {
+    "why": "60 counts committees with exactly 2 women; “at least 2” also includes 3 and 4 women.",
+    "type": "Interpretation"
+   },
+   {
+    "why": "100 adds exactly 2 women (60) and exactly 3 (40) but forgets the 5 all-women committees.",
+    "type": "Careless"
+   },
+   null,
+   {
+    "why": "120 subtracts 1 committee with no women but only 5 with one woman. Each woman goes with C(4, 3) = 4 groups of men: 20.",
+    "type": "Procedural"
+   },
+   {
+    "why": "Choosing 2 women first and then any 2 of the other 7 (10 × 21 = 210) counts the same committee several times.",
+    "type": "Trap"
+   }
+  ]
  },
  {
   "id": "dq08",
@@ -245,7 +378,26 @@
   "subtopic": "Absolute value + quadratic condition",
   "topic": "Inequalities & absolute value",
   "trap": "8 counts every integer allowed by the first condition; 3 forgets that x = 7 still works (|14 − 7| = 7 < 9).",
-  "type": "PS"
+  "type": "PS",
+  "diagnosis": [
+   {
+    "why": "3 forgets x = 7, which works: |14 − 7| = 7 < 9 and 49 > 10.",
+    "type": "Careless"
+   },
+   null,
+   {
+    "why": "5 includes x = 8, but |16 − 7| = 9 is not less than 9.",
+    "type": "Careless"
+   },
+   {
+    "why": "6 keeps x = 3 (9 is not greater than 10) and x = 8 (on the boundary).",
+    "type": "Careless"
+   },
+   {
+    "why": "8 counts every integer allowed by the first condition and ignores x^{2} > 10.",
+    "type": "Trap"
+   }
+  ]
  },
  {
   "id": "dq09",
@@ -276,7 +428,26 @@
   "subtopic": "Symmetric increase and decrease",
   "topic": "Percents",
   "trap": "2 or 4 treat the two changes as if they added up. A rise and a fall of p% always leave a net fall of p²/100 percent.",
-  "type": "PS"
+  "type": "PS",
+  "diagnosis": [
+   {
+    "why": "Treating the rise and the fall as if they added up. A rise and a fall of p% leave a net fall of p^{2}/100 percent.",
+    "type": "Trap"
+   },
+   {
+    "why": "Treating the rise and the fall as if they added up. A rise and a fall of p% leave a net fall of p^{2}/100 percent.",
+    "type": "Trap"
+   },
+   {
+    "why": "A slip with powers of 10: p^{2}/10,000 = 0.04 gives p^{2} = 400, so p = 20, not 10.",
+    "type": "Calculation"
+   },
+   null,
+   {
+    "why": "A slip solving p^{2} = 400: p = 20. 40 would give a 16% net fall.",
+    "type": "Calculation"
+   }
+  ]
  },
  {
   "id": "dq10",
@@ -307,7 +478,26 @@
   "subtopic": "Counting divisors with a condition",
   "topic": "Primes & factors",
   "trap": "24 is the total number of divisors of 360.",
-  "type": "PS"
+  "type": "PS",
+  "diagnosis": [
+   {
+    "why": "Miscounting the choices. Exponent of 2: 1, 2 or 3 (3 ways); of 3: 1 or 2 (2 ways); of 5: 0 or 1 (2 ways) → 12.",
+    "type": "Procedural"
+   },
+   {
+    "why": "Miscounting the choices. Exponent of 2: 1, 2 or 3 (3 ways); of 3: 1 or 2 (2 ways); of 5: 0 or 1 (2 ways) → 12.",
+    "type": "Procedural"
+   },
+   null,
+   {
+    "why": "16 removes only some of the divisors that are not multiples of 6. Count directly: 3 × 2 × 2 = 12.",
+    "type": "Procedural"
+   },
+   {
+    "why": "24 is the total number of divisors of 360, not only those that are multiples of 6.",
+    "type": "Trap"
+   }
+  ]
  },
  {
   "id": "dq11",
@@ -338,7 +528,26 @@
   "subtopic": "One real root",
   "topic": "Quadratics & functions",
   "trap": "Stopping at k = 9 or at the root x = 3. The question asks for f(k).",
-  "type": "PS"
+  "type": "PS",
+  "diagnosis": [
+   {
+    "why": "0 is f at the root x = 3, not f(k).",
+    "type": "Interpretation"
+   },
+   {
+    "why": "9 is k itself; the question asks for f(k) = f(9).",
+    "type": "Interpretation"
+   },
+   {
+    "why": "27 forgets the + k term: 81 − 54 + 9 = 36.",
+    "type": "Careless"
+   },
+   null,
+   {
+    "why": "81 is only k^{2}: f(9) = 81 − 54 + 9 = 36.",
+    "type": "Careless"
+   }
+  ]
  },
  {
   "id": "dq12",
@@ -369,7 +578,26 @@
   "subtopic": "Two remainder conditions",
   "topic": "Remainders",
   "trap": "Picking 4 or 7, or combining the remainders (4 + 7), treats the two conditions separately.",
-  "type": "PS"
+  "type": "PS",
+  "diagnosis": [
+   {
+    "why": "4 is the remainder when dividing by 6, not by 18. Find a number that meets both conditions.",
+    "type": "Trap"
+   },
+   {
+    "why": "7 is the remainder when dividing by 9, not by 18. Find a number that meets both conditions.",
+    "type": "Trap"
+   },
+   {
+    "why": "10 leaves remainder 4 when divided by 6, but remainder 1 when divided by 9.",
+    "type": "Procedural"
+   },
+   {
+    "why": "13 = 4 + 9 mixes the two conditions; 13 leaves remainder 1 when divided by 6.",
+    "type": "Procedural"
+   },
+   null
+  ]
  },
  {
   "id": "dq13",
@@ -400,7 +628,26 @@
   "subtopic": "Divisibility of a square",
   "topic": "Integers & divisibility",
   "trap": "6 misses that n needs 2², not just 2. 36 and 72 assume n itself must contain all of 72.",
-  "type": "PS"
+  "type": "PS",
+  "diagnosis": [
+   {
+    "why": "6 misses that n needs 2^{2}: with only one 2 in n, n^{2} has 2^{2}, not the 2^{3} that 72 needs.",
+    "type": "Trap"
+   },
+   null,
+   {
+    "why": "24 requires 2^{3} in n, but n = 12 already works: 144 is a multiple of 72.",
+    "type": "Conceptual"
+   },
+   {
+    "why": "36 assumes n must contain all of 72’s factors; n = 12 already works (144 = 2 × 72).",
+    "type": "Conceptual"
+   },
+   {
+    "why": "72 assumes n itself must be a multiple of 72; n = 12 already works (144 = 2 × 72).",
+    "type": "Conceptual"
+   }
+  ]
  },
  {
   "id": "dq14",
@@ -431,7 +678,26 @@
   "subtopic": "Median vs mean with an added value",
   "topic": "Statistics",
   "trap": "Assuming only one value of x works. The median changes formula depending on where x lands.",
-  "type": "PS"
+  "type": "PS",
+  "diagnosis": [
+   {
+    "why": "The median formula changes with where x lands. Test each value: with 9.5 the median is (7 + 9.5)/2 = 8.25 = mean; with 11 it is 8.5 = mean.",
+    "type": "Trap"
+   },
+   {
+    "why": "The median formula changes with where x lands. Test each value: with 2 the median is 7 = 42/6; with 11 it is 8.5 = 51/6.",
+    "type": "Trap"
+   },
+   {
+    "why": "Check II again: with 9.5 the middle values are 7 and 9.5, so the median is 8.25, equal to the mean 49.5/6.",
+    "type": "Calculation"
+   },
+   {
+    "why": "Check I again: with 2 the middle values are 7 and 7, so the median is 7, equal to the mean 42/6.",
+    "type": "Calculation"
+   },
+   null
+  ]
  },
  {
   "id": "dd01",
@@ -459,7 +725,26 @@
   "subtopic": "Odd/even",
   "topic": "Data Sufficiency",
   "trap": "Statement (1) looks informative, but n² + n = n(n + 1) is a product of consecutive integers and is always even.",
-  "type": "DS"
+  "type": "DS",
+  "diagnosis": [
+   {
+    "why": "Statement 1 looks useful, but n^{2} + n = n(n + 1) is even for every integer: it says nothing about n.",
+    "type": "Trap"
+   },
+   null,
+   {
+    "why": "Statement 2 alone already decides it (3n + 1 even → 3n odd → n odd); no need to combine.",
+    "type": "Strategy"
+   },
+   {
+    "why": "Statement 1 is true for every integer, so it cannot be sufficient.",
+    "type": "Conceptual"
+   },
+   {
+    "why": "3n + 1 even means 3n is odd, so n is odd: statement 2 settles it.",
+    "type": "Conceptual"
+   }
+  ]
  },
  {
   "id": "dd02",
@@ -487,7 +772,26 @@
   "subtopic": "Algebra: target expression",
   "topic": "Data Sufficiency",
   "trap": "Choosing E because you think you need x and y separately. The question only asks for x + y.",
-  "type": "DS"
+  "type": "DS",
+  "diagnosis": [
+   {
+    "why": "x^{2} − y^{2} = 24 has many solutions (5 and 1 give 6; 7 and 5 give 12).",
+    "type": "Conceptual"
+   },
+   {
+    "why": "x − y = 4 fixes the difference, not the sum.",
+    "type": "Conceptual"
+   },
+   null,
+   {
+    "why": "Neither statement alone fixes x + y; test two pairs for each.",
+    "type": "Conceptual"
+   },
+   {
+    "why": "You don’t need x and y separately: (x + y)(x − y) = 24 with x − y = 4 gives x + y = 6.",
+    "type": "Trap"
+   }
+  ]
  },
  {
   "id": "dd03",
@@ -515,7 +819,26 @@
   "subtopic": "Word problem: price × quantity",
   "topic": "Data Sufficiency",
   "trap": "Choosing A: higher revenue feels like more shirts, but a price increase could explain it.",
-  "type": "DS"
+  "type": "DS",
+  "diagnosis": [
+   {
+    "why": "Higher revenue could come from higher prices rather than more shirts.",
+    "type": "Trap"
+   },
+   {
+    "why": "Lower prices alone say nothing about quantity when revenue is unknown.",
+    "type": "Logic"
+   },
+   null,
+   {
+    "why": "Neither statement alone gives the quantity: revenue = price × quantity needs both.",
+    "type": "Logic"
+   },
+   {
+    "why": "Together they are enough: quantity = revenue/price rises by 1.10/0.95 ≈ 1.16, so yes.",
+    "type": "Conceptual"
+   }
+  ]
  },
  {
   "id": "dd04",
@@ -543,7 +866,26 @@
   "subtopic": "Statistics: standard deviation",
   "topic": "Data Sufficiency",
   "trap": "Thinking you need the exact values to compute the SD. A yes/no question only needs a guaranteed answer.",
-  "type": "DS"
+  "type": "DS",
+  "diagnosis": [
+   null,
+   {
+    "why": "A mean of 10 allows tight sets ({8, 9, 10, 11, 12}, SD ≈ 1.4) and spread-out ones: not sufficient.",
+    "type": "Conceptual"
+   },
+   {
+    "why": "Statement 1 alone is enough: with a range of 20, the SD is always above 3.",
+    "type": "Strategy"
+   },
+   {
+    "why": "Statement 2 alone is not enough: tight and spread-out sets can both have mean 10.",
+    "type": "Conceptual"
+   },
+   {
+    "why": "You don’t need exact values: a range of 20 among 5 values forces an SD above 6.",
+    "type": "Trap"
+   }
+  ]
  },
  {
   "id": "dd05",
@@ -571,6 +913,29 @@
      "20",
      "25",
      "30"
+    ],
+    "diagnosis": [
+     {
+      "why": "6 is the value for Q: the columns are swapped. With P = 6, labour would leave Q = 20.4.",
+      "type": "Interpretation"
+     },
+     {
+      "why": "With P = 10, labour leaves Q = 18, and the profit is 400 + 1,080 = $1,480, not $1,560.",
+      "type": "Procedural"
+     },
+     {
+      "why": "P = Q = 15 fits the 120 hours but gives a profit of $1,500. Check every condition.",
+      "type": "Trap"
+     },
+     {
+      "why": "With P = 20, labour leaves Q = 12, and the profit is 800 + 720 = $1,520, not $1,560.",
+      "type": "Procedural"
+     },
+     {
+      "why": "With P = 25, labour leaves Q = 9, and the profit is 1,000 + 540 = $1,540, not $1,560.",
+      "type": "Procedural"
+     },
+     null
     ]
    },
    {
@@ -583,6 +948,29 @@
      "20",
      "25",
      "30"
+    ],
+    "diagnosis": [
+     null,
+     {
+      "why": "With Q = 10, labour gives P = 70/3, not a whole number of units.",
+      "type": "Procedural"
+     },
+     {
+      "why": "P = Q = 15 fits the 120 hours but gives a profit of $1,500. Check every condition.",
+      "type": "Trap"
+     },
+     {
+      "why": "With Q = 20, labour gives P = 20/3, not a whole number of units.",
+      "type": "Procedural"
+     },
+     {
+      "why": "Q = 25 alone needs 125 hours of labour, more than the 120 available.",
+      "type": "Procedural"
+     },
+     {
+      "why": "30 is the value for P: the columns are swapped. Q = 30 alone would need 150 hours.",
+      "type": "Interpretation"
+     }
     ]
    }
   ],
@@ -617,6 +1005,13 @@
     "options": [
      "Yes",
      "No"
+    ],
+    "diagnosis": [
+     null,
+     {
+      "why": "Judging revenue per employee by revenue alone points to Cork, which has the lowest ratio. Divide: Dresden 870/18 ≈ 48.3 is highest, with the highest growth.",
+      "type": "Trap"
+     }
     ]
    },
    {
@@ -625,6 +1020,13 @@
     "options": [
      "Yes",
      "No"
+    ],
+    "diagnosis": [
+     null,
+     {
+      "why": "The median of six values is the average of the 3rd and 4th: (1,120 + 1,240)/2 = 1,180 > 1,150. The 3rd value alone (1,120) gives No.",
+      "type": "Procedural"
+     }
     ]
    },
    {
@@ -633,6 +1035,13 @@
     "options": [
      "Yes",
      "No"
+    ],
+    "diagnosis": [
+     {
+      "why": "South = 980 + 1,120 + 1,350 = 3,450, and half of the 7,070 total is 3,535: just short of half.",
+      "type": "Calculation"
+     },
+     null
     ]
    }
   ],
@@ -748,6 +1157,21 @@
      "50%",
      "75%",
      "100%"
+    ],
+    "diagnosis": [
+     {
+      "why": "About 25% is the change from Q3 to Q4 (17 → 21), not from Q1 to Q4.",
+      "type": "Reading"
+     },
+     {
+      "why": "Using Q4 as the base (9/21 ≈ 43%) points to 50%. The base is Q1: 9/12 = 75%.",
+      "type": "Trap"
+     },
+     null,
+     {
+      "why": "100% would mean Q4 doubled Q1 (to 24); it rose from 12 to 21.",
+      "type": "Calculation"
+     }
     ]
    },
    {
@@ -758,6 +1182,21 @@
      "32%",
      "38%",
      "44%"
+    ],
+    "diagnosis": [
+     {
+      "why": "26% is Q3’s share (17/66), not Q4’s.",
+      "type": "Reading"
+     },
+     null,
+     {
+      "why": "38% leaves Q1 out of the total (21/54 ≈ 39%). The total is 12 + 16 + 17 + 21 = 66.",
+      "type": "Careless"
+     },
+     {
+      "why": "44% reuses 9/21 from the first part or leaves a quarter out of the total. Q4’s share is 21/66 ≈ 32%.",
+      "type": "Careless"
+     }
     ]
    }
   ],
@@ -792,6 +1231,13 @@
     "options": [
      "Yes",
      "No"
+    ],
+    "diagnosis": [
+     null,
+     {
+      "why": "Rounding 3.2 temporary packers down to 3 (or forgetting that they are 25% less productive) leaves orders unpacked: 4 are needed.",
+      "type": "Trap"
+     }
     ]
    },
    {
@@ -800,6 +1246,13 @@
     "options": [
      "Yes",
      "No"
+    ],
+    "diagnosis": [
+     {
+      "why": "Two permanent packers handle 2 × 150 = 300 orders, less than the 360 extra per week.",
+      "type": "Calculation"
+     },
+     null
     ]
    },
    {
@@ -808,6 +1261,13 @@
     "options": [
      "Yes",
      "No"
+    ],
+    "diagnosis": [
+     {
+      "why": "The budget covers everyone: 12 × 900 + 4 × 600 = 13,200 > 11,500. Counting only the temporary packers’ cost misses the permanent staff.",
+      "type": "Procedural"
+     },
+     null
     ]
    }
   ],
@@ -860,7 +1320,26 @@
   "subtopic": "Causal conclusion",
   "topic": "CR · Weaken",
   "trap": "A and C look like they cut against the fee, but both still show the fee changing behavior: they fit the council's conclusion.",
-  "type": "CR"
+  "type": "CR",
+  "diagnosis": [
+   {
+    "why": "The buses are paid for by the fee, so they are part of the fee’s effect, not a rival cause.",
+    "type": "Trap"
+   },
+   null,
+   {
+    "why": "Drivers moving trips before 7 a.m. are still reacting to the fee: this fits the council’s conclusion.",
+    "type": "Trap"
+   },
+   {
+    "why": "No fall on fee-free weekends supports the fee as the cause: this strengthens.",
+    "type": "Logic"
+   },
+   {
+    "why": "Other cities with similar fees seeing declines strengthens the conclusion by analogy.",
+    "type": "Logic"
+   }
+  ]
  },
  {
   "id": "dv02",
@@ -892,7 +1371,26 @@
   "subtopic": "Correlation → causation",
   "topic": "CR · Assumption",
   "trap": "A and E sound helpful to the program, but the argument survives without them. An assumption must be required, not merely supportive.",
-  "type": "CR"
+  "type": "CR",
+  "diagnosis": [
+   {
+    "why": "Why children skip breakfast doesn’t matter, since the program provides it anyway: helpful, not required.",
+    "type": "Trap"
+   },
+   null,
+   {
+    "why": "The argument is only about attention-test scores, not overall academic performance.",
+    "type": "Interpretation"
+   },
+   {
+    "why": "Whether other children eat twice doesn’t affect the scores of those who now skip breakfast.",
+    "type": "Logic"
+   },
+   {
+    "why": "Too strong and not required: children who skip breakfast have no home breakfast to compare with.",
+    "type": "Trap"
+   }
+  ]
  },
  {
   "id": "dv03",
@@ -924,7 +1422,26 @@
   "subtopic": "Comparison groups",
   "topic": "CR · Strengthen",
   "trap": "E does the opposite of supporting: it suggests the four-day teams were stronger to begin with. A is appealing but says nothing about updates shipped.",
-  "type": "CR"
+  "type": "CR",
+  "diagnosis": [
+   {
+    "why": "Satisfaction is not the goal: the plan is about shipping more updates.",
+    "type": "Interpretation"
+   },
+   null,
+   {
+    "why": "What competitors do says nothing about this company’s output.",
+    "type": "Logic"
+   },
+   {
+    "why": "Other productivity measures are irrelevant to the goal of shipping more updates.",
+    "type": "Interpretation"
+   },
+   {
+    "why": "This weakens the plan: the four-day teams were already ahead before the change.",
+    "type": "Trap"
+   }
+  ]
  },
  {
   "id": "dv04",
@@ -956,7 +1473,26 @@
   "subtopic": "Plan effectiveness",
   "topic": "CR · Evaluate",
   "trap": "C is about whether the plan is worth its cost; the argument only claims that collisions will fall.",
-  "type": "CR"
+  "type": "CR",
+  "diagnosis": [
+   {
+    "why": "When traffic is heavy doesn’t tell you whether the underpasses change deer behavior.",
+    "type": "Logic"
+   },
+   null,
+   {
+    "why": "Cost compares plans; the argument only claims that collisions will fall.",
+    "type": "Trap"
+   },
+   {
+    "why": "Other animals are outside the scope: the argument is about deer–vehicle collisions.",
+    "type": "Interpretation"
+   },
+   {
+    "why": "The number of deer doesn’t decide whether the underpasses reduce collisions.",
+    "type": "Logic"
+   }
+  ]
  },
  {
   "id": "dv05",
@@ -988,7 +1524,26 @@
   "subtopic": "Argument structure",
   "topic": "CR · Boldface/Role",
   "trap": "C is the classic trap: the economist does not reject the idea that higher prices reduce purchases. The point is that prices will not rise.",
-  "type": "CR"
+  "type": "CR",
+  "diagnosis": [
+   null,
+   {
+    "why": "Bold 1 is the analysts’ premise, not their conclusion, and bold 2 is the economist’s evidence, not the conclusion.",
+    "type": "Logic"
+   },
+   {
+    "why": "The economist never rejects that higher prices reduce purchases; the point is that prices will not rise.",
+    "type": "Trap"
+   },
+   {
+    "why": "Bold 2 is evidence; the economist’s conclusion is the unbolded “the tax is unlikely to have this effect here”.",
+    "type": "Logic"
+   },
+   {
+    "why": "Bold 1 is a general claim, not a prediction, and the economist does not support the analysts’ prediction.",
+    "type": "Reading"
+   }
+  ]
  },
  {
   "id": "dv06",
@@ -1024,7 +1579,26 @@
   "subtopic": "Primary purpose",
   "topic": "RC · Main idea",
   "trap": "C and D are details from the middle of the passage; A is the view the passage calls less persuasive.",
-  "type": "RC"
+  "type": "RC",
+  "diagnosis": [
+   {
+    "why": "This is the historians’ view, which the passage calls less persuasive.",
+    "type": "Trap"
+   },
+   null,
+   {
+    "why": "Only paragraph 2 describes steam-powered transmission: too narrow for the whole passage.",
+    "type": "Interpretation"
+   },
+   {
+    "why": "The passage never compares the costs of the two kinds of building.",
+    "type": "Reading"
+   },
+   {
+    "why": "The author mentions the computer comparison approvingly, not critically.",
+    "type": "Reading"
+   }
+  ]
  },
  {
   "id": "dv07",
@@ -1060,7 +1634,26 @@
   "subtopic": "Stated reason",
   "topic": "RC · Detail",
   "trap": "D describes what unit drive later made possible, the opposite of the steam-era layout. E sounds realistic but is not in the passage.",
-  "type": "RC"
+  "type": "RC",
+  "diagnosis": [
+   {
+    "why": "Heating costs are never mentioned in the passage.",
+    "type": "Reading"
+   },
+   null,
+   {
+    "why": "The passage never says motors could not be installed on upper floors.",
+    "type": "Reading"
+   },
+   {
+    "why": "Arranging machines in production order is what unit drive later allowed: the opposite of the steam-era layout.",
+    "type": "Trap"
+   },
+   {
+    "why": "Scarce land sounds realistic but is not in the passage.",
+    "type": "Trap"
+   }
+  ]
  },
  {
   "id": "dv08",
@@ -1096,7 +1689,26 @@
   "subtopic": "Stay close to the text",
   "topic": "RC · Inference",
   "trap": "A describes the owners who got few benefits; nothing says they then switched to unit drive. D may be plausible but is outside the passage.",
-  "type": "RC"
+  "type": "RC",
+  "diagnosis": [
+   {
+    "why": "Owners who swapped in one large motor kept the shaft layout and got few benefits; nothing says they then moved to unit drive.",
+    "type": "Trap"
+   },
+   null,
+   {
+    "why": "A multi-story plant built around a shaft is exactly where a redesign was most costly.",
+    "type": "Logic"
+   },
+   {
+    "why": "Motor prices are never discussed: this is outside the passage.",
+    "type": "Reading"
+   },
+   {
+    "why": "Unit drive replaced mechanical transmission, so this contradicts it.",
+    "type": "Reading"
+   }
+  ]
  },
  {
   "id": "dv09",
@@ -1132,6 +1744,25 @@
   "subtopic": "Role of a paragraph",
   "topic": "RC · Function/Structure",
   "trap": "A and E imply the last paragraph weakens David's account; it extends it.",
-  "type": "RC"
+  "type": "RC",
+  "diagnosis": [
+   {
+    "why": "Nothing in the last paragraph limits David’s explanation; it extends it.",
+    "type": "Interpretation"
+   },
+   null,
+   {
+    "why": "The historians are discussed in paragraph 1, not in the final paragraph.",
+    "type": "Reading"
+   },
+   {
+    "why": "Costs are discussed in paragraph 3, not in the final paragraph.",
+    "type": "Reading"
+   },
+   {
+    "why": "The final paragraph supports David’s account; it raises no objection.",
+    "type": "Interpretation"
+   }
+  ]
  }
 ]

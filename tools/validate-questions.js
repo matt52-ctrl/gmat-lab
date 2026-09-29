@@ -16,7 +16,25 @@ function syllabus(){
   if (!m) throw new Error('SYLLABUS not found in app.js');
   return new Function('return ' + m[1])();
 }
+function errorTypes(){
+  const src = fs.readFileSync(path.join(ROOT, 'app.js'), 'utf8');
+  const m = /const ERROR_TYPES = (\[[\s\S]*?\n\]);/.exec(src);
+  if (!m) throw new Error('ERROR_TYPES not found in app.js');
+  return new Function('return ' + m[1])().map(x => x[0]);
+}
+const TYPES_OF_ERROR = errorTypes();
 const str = v => typeof v === 'string' && v.trim().length > 0;
+/* diagnosis: one entry per option; null for the right one, { why, type } for every wrong one */
+function checkDiagnosis(diag, n, answer, where){
+  const e = [];
+  if (!Array.isArray(diag) || diag.length !== n){ e.push(`${where} diagnosis needs one entry per option (${n})`); return e; }
+  diag.forEach((d, i) => {
+    if (i === answer){ if (d !== null) e.push(`${where} diagnosis for the right option must be null`); return; }
+    if (!d || !str(d.why)) e.push(`${where} diagnosis ${i} needs a “why”`);
+    else if (!TYPES_OF_ERROR.includes(d.type)) e.push(`${where} diagnosis ${i}: type must be one of ${TYPES_OF_ERROR.join(', ')}`);
+  });
+  return e;
+}
 const int = (v, lo, hi) => Number.isInteger(v) && v >= lo && v <= hi;
 
 function checkQuestion(q, SYL){
@@ -39,12 +57,14 @@ function checkQuestion(q, SYL){
     if (!Array.isArray(q.choices) || q.choices.length !== 5 || !q.choices.every(str)) e.push('choices must be 5 non-empty strings');
     else if (new Set(q.choices.map(c => c.trim())).size !== 5) e.push('choices must all differ');
     if (!int(q.answer, 0, 4)) e.push('answer must be 0–4');
+    else e.push(...checkDiagnosis(q.diagnosis, 5, q.answer, ''));
   }
   if (q.type === 'RC' && !(q.passage && str(q.passage.text))) e.push('RC needs passage.text');
   if (q.type === 'DS'){
     if (!Array.isArray(q.statements) || q.statements.length !== 2 || !q.statements.every(str)) e.push('statements must be 2 non-empty strings');
     else if (q.statements.some(s => /^\s*\(\d\)/.test(s))) e.push('statements must not start with (1)/(2)');
     if (!int(q.answer, 0, 4)) e.push('answer must be 0–4');
+    else e.push(...checkDiagnosis(q.diagnosis, 5, q.answer, ''));
     if (q.choices) e.push('DS questions use the standard choices: remove "choices"');
   }
   if (MULTI.includes(q.type)){
@@ -55,6 +75,7 @@ function checkQuestion(q, SYL){
       if (!str(p.label)) e.push(`parts[${i}].label is empty`);
       if (!Array.isArray(p.options) || p.options.length < 2 || !p.options.every(str)) e.push(`parts[${i}].options needs 2+ strings`);
       else if (!int(p.answer, 0, p.options.length - 1)) e.push(`parts[${i}].answer is out of range`);
+      else e.push(...checkDiagnosis(p.diagnosis, p.options.length, p.answer, `parts[${i}]`));
       if (q.partStyle === 'yesno' && JSON.stringify(p.options) !== '["Yes","No"]') e.push(`parts[${i}].options must be ["Yes","No"]`);
       if (q.partStyle === 'tpa' && i > 0 && JSON.stringify(p.options) !== JSON.stringify(q.parts[0].options)) e.push('tpa parts must share the same options');
     });
@@ -109,4 +130,4 @@ if (require.main === module){
   if (problems.length){ console.error(problems.join('\n')); console.error(`\n${problems.length} problem(s) in ${count} questions.`); process.exit(1); }
   console.log(`${count} questions OK.`);
 }
-module.exports = { validate, checkQuestion, syllabus };
+module.exports = { validate, checkQuestion, syllabus, errorTypes };

@@ -4,8 +4,10 @@ const assert = require('node:assert/strict');
 const { validate, checkQuestion, syllabus } = require('../tools/validate-questions.js');
 
 const SYL = syllabus();
+const W = why => ({ why, type: 'Calculation' });
 const good = () => ({ id: 'x1', set: 'practice', block: 'Q', section: 'Quant', type: 'PS', topic: 'Percents', difficulty: 4, expectedSec: 120,
-  stem: 'What is 10% of 50?', choices: ['1', '5', '10', '15', '50'], answer: 1, hints: ['a', 'b', 'c', 'd'], method: '0.1 × 50 = 5' });
+  stem: 'What is 10% of 50?', choices: ['1', '5', '10', '15', '50'], answer: 1, hints: ['a', 'b', 'c', 'd'], method: '0.1 × 50 = 5',
+  diagnosis: [W('1% of 50 is 0.5'), null, W('10 is 10% of 100'), W('15 adds 10 to 5'), W('50 is the whole')] });
 
 test('the shipped question bank is valid', () => {
   const { problems, count } = validate();
@@ -38,4 +40,18 @@ test('multi-part and DS rules', () => {
     parts: [{ label: 'A', options: ['1', '2'], answer: 0 }, { label: 'B', options: ['1', '3'], answer: 2 }] };
   const p = checkQuestion(tpa, SYL);
   assert.ok(p.some(x => /share the same options/.test(x)) && p.some(x => /out of range/.test(x)), p.join('; '));
+});
+
+test('every wrong option needs a diagnosis with a known error type', () => {
+  assert.deepEqual(checkQuestion(good(), SYL), []);
+  const cases = [
+    [{ diagnosis: undefined }, /diagnosis needs one entry per option/],
+    [{ diagnosis: [W('a'), W('b'), W('c'), W('d'), W('e')] }, /right option must be null/],
+    [{ diagnosis: [W('a'), null, { why: 'x', type: 'Bad luck' }, W('d'), W('e')] }, /type must be one of/],
+    [{ diagnosis: [W('a'), null, { type: 'Trap' }, W('d'), W('e')] }, /needs a “why”/],
+  ];
+  for (const [patch, re] of cases){
+    const p = checkQuestion({ ...good(), ...patch }, SYL);
+    assert.ok(p.some(x => re.test(x)), JSON.stringify(patch) + ' → ' + p.join('; '));
+  }
 });
