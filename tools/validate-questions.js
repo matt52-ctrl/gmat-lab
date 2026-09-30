@@ -94,6 +94,20 @@ function checkQuestion(q, SYL){
     else if (!c.values.every(v => typeof v === 'number' && isFinite(v))) e.push('chart.values must be numbers');
   }
   if (q.type === 'MSR' && !(Array.isArray(q.tabs) && q.tabs.length >= 2 && q.tabs.every(t => str(t.title) && str(t.body)))) e.push('MSR needs 2+ tabs with title and body');
+  // optional metadata for the mock exam engine (exam-engine.js)
+  const num = (v, lo, hi) => typeof v === 'number' && isFinite(v) && v >= lo && v <= hi;
+  if (q.irt !== undefined){
+    const t = q.irt, keys = t && typeof t === 'object' ? Object.keys(t) : [];
+    if (!keys.length || keys.some(k => !['a', 'b', 'c'].includes(k))) e.push('irt must be an object with a, b and/or c');
+    else {
+      if (t.a !== undefined && !(num(t.a, 0.2, 3))) e.push('irt.a (discrimination) must be 0.2–3');
+      if (t.b !== undefined && !num(t.b, -4, 4)) e.push('irt.b (difficulty) must be −4 to 4');
+      if (t.c !== undefined && !num(t.c, 0, 0.5)) e.push('irt.c (guessing) must be 0–0.5');
+    }
+  }
+  if (q.difficultyScore !== undefined && !num(q.difficultyScore, 0, 1)) e.push('difficultyScore must be a number 0–1');
+  if (q.officialLike !== undefined && typeof q.officialLike !== 'boolean') e.push('officialLike must be true or false');
+  for (const k of ['tags', 'prerequisites']) if (q[k] !== undefined && !(Array.isArray(q[k]) && q[k].every(str))) e.push(`${k} must be a list of non-empty strings`);
   return e;
 }
 

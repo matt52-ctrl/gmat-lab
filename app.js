@@ -324,7 +324,7 @@ function answerHTML(q, ans, opt){
   return `<div class="choices" role="group" aria-label="Answer choices">${ch.map((c,i) => {
     let cls = '', tag = '';
     if (rev && i === q.answer){ cls = 'is-correct'; tag = 'Correct answer'; }
-    else if (rev && user === i){ cls = 'is-wrong'; tag = 'Your first answer'; }
+    else if (rev && user === i){ cls = 'is-wrong'; tag = opt.userLabel || 'Your first answer'; }
     return `<button class="choice ${cls}" data-act="pick" data-i="${i}" aria-pressed="${ans===i}" ${lock?'disabled':''}><span class="let">${LETTERS[i]}</span><span>${inline(c)}</span>${tag ? `<span class="tag">${tag}</span>` : ''}</button>`;
   }).join('')}</div>`;
 }
@@ -359,8 +359,9 @@ function startTicker(){ stopTicker(); ticker = setInterval(tick, 500); }
 function stopTicker(){ if (ticker){ clearInterval(ticker); ticker = null; } }
 function clockText(){
   const r = S.run; if (!r) return '';
-  if (S.ui.clockHidden) return 'Show time';
+  if (S.ui.clockHidden && !r.examId) return 'Show time';
   if (r.endsAt) return fmtTime((r.endsAt - Date.now())/1000);
+  if (r.examId) return fmtTime((Date.now() - r.started)/1000);     // untimed mock: time in the section, always on screen
   return fmtTime((Date.now() - r.qStart)/1000);
 }
 function tick(){
@@ -375,10 +376,10 @@ function startRun(o){
   S.run = { id, kind:o.kind, block:o.block || null, mode:o.mode, label:o.label, qids:o.qids, timed:!!o.timed, limitSec:o.limitSec || null,
     idx:0, answers:{}, attempts:[], started:now, endsAt: o.timed ? now + o.limitSec*1000 : null, qStart:now,
     phase: o.mode === 'test' ? 'question' : 'learn', sub:'answer', editsUsed:0, reviewedQids:[],
-    adaptive: o.adaptive || null, noConf: !!o.noConf, examId: o.examId || null };
+    adaptive: o.adaptive || null, noConf: !!o.noConf, examId: o.examId || null, examMode: o.examMode || null };
   S.ui.msrTab = 0;
   write('sessions/' + id, 'set', { kind:o.kind, block:o.block || null, mode:o.mode, label:o.label, timed:!!o.timed, limitSec:o.limitSec || null, start:new Date(now).toISOString(), status:'active', attempts:[], qids:o.qids,
-    ...(o.adaptive ? { adaptive:true } : {}), ...(o.examId ? { examId:o.examId, examSection:o.adaptive.section } : {}) });
+    ...(o.adaptive ? { adaptive:true } : {}), ...(o.examId ? { examId:o.examId, examSection:o.adaptive.section, examMode:o.examMode || null } : {}) });
   startTicker(); render(); window.scrollTo(0,0);
 }
 function curQ(){ const r = S.run; return S.bank[r.phase === 'edit' ? r.qids[r.editIdx] : r.qids[r.idx]]; }
@@ -410,8 +411,12 @@ const groupOf = q => q && q.passage ? 'p:' + (q.passage.title || '') + ':' + Str
 function adaptivePush(r){
   const A = r.adaptive; if (!A || r.qids.length >= A.n) return false;
   const q = S.bank[r.qids[r.qids.length - 1]], a = r.answers[q.id] || {};
-  A.level = GMATPlanner.levelAfter(A.level, { correct: isCorrect(q, a.answer), unanswered: !isComplete(q, a.answer), timeSec: a.timeSec || 0, expectedSec: expOf(q), confidence: a.confidence == null ? null : a.confidence });
-  const id = GMATPlanner.nextAdaptive(plannerCtx(todayMinutes(), A.topic), { ...A, used: r.qids, last: { topic: q.topic, group: groupOf(q), correct: isCorrect(q, a.answer) } });
+  let id;
+  if (A.cat) id = catPush(r, q, a);          // mocks: item response theory (exam-engine.js)
+  else {
+    A.level = GMATPlanner.levelAfter(A.level, { correct: isCorrect(q, a.answer), unanswered: !isComplete(q, a.answer), timeSec: a.timeSec || 0, expectedSec: expOf(q), confidence: a.confidence == null ? null : a.confidence });
+    id = GMATPlanner.nextAdaptive(plannerCtx(todayMinutes(), A.topic), { ...A, used: r.qids, last: { topic: q.topic, group: groupOf(q), correct: isCorrect(q, a.answer) } });
+  }
   if (!id){ A.n = r.qids.length; return false; }
   r.qids.push(id);
   write('sessions/' + r.id, 'update', { qids: r.qids });
@@ -422,7 +427,19 @@ function mkAttempt(q, a, extra){
   const done = isComplete(q, a.answer);
   return Object.assign({ qid:q.id, answer: done ? clone(a.answer) : null, correct: done && isCorrect(q, a.answer), timeSec: Math.round(a.timeSec || 0),
     confidence: a.confidence == null ? null : a.confidence, unanswered: !done, section:q.section, topic:q.topic, type:q.type,
-    difficulty:q.difficulty || null, expectedSec: expOf(q), at:new Date().toISOString() }, extra || {});
+    skill:q.skill || null, ...(q.subtopic ? { subtopic:q.subtopic } : {}), difficulty:q.difficulty || null, expectedSec: expOf(q), at:new Date().toISOString(),
+    ...(a.changes ? { changes:a.changes } : {}), ...(a.events ? { events:clone(a.events) } : {}) }, extra || {});
+}
+/* Answer changes while a question is on screen: counted in every test, with a timeline in mocks. */
+function isChange(q, before, after){
+  if (isMulti(q)) return Array.isArray(before) && q.parts.some((p, i) => Number.isInteger(before[i]) && Array.isArray(after) && after[i] !== before[i]);
+  return Number.isInteger(before) && before !== after;
+}
+function noteAnswer(t, before){
+  const r = S.run; if (!r || r.phase !== 'question' || !t) return;
+  const a = r.answers[t.q.id] = r.answers[t.q.id] || {}, after = t.get();
+  if (isChange(t.q, before, after)) a.changes = (a.changes || 0) + 1;
+  if (r.examId) a.events = [...(a.events || []), [Math.round((a.timeSec || 0) + (Date.now() - r.qStart) / 1000), clone(after)]].slice(-12);
 }
 function finishRun(timeUp){
   const r = S.run; if (!r) return;
@@ -433,8 +450,9 @@ function finishRun(timeUp){
   const dur = Math.round((Date.now() - r.started)/1000);
   r.durationSec = r.limitSec ? Math.min(dur, r.limitSec) : dur;
   r.phase = r.examId && S.exam ? (S.exam.i < S.exam.order.length - 1 ? 'between' : 'examdone') : 'results'; r.timeUp = !!timeUp;
-  write('sessions/' + r.id, 'update', { attempts:r.attempts, end:new Date().toISOString(), durationSec:r.durationSec, status:'done', timeUp:!!timeUp, editsUsed:r.editsUsed, draft:null, reviewed:false, reviewedQids:[], ...(r.adaptive ? { adaptiveLevel: Math.round(r.adaptive.level * 100) / 100 } : {}) });
-  if (r.examId && S.exam) S.exam.sids.push(r.id);
+  write('sessions/' + r.id, 'update', { attempts:r.attempts, end:new Date().toISOString(), durationSec:r.durationSec, status:'done', timeUp:!!timeUp, editsUsed:r.editsUsed, draft:null, reviewed:false, reviewedQids:[],
+    ...(r.adaptive && !r.adaptive.cat ? { adaptiveLevel: Math.round(r.adaptive.level * 100) / 100 } : {}), ...(r.adaptive && r.adaptive.cat ? { notReached: Math.max(0, r.adaptive.n - r.qids.length) } : {}) });
+  if (r.examId && S.exam) examSectionDone(r);
   if (timeUp) toast('Time is up. Unanswered questions count as wrong, as on the real exam.');
   render(); window.scrollTo(0,0);
 }
@@ -495,7 +513,7 @@ function debriefAdvance(){
   if (d.i < d.list.length - 1){ Object.assign(d, { i:d.i+1, retry:null, hints:0, tries:0, solved:false, revealed:false, etype:null, msg:null }); S.ui.msrTab = 0; render(); window.scrollTo(0,0); return; }
   if (r.mode === 'learn'){ r.phase = 'learn'; r.debrief = null; learnAdvance(); return; }
   write('sessions/' + r.id, 'update', { reviewed:true });
-  const n = d.list.length, back = r.kind === 'diagnostic' ? 'diagnostic' : 'today';
+  const n = d.list.length, back = r.kind === 'diagnostic' ? 'diagnostic' : r.kind === 'exam' ? 'mocks' : 'today';
   endRun(back); toast(`Review saved: ${n} question${n > 1 ? 's' : ''} reviewed.`);
 }
 function learnAdvance(){
@@ -524,7 +542,7 @@ function runCounter(r){
 }
 function testBar(extra){
   const r = S.run;
-  return `<div class="testbar"><div class="tb-left"><strong>${esc(r.label)}</strong>${extra ? `<span class="muted">${extra}</span>` : ''}</div><div class="tb-right">${r.phase === 'question' ? (() => { const a = r.answers[r.qids[r.idx]] || {}; return `<button class="flag" data-act="bookmark" aria-pressed="${!!a.bookmarked}">${a.bookmarked ? 'Bookmarked' : 'Bookmark'}</button>`; })() : ''}<button class="clock" id="clock" data-act="toggleclock" aria-label="Timer; click to hide or show">${clockText()}</button></div></div>`;
+  return `<div class="testbar"><div class="tb-left"><strong>${esc(r.label)}</strong>${extra ? `<span class="muted">${extra}</span>` : ''}</div><div class="tb-right">${r.phase === 'question' ? (() => { const a = r.answers[r.qids[r.idx]] || {}; return `<button class="flag" data-act="bookmark" aria-pressed="${!!a.bookmarked}">${a.bookmarked ? 'Bookmarked' : 'Bookmark'}</button>`; })() : ''}${r.examId ? `<span class="clock fixed" id="clock" role="timer" aria-label="${r.endsAt ? 'Time left in this section' : 'Time in this section'}">${clockText()}</span>` : `<button class="clock" id="clock" data-act="toggleclock" aria-label="Timer; click to hide or show">${clockText()}</button>`}</div></div>`;
 }
 function runView(){
   const r = S.run;
@@ -583,7 +601,7 @@ function resultsView(){
   return `<section>
     <p class="eyebrow">${esc(r.label)} · results</p>
     <h1>${c} of ${n} correct${r.timeUp ? ' · time ran out' : ''}</h1>
-    <p class="muted">This measures where you start. It is not a GMAT score and is not converted to one.</p>
+    ${r.kind === 'diagnostic' ? '<p class="muted">This measures where you start. It is not a GMAT score and is not converted to one.</p>' : r.kind === 'exam' ? '<p class="muted">One section of a mock. Its estimated score and the Examiner’s analysis are on the Mocks tab.</p>' : ''}
     <div class="metrics">${cells.map(([k,v]) => `<div><span class="k">${k}</span><span class="v">${v}</span></div>`).join('')}</div>
     ${flips.length ? `<p class="muted">Answer changes: ${flips.filter(f => !f.from && f.to).length} wrong → right, ${flips.filter(f => f.from && !f.to).length} right → wrong, ${flips.filter(f => f.from === f.to).length} no effect.</p>` : ''}
     ${slow.length ? `<p class="muted">Slowest against expected time: ${slow.map(a => `Q${r.qids.indexOf(a.qid)+1} (${fmtTime(a.timeSec)} vs ${fmtTime(a.expectedSec)})`).join(' · ')}</p>` : ''}
@@ -727,9 +745,15 @@ function plannerCtx(minutes, topic){
     attempts: at, topics, errors: Object.values(S.errors),
     pool: practicePool().map(q => ({ id: q.id, topic: q.topic, section: q.section, type: q.type, group: groupOf(q), difficulty: q.difficulty || 3, seen: seen.has(q.id), gen: q.set === 'generated' }))
       .concat(genPool(topic).map(q => ({ ...q, seen: seen.has(q.id) }))),
-    mocks: Object.values(S.mocks), hoursPerWeek: interview().hoursPerWeek || null, claudePlan: S.profile.coach || null };
+    mocks: loggedMocks(), hoursPerWeek: interview().hoursPerWeek || null, claudePlan: S.profile.coach || null,
+    examinerFocus: examinerFocus().map(f => f.topic),
+    // computed only when the plan or the coach's answers read them
+    get nextMock(){ return nextMockNow(); },
+    get mockPoolReady(){ return SECTIONS.every(s => poolCheck(s).ok); },
+    get ability(){ const ab = abilityNow(); return { estimate: ab.estimatedScore, confidence: ab.confidence.label, n: ab.n }; },
+    get latestSim(){ const m = fullSims().slice(-1)[0]; return m ? { date: m.date, total: m.total, range: m.range } : null; } };
 }
-const CTA = { interview:'Open the interview', review:'Continue the review', diagnostic:'Start', retests:'Start retests', weak:'Start', mixed:'Start' };
+const CTA = { interview:'Open the interview', review:'Continue the review', diagnostic:'Start', retests:'Start retests', weak:'Start', mixed:'Start', fullmock:'Open Mocks' };
 function planCard(nx){
   if (nx) return `<div class="card next"><p class="eyebrow">Next step · ${fmtDate(today())}</p><h1>${esc(nx.title)}</h1><p class="muted">${esc(nx.why)}</p></div>`;
   const min = todayMinutes(), p = GMATPlanner.plan(plannerCtx(min)), [first, ...rest] = p.items;
@@ -755,31 +779,163 @@ function startSmart(mode, n, opts){
   if (mode === 'timed'){ const pace = A.section ? PACE[A.section] : (PACE['Quant'] + PACE['Verbal'] + PACE['Data Insights']) / 3; startRun({ kind:'practice', qids:[first], mode:'test', timed:true, limitSec: Math.round(n * pace), label: label + ' · timed', adaptive: A }); }
   else startRun({ kind:'practice', qids:[first], mode:'learn', timed:false, label, adaptive: A });
 }
-/* ------------------------------------------------------------------ GMAT simulation: the real exam's format */
-const EXAM_ORDERS = [['Quant','Verbal','Data Insights'],['Quant','Data Insights','Verbal'],['Verbal','Quant','Data Insights'],['Verbal','Data Insights','Quant'],['Data Insights','Quant','Verbal'],['Data Insights','Verbal','Quant'],['Quant'],['Verbal'],['Data Insights']];
+/* ------------------------------------------------------------------ mock exams: the Mock Exam Engine
+   exam-spec.js says what the exam is; exam-engine.js builds the blueprint, chooses questions, scores, analyses, keeps the
+   ability model and plays the examiner. This section runs a mock, saves it and shows the score, the review and the report. */
+const SPEC = window.GMATSpec, ENGINE = window.GMATEngine;
+const EXAM_ORDERS = [['Quant','Verbal','Data Insights'],['Quant','Data Insights','Verbal'],['Verbal','Quant','Data Insights'],['Verbal','Data Insights','Quant'],['Data Insights','Quant','Verbal'],['Data Insights','Verbal','Quant']];
 const SHORT = { 'Quant':'Q', 'Verbal':'V', 'Data Insights':'DI' };
-function examOrder(){ const i = +((S.ui.exam || {}).order || 0); return EXAM_ORDERS[i] || EXAM_ORDERS[0]; }
-function startExam(){
-  const order = examOrder();
-  const ready = GMATPlanner.examReadiness(plannerCtx(todayMinutes()), order);
-  if (!ready.every(x => x.ok)){ toast('Not enough unseen questions for this simulation yet.'); return; }
-  S.exam = { id: uid('x'), order, i: 0, sids: [], breakUsed: false };
+const SCORE_NOTE = 'A GMAT Lab estimate on the official scales. GMAC does not publish how answers become scores, and GMAT Lab’s questions are not calibrated on real test takers, so an official practice exam stays the reference.';
+const specOf = section => SPEC.sections.find(s => s.section === section);
+const modeOf = id => SPEC.modes.find(m => m.id === id) || SPEC.modes[0];
+const blockOf = section => BLOCKS.find(b => b.section === section).key;
+function examUI(){ const U = S.ui.exam = S.ui.exam || {}; if (U.order == null) U.order = '0'; if (!U.section) U.section = 'Quant'; return U; }
+function examOrder(){ return EXAM_ORDERS[+examUI().order] || EXAM_ORDERS[0]; }
+const simulations = () => Object.values(S.mocks).filter(m => m.kind === 'simulation').sort((a, b) => String(a.end || a.date).localeCompare(String(b.end || b.date)));
+const loggedMocks = () => Object.values(S.mocks).filter(m => m.kind !== 'simulation').sort((a, b) => String(a.date).localeCompare(String(b.date)));
+const officialMocks = () => loggedMocks().filter(m => /official/i.test(m.name || ''));
+const fullSims = () => simulations().filter(m => m.comparable && m.total != null);
+const r2 = x => x == null || isNaN(x) ? null : Math.round(x * 100) / 100;
+const toSection = th => Math.round(ENGINE.thetaToSection(SPEC, th));
+const levelOf = s => s == null ? '—' : (1 + 5 * s).toFixed(1);
+function fmtLong(sec){ sec = Math.max(0, Math.round(sec || 0)); return sec >= 3600 ? Math.floor(sec / 3600) + ':' + pad(Math.floor(sec % 3600 / 60)) + ':' + pad(sec % 60) : fmtTime(sec); }
+
+/* User ability model: every answer (diagnostic, practice, retests, mocks), recomputed only when the answers change. */
+let abilityMemo = { key: null, model: null };
+function abilityNow(){
+  const at = attemptsAll(), key = at.length + '|' + (at.length ? at[at.length - 1].at : '') + '|' + Object.keys(S.sessions).length;
+  if (abilityMemo.key === key) return abilityMemo.model;
+  const rows = at.map(a => { const q = GEN && GEN.isGenerated(a.qid) ? null : S.bank[a.qid]; return { ...a, skill: a.skill || (q && q.skill) || null, irt: q && q.irt, difficultyScore: q && q.difficultyScore, mode: (S.sessions[a.sid] || {}).mode }; });
+  abilityMemo = { key, model: ENGINE.abilityModel(SPEC, rows, { now: new Date().toISOString() }) };
+  return abilityMemo.model;
+}
+/* Earlier errors by category, from the error log and earlier mocks, so the examiner can tell a habit from a one-off. */
+function catOfType(t){ return Object.keys(SPEC.errorCategories).find(k => SPEC.errorCategories[k].from.includes(t)) || null; }
+function errorHistory(exceptId){
+  const out = [], logged = new Set();
+  for (const e of Object.values(S.errors)) for (const h of (e.history || [])){ const c = catOfType(h.errorType); if (c){ logged.add(e.qid); out.push({ topic: e.topic, category: c, date: h.date }); } }
+  for (const m of simulations()) if (m.id !== exceptId) for (const e of (m.errors || [])) if (!logged.has(e.qid)) out.push({ topic: e.topic, category: e.category, date: m.date });
+  return out;
+}
+function errorsByCategory(days){ const out = {}; for (const h of errorHistory(null)) if (!days || daysBetween(String(h.date).slice(0, 10), today()) <= days) out[h.category] = (out[h.category] || 0) + 1; return out; }
+
+/* The questions a mock section may use: never seen, not reported, official-like; written ones plus fresh generated ones. */
+function mockPool(section){
+  if (!blockDone(blockOf(section))) return [];
+  const seen = new Set(attemptsAll().map(a => a.qid)), own = id => Object.prototype.hasOwnProperty.call(S.bank, id);
+  const written = Object.values(S.bank).filter(q => q.section === section && q.set !== 'diagnostic' && !(GEN && GEN.isGenerated(q.id)) && !q.flagged && q.officialLike !== false && !seen.has(q.id))
+    .map(q => ENGINE.itemParams(SPEC, { ...q, group: groupOf(q) }));
+  const gen = GEN ? GEN.candidates({ seed: genSeed + 7, per: section === 'Data Insights' ? 6 : 2, section }).filter(m => !seen.has(m.id) && !(own(m.id) && S.bank[m.id].flagged)).map(m => ENGINE.itemParams(SPEC, m)) : [];
+  return written.concat(gen);
+}
+/* Can the pool fill a section's blueprint? Counts only: near-duplicates are skipped while the mock runs. */
+let poolMemo = { key: null, map: {} };
+function poolCounts(section){
+  const key = attemptsAll().length + '|' + Object.keys(S.bank).length + '|' + BLOCKS.map(b => blockDone(b.key) ? 1 : 0).join('');
+  if (poolMemo.key !== key) poolMemo = { key, map: {} };
+  if (poolMemo.map[section]) return poolMemo.map[section];
+  const sp = specOf(section), pool = mockPool(section), have = {}, groups = {}, ps = sp.passageSize || [3, 4];
+  for (const it of pool){ if (it.group) (groups[it.group] = groups[it.group] || []).push(it); else { const c = ENGINE.categoryOfItem(SPEC, sp, it); have[c] = (have[c] || 0) + 1; } }
+  for (const g of Object.values(groups)) if (g.length >= ps[0]){ const c = ENGINE.categoryOfItem(SPEC, sp, g[0]); have[c] = (have[c] || 0) + Math.min(g.length, ps[1]); }
+  return poolMemo.map[section] = { open: blockDone(blockOf(section)), have, total: Object.values(have).reduce((s, v) => s + v, 0) };
+}
+function poolCheck(section, cats){
+  const sp = specOf(section), pc = poolCounts(section); cats = cats || sp.categories;
+  if (!pc.open) return { section, ok: false, text: `${section} opens after its diagnostic block.` };
+  const short = Object.entries(cats).filter(([c, [mn]]) => (pc.have[c] || 0) < mn);
+  if (short.length || pc.total < sp.questionCount) return { section, ok: false, text: `${section}: not enough unseen questions yet (${short.length ? short.map(([c, [mn]]) => `${c} ${pc.have[c] || 0} of ${mn}`).join(', ') : `${pc.total} of ${sp.questionCount}`}). Claude’s daily review adds more.` };
+  return { section, ok: true, text: `${section}: ready` };
+}
+const describeCache = new Map();
+function describeQ(id){
+  if (describeCache.has(id)) return describeCache.get(id);
+  const q = S.bank[id];
+  const d = q ? { features: ENGINE.features(q), letter: isMulti(q) || q.type === 'DS' ? null : LETTERS[q.answer] } : null;
+  describeCache.set(id, d); return d;
+}
+/* The examiner's signals for the planner: focus topics after the last mock, and whether a new full mock is worth it. */
+function lastFullDate(){ const f = fullSims(); return f.length ? f[f.length - 1].date : null; }
+function examinerFocus(){ const last = simulations().slice(-1)[0]; return last && daysBetween(last.date, today()) <= (last.focusDays || 9) ? (last.focus || []) : []; }
+function nextMockNow(){
+  const lf = lastFullDate(), since = lf ? attemptsAll().filter(a => String(a.at).slice(0, 10) > lf) : [];
+  const last = fullSims().slice(-1)[0];
+  return { ...ENGINE.nextMockDecision(SPEC, lf, since, last ? (last.focus || []) : [], today()), lastFull: lf };
+}
+
+function startMock(modeId){
+  if (S.run) return;
+  const mode = modeOf(modeId), U = examUI();
+  const order = mode.sections === 'all' ? examOrder() : [U.section];
+  if (mode.requiresReadiness && !nextMockNow().ready){ toast('The Examiner does not recommend a full mock yet: see its checks on this page.'); return; }
+  const bp = ENGINE.blueprint(SPEC, mode.id, order.map(s => specOf(s).id), abilityNow());
+  const bad = order.map((s, i) => poolCheck(s, bp.sections[i].categories)).find(c => !c.ok);
+  if (bad){ toast(bad.text); return; }
+  S.exam = { id: uid('x'), mode: mode.id, order, i: 0, sids: [], done: [], breakUsed: false, bp, taken: [], start: new Date().toISOString() };
   startExamSection();
 }
 function startExamSection(){
-  const X = S.exam, section = X.order[X.i];
-  const A = { n: GMATPlanner.EXAM_COUNTS[section], section, topic: null, exam: true, level: 3.5 };
-  const first = GMATPlanner.nextAdaptive(plannerCtx(todayMinutes()), { ...A, used: [] });
+  const X = S.exam, section = X.order[X.i], bps = X.bp.sections[X.i], mode = modeOf(X.mode);
+  X.st = ENGINE.newSectionState(bps); X.pool = mockPool(section);
+  const first = ENGINE.selectNext(SPEC, X.st, X.pool, { describe: describeQ, taken: new Set(X.taken) });
   if (!first){ toast('Not enough unseen questions for this section.'); S.exam = null; endRun('mocks'); return; }
-  const label = X.order.length > 1 ? `Simulation · ${section} · section ${X.i + 1} of ${X.order.length}` : `Simulation · ${section}`;
-  startRun({ kind:'exam', mode:'test', timed:true, limitSec: GMATPlanner.EXAM_MINUTES * 60, qids:[first], label, adaptive: A, noConf: true, examId: X.id });
+  const label = X.order.length > 1 ? `${mode.name} · ${section} · section ${X.i + 1} of ${X.order.length}` : `${mode.name} · ${section}`;
+  startRun({ kind:'exam', mode:'test', timed: mode.timed, limitSec: mode.timed ? bps.duration : null, qids:[first], label, noConf: true, examId: X.id, examMode: X.mode,
+    adaptive: { n: bps.questionCount, section, cat: true, level: 0 } });
+}
+/* After each answer: update the provisional ability and choose the next question (blueprint, information, no near-duplicates). */
+function catPush(r, q, a){
+  const X = S.exam; if (!X || !X.st || X.id !== r.examId) return null;
+  ENGINE.record(SPEC, X.st, q.id, isCorrect(q, a.answer));
+  return ENGINE.selectNext(SPEC, X.st, X.pool, { describe: describeQ, taken: new Set(X.taken) });
+}
+function examSectionDone(r){
+  const X = S.exam; if (!X || X.id !== r.examId) return;
+  X.done.push({ section: r.adaptive.section, sid: r.id, attempts: clone(r.attempts), durationSec: r.durationSec, limitSec: r.limitSec, timeUp: !!r.timeUp, editsUsed: r.editsUsed,
+    notReached: Math.max(0, r.adaptive.n - r.qids.length) });
+  X.taken.push(...r.qids); X.sids.push(r.id);
+  if (X.i === X.order.length - 1) X.record = saveMockRecord(X);
 }
 function examNext(){ const X = S.exam; if (!X) return; stopTicker(); X.i++; startExamSection(); }
+
+/* Score and analysis of one section from its attempts. Questions not reached before time ran out count as wrong. */
+function sectionResult(d){
+  const params = {};
+  for (const a of d.attempts){ const q = S.bank[a.qid]; params[a.qid] = ENGINE.itemParams(SPEC, q ? { ...q, group: groupOf(q) } : { id: a.qid, type: a.type, difficulty: a.difficulty }); }
+  const answered = d.attempts.filter(a => !a.unanswered), missing = d.attempts.length - answered.length + (d.notReached || 0);
+  const sc = ENGINE.scoreSection(SPEC, answered.map(a => ({ it: params[a.qid], y: a.correct ? 1 : 0 })), missing);
+  const an = ENGINE.analyzeSection(SPEC, { section: d.section, attempts: d.attempts, params, durationSec: d.durationSec, limitSec: d.limitSec, theta: sc.theta });
+  return { section: d.section, sc, an, params, questions: d.attempts.length + (d.notReached || 0), missing };
+}
+function saveMockRecord(X){
+  const mode = modeOf(X.mode), ab = abilityNow(), hist = errorHistory(X.id);
+  const secs = X.done.map(d => ({ ...sectionResult(d), d }));
+  const errors = secs.flatMap(s => ENGINE.classifyErrors(SPEC, { section: s.section, attempts: s.d.attempts, theta: s.sc.theta }, id => S.bank[id], ab, hist).map(e => ({ ...e, section: s.section })));
+  const ex = ENGINE.examine(SPEC, null, Object.fromEntries(secs.map(s => [s.section, s.an])), errors, ab);
+  for (const s of secs) if (s.d.notReached){ ex.categories['Timing Error'] = (ex.categories['Timing Error'] || 0) + s.d.notReached; ex.findings.unshift(`${s.section}: ${s.d.notReached} question${s.d.notReached > 1 ? 's' : ''} not reached before time ran out; each counts as wrong.`); }
+  const tot = ENGINE.scoreTotal(SPEC, secs.map(s => ({ score: s.sc.score, range: s.sc.range })));
+  const sum = f => secs.reduce((t, s) => t + (f(s) || 0), 0);
+  const ans = s => s.d.attempts.filter(a => !a.unanswered);
+  const usedT = sum(s => ans(s).reduce((t, a) => t + (a.timeSec || 0), 0)), expT = sum(s => ans(s).reduce((t, a) => t + (a.expectedSec || 0), 0));
+  const rec = { kind: 'simulation', mode: mode.id, modeName: mode.name, comparable: !!mode.comparable, timed: !!mode.timed, spec: `${SPEC.examName} ${SPEC.version}`,
+    date: today(), start: X.start, end: new Date().toISOString(), order: X.order, breakUsed: X.breakUsed, sids: X.sids,
+    sections: secs.map(s => ({ section: s.section, sid: s.d.sid, score: s.sc.score, range: s.sc.range, theta: s.sc.theta, se: s.sc.se, questions: s.questions, answered: s.an.answered, correct: s.an.correct,
+      unanswered: s.missing, notReached: s.d.notReached, timeUsed: s.d.durationSec, timeLimit: s.d.limitSec, timeEfficiency: r2(s.an.timeEfficiency), timeLost: Math.round(s.an.timeLost),
+      avgDifficulty: r2(s.an.avgDifficulty), editsUsed: s.d.editsUsed, timeUp: s.d.timeUp })),
+    total: tot ? tot.total : null, range: tot ? tot.range : null, durationSec: sum(s => s.d.durationSec), accuracy: r2(sum(s => s.an.correct) / sum(s => s.questions)),
+    timeEfficiency: usedT ? r2(expT / usedT) : null, unanswered: sum(s => s.missing),
+    errorCategories: ex.categories, errors, focus: ex.focus, findings: ex.findings, focusDays: ex.focusDays,
+    ability: { overall: r2(ab.overallAbility.theta), sections: Object.fromEntries(Object.entries(ab.sections).map(([k, v]) => [k, r2(v.theta)])), estimate: ab.estimatedScore.total, range: ab.estimatedScore.range } };
+  write('mocks/' + X.id, 'set', rec);
+  return { id: X.id, ...rec };
+}
+
 function betweenView(){
-  const X = S.exam, next = X.order[X.i + 1];
+  const X = S.exam, next = X.order[X.i + 1], B = SPEC.navigationRules.breaks;
+  const canBreak = !X.breakUsed && B.count > 0 && B.afterSection.includes(X.i + 1);
+  const later = !X.breakUsed && B.afterSection.some(k => k > X.i + 1 && k < X.order.length);
   return `<section class="card stack"><p class="eyebrow">Section ${X.i + 1} of ${X.order.length} complete</p><h1>Next: ${esc(next)}</h1>
-    <p class="muted">${X.breakUsed ? 'You have used your break. The next section starts when you continue.' : 'You may take the optional 10-minute break now or after the next section. On the real exam it is the only break.'}</p>
-    <div class="row"><button class="btn primary" data-act="examnext">Start ${esc(next)}</button>${X.breakUsed ? '' : '<button class="btn" data-act="exambreak">Take the 10-minute break</button>'}</div></section>`;
+    <p class="muted">${canBreak ? `You may take the optional ${B.minutes}-minute break now${later ? ' or after the next section' : ''}. On the real exam it is the only break.` : X.breakUsed ? 'You have used your break. The next section starts when you continue.' : 'No break at this point.'} Your score comes after the last section.</p>
+    <div class="row"><button class="btn primary" data-act="examnext">Start ${esc(next)}</button>${canBreak ? `<button class="btn" data-act="exambreak">Take the ${B.minutes}-minute break</button>` : ''}</div></section>`;
 }
 function breakView(){
   const r = S.run, next = S.exam.order[S.exam.i + 1];
@@ -787,18 +943,25 @@ function breakView(){
     <p class="muted">Stand up, drink some water, stay off your phone. ${esc(next)} starts automatically when the break ends.</p>
     <div class="row"><button class="btn primary" data-act="examnext">End the break and start ${esc(next)}</button></div></section>`;
 }
+function percentileNote(){
+  const tg = target();
+  return 'GMAC revises its percentile table every year, so GMAT Lab does not turn estimates into percentiles.' + (tg ? ` For reference, your target (${tg.label}) is ${tg.note}.` : '');
+}
+/* After the last section: the score only, as on the real exam. Answers wait for the review, a separate step. */
 function examDoneView(){
-  const X = S.exam;
-  const rows = X.sids.map(sid => S.sessions[sid]).filter(Boolean).map(s => {
-    const at = s.attempts || [], c = at.filter(a => a.correct).length, right = at.filter(a => a.correct && a.difficulty);
-    const avgRight = right.length ? right.reduce((t, a) => t + a.difficulty, 0) / right.length : null;
-    return `<tr><td>${esc(s.examSection || s.label)}</td><td class="num">${c}/${at.length}</td><td class="num">${fmtTime(s.durationSec)} / ${fmtTime(s.limitSec)}</td><td class="num">${at.filter(a => a.unanswered).length}</td><td class="num">${s.editsUsed || 0}/3</td><td class="num">${avgRight == null ? '—' : avgRight.toFixed(1)}</td><td><button class="linkbtn" data-act="openResults" data-arg="${esc(s.id)}">Results and review</button></td></tr>`;
-  }).join('');
-  return `<section class="stack"><p class="eyebrow">GMAT simulation · ${X.order.map(x => SHORT[x]).join(' → ')}</p><h1>Simulation complete</h1>
-    <p class="muted" style="max-width:70ch">This is not a GMAT score. The real test scores you with questions calibrated on thousands of test takers; GMAT Lab’s questions are not, so it shows what you got right and how hard it got instead. For a score, take an Official Practice Exam and log it below.</p>
-    <div class="box scroll"><table class="tbl"><thead><tr><th>Section</th><th class="num">Correct</th><th class="num">Time</th><th class="num">Unanswered</th><th class="num">Changes</th><th class="num">Avg level of right answers</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
-    <div class="row"><button class="btn primary" data-act="examclose">Done</button></div>
-    <p class="fine">Each section is also in Today → recent sessions, and its misses wait for review like any test.</p></section>`;
+  const X = S.exam, m = X.record; if (!m) return '';
+  const full = m.total != null, s0 = m.sections[0];
+  const cells = [['Total time', fmtLong(m.durationSec)], ['Answered', `${m.sections.reduce((t, s) => t + s.answered, 0)} of ${m.sections.reduce((t, s) => t + s.questions, 0)}`], ['Unanswered', String(m.unanswered)], ['Break', X.order.length > 1 ? (m.breakUsed ? 'taken' : 'not taken') : '—']];
+  return `<section class="stack"><p class="eyebrow">${esc(m.modeName)} · ${m.order.map(x => SHORT[x]).join(' → ')} · ${fmtDate(m.date)}</p>
+    <h1>${full ? `Estimated score: ${m.total}` : `Estimated ${esc(s0.section)} score: ${s0.score}`}</h1>
+    <p class="muted" style="max-width:72ch">Range ${full ? `${m.range[0]}–${m.range[1]}` : `${s0.range[0]}–${s0.range[1]}`}: one standard error either side. ${esc(SCORE_NOTE)}</p>
+    <div class="metrics m4">${cells.map(([k, v]) => `<div><span class="k">${k}</span><span class="v">${v}</span></div>`).join('')}</div>
+    <div class="box scroll"><table class="tbl"><thead><tr><th>Section</th><th class="num">Score</th><th class="num">Range</th><th class="num">Time used</th><th class="num">Answered</th></tr></thead><tbody>
+      ${m.sections.map(s => `<tr><td>${esc(s.section)}</td><td class="num"><strong>${s.score}</strong></td><td class="num">${s.range[0]}–${s.range[1]}</td><td class="num">${fmtTime(s.timeUsed)}${s.timeLimit ? ' / ' + fmtTime(s.timeLimit) : ''}</td><td class="num">${s.answered} of ${s.questions}</td></tr>`).join('')}
+    </tbody></table></div>
+    <p class="fine">${esc(percentileNote())}${m.comparable ? '' : ' This mode is kept out of your score trend.'}</p>
+    <div class="row"><button class="btn primary" data-act="mockreport" data-arg="${esc(X.id)}">Examiner report</button><button class="btn" data-act="mockreview" data-arg="${esc(X.id)}">Review the exam</button><button class="btn ghost" data-act="examclose">Done</button></div>
+    <p class="fine">As on the real exam, your answers are not shown with the score. The review is the next, separate step; the misses also wait in Today’s plan.</p></section>`;
 }
 VIEWS.coach = function(){
   if (!planReady()) return `<section><h1>Coach</h1><p class="muted">${esc(nextStep().why)}</p></section>`;
@@ -821,7 +984,7 @@ VIEWS.coach = function(){
         ${Array.isArray(cp.tasks) && cp.tasks.length ? `<div><p class="eyebrow">This week</p><ul class="answer">${cp.tasks.map(t => `<li>${esc(t)}</li>`).join('')}</ul></div>` : ''}
         ${cp.newQuestions ? `<p class="fine">${esc(String(cp.newQuestions))} new questions added to Practice.</p>` : ''}
         ${fresh && Array.isArray(cp.focus) && cp.focus.length ? '<p class="fine">Focus topics get extra weight in your plan and coach sets.</p>' : ''}</div>`
-      : `<p class="muted">Every morning Claude reads your synced progress, writes a review here and adds new questions on your weak topics and for the GMAT simulation. It needs GitHub sync on (Settings).</p>`}</div>
+      : `<p class="muted">Every morning Claude reads your synced progress, writes a review here and adds new questions on your weak topics and for the Verbal mocks. It needs GitHub sync on (Settings).</p>`}</div>
   </section>`;
 };
 VIEWS.diagnostic = function(){
@@ -909,23 +1072,107 @@ VIEWS.mastery = function(){
       <li><b>Mastered</b>: Strong, plus 80%+ on at least 6 timed questions at level 4+ within 1.2× the expected time, plus a correct retest at least 7 days after your last error on the topic.</li></ul></details></section>
     ${secs}`;
 };
-function simulationCard(){
-  if (!planReady()) return '';
-  const order = examOrder(), ready = GMATPlanner.examReadiness(plannerCtx(todayMinutes()), order), ok = ready.every(x => x.ok);
-  return `<section class="card stack"><h2>GMAT simulation</h2>
-    <p class="muted" style="max-width:75ch">The real GMAT Focus format: three 45-minute sections (Quant 21, Verbal 23, Data Insights 20 questions) in the order you choose, one optional 10-minute break after the first or second section, questions that get harder or easier with your answers, no going back, bookmarks and up to 3 answer changes per section at the end, calculator only in Data Insights, no feedback until the end. Only questions you have never seen.</p>
-    <div class="fgrid" style="max-width:520px"><div><label class="lab" for="ex-order">Section order</label><select id="ex-order" data-ui="exam.order">${EXAM_ORDERS.map((o, i) => `<option value="${i}" ${String((S.ui.exam || {}).order || 0) === String(i) ? 'selected' : ''}>${o.length > 1 ? o.join(' → ') : o[0] + ' section only'}</option>`).join('')}</select></div></div>
-    <p class="fine">Unseen questions: ${ready.map(x => `<span class="${x.ok ? '' : 'res-no'}">${esc(x.section)} ${x.have}/${x.need}</span>`).join(' · ')}</p>
-    <div class="row"><button class="btn primary" data-act="startexam" ${ok ? '' : 'disabled'}>Start the simulation · ${order.length * 45} min</button>${ok ? '' : '<span class="fine">Quant and Data Insights open after their diagnostic block; Claude’s daily review adds Verbal questions until there are enough.</span>'}</div></section>`;
-}
+/* ------------------------------------------------------------------ mocks tab: take a mock, history, readiness, official exams, report, review */
+const MOCK_PAGES = [['take', 'Take a mock'], ['history', 'History'], ['readiness', 'Readiness'], ['official', 'Official exams']];
 VIEWS.mocks = function(){
-  const list = Object.values(S.mocks).sort((a,b) => String(a.date).localeCompare(String(b.date)));
-  const tg = target();
-  return `<section><h1>Mocks</h1><p class="muted" style="max-width:70ch">Log every full practice exam here. Official Practice Exams use the real scoring algorithm, and there are only a few, so keep them for when the numbers matter. After each mock, tell Claude “analizza il mock” for the full post-mock report.</p></section>
-    ${simulationCard()}
-    ${list.length ? `<section class="card">${mockChart(list, tg)}</section>` : ''}
-    <section class="grid2">
-      <form class="card stack" data-form="mock" data-dirty><h2>Add a mock result</h2>
+  if (!planReady()) return `<section><h1>Mocks</h1><p class="muted">${esc(nextStep().why)}</p></section>`;
+  const v = S.ui.mockView || 'take', m = S.mocks[S.ui.mockId];
+  const page = v === 'report' || v === 'review' ? (m ? (v === 'report' ? mockReportView(m) : mockReviewView(m)) : '<section><p class="muted">This mock is no longer here.</p></section>')
+    : ({ take: mockTakeView, history: mockHistoryView, readiness: readinessView, official: officialView }[v] || mockTakeView)();
+  const nav = `<div class="chips" role="group" aria-label="Mock pages">${MOCK_PAGES.map(([k, l]) => `<button class="chip" data-act="mockview" data-arg="${k}" aria-pressed="${v === k}">${l}</button>`).join('')}</div>`;
+  if (v === 'report' || v === 'review') return `<section>${nav}</section>${page}`;
+  return `<section><h1>Mocks</h1><p class="muted" style="max-width:75ch">Full exams and single sections built like the real GMAT Focus: a blueprint for each section, questions that adapt to your answers, the official timing and navigation rules, an estimated score, then the Examiner’s analysis and a separate review. Everything shown comes from your own answers.</p>
+    ${nav}</section>
+    ${page}`;
+};
+function checkList(list){
+  return `<ul class="checklist">${list.map(c => `<li class="${c.pass ? 'ok' : 'no'}"><span class="mk" aria-hidden="true">${c.pass ? '✓' : '✗'}</span><span>${esc(c.label)}${c.value != null && c.value !== '' ? ` <span class="mono fine">· ${esc(String(c.value))}</span>` : ''}<span class="sr">${c.pass ? ' (met)' : ' (not met)'}</span></span></li>`).join('')}</ul>`;
+}
+function nextMockCard(nm){
+  const met = nm.checks.filter(c => c.pass).length;
+  const lead = !nm.lastFull ? 'No full mock yet: the first one sets your baseline.'
+    : nm.overdue ? `${nm.days} days since your last full mock (${fmtDate(nm.lastFull)}): take one now, even with checks open, so your score stays current.`
+    : nm.ready ? `Last full mock ${fmtDate(nm.lastFull)}. The checks are met: a new one will measure real progress.`
+    : `Last full mock ${fmtDate(nm.lastFull)}. ${met} of ${nm.checks.length} checks met: a new mock now would mostly repeat the last one.`;
+  return `<div class="card stack"><div class="row" style="justify-content:space-between"><h2>When to take the next full mock</h2><span class="pill ${nm.ready ? 'good' : 'warn'}">${nm.ready ? 'Recommended now' : 'Not yet'}</span></div>
+    <p class="muted">${esc(lead)}</p>${checkList(nm.checks)}<p class="fine">The Examiner’s rule (GMAT Lab’s, not official): at least a week and some real practice since the last full mock, including its focus topics; after three weeks, take one anyway.</p></div>`;
+}
+function mockTakeView(){
+  const U = examUI(), nm = nextMockNow(), R = SPEC.navigationRules, checks = SECTIONS.map(s => poolCheck(s));
+  const ok = s => checks.find(c => c.section === s).ok;
+  const card = m => {
+    const secs = m.sections === 'all' ? examOrder() : [U.section], gate = m.requiresReadiness && !nm.ready;
+    const mins = secs.reduce((t, s) => t + specOf(s).duration, 0) / 60;
+    return `<div class="card block"><p class="eyebrow">${m.sections === 'all' ? 'Full exam' : 'One section'} · ${m.timed ? `${mins} min` : 'no clock'}${m.comparable ? '' : ' · outside the score trend'}</p><h2>${esc(m.name)}</h2>
+      <p class="muted">${esc(m.text)}</p><p class="spec">${secs.map(s => `${SHORT[s]} ${specOf(s).questionCount}`).join(' · ')}</p>
+      <div class="row"><button class="btn ${m.id === 'official' ? 'primary' : ''}" data-act="startmock" data-arg="${esc(m.id)}" ${secs.every(ok) && !gate ? '' : 'disabled'}>Start</button>${gate ? '<span class="fine">Opens when the Examiner recommends a full mock (below).</span>' : ''}</div></div>`;
+  };
+  return `<section class="card stack"><div class="fgrid" style="max-width:720px">
+      <div><label class="lab" for="ex-order">Section order for full mocks</label><select id="ex-order" data-ui="exam.order">${EXAM_ORDERS.map((o, i) => `<option value="${i}" ${String(U.order) === String(i) ? 'selected' : ''}>${o.join(' → ')}</option>`).join('')}</select></div>
+      <div><label class="lab" for="ex-sec">Section for one-section mocks</label><select id="ex-sec" data-ui="exam.section">${SECTIONS.map(s => `<option ${U.section === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div></div>
+    <p class="fine">Unseen questions: ${checks.map(c => `<span class="${c.ok ? '' : 'res-no'}">${esc(c.ok ? c.section + ' ready' : c.text)}</span>`).join(' · ')}</p>
+    <details class="more"><summary>The rules in every mock</summary><ul class="hints" style="margin-top:8px">
+      <li>Each section follows a blueprint: how many questions of each topic group or type, as on the real exam. Within it, every question is chosen to measure you best after your last answer, so the order is never the same twice.</li>
+      <li>No going back. Bookmark any question; at the end of the section, while time remains, you can review and change up to ${R.reviewAndEdit.maxChanges} answers.</li>
+      <li>The timer is always on screen. When it reaches zero the section ends, and every unanswered question counts as wrong.</li>
+      <li>Full mocks: one optional ${R.breaks.minutes}-minute break after the first or second section. Calculator only in Data Insights.</li>
+      <li>No hints, explanations or feedback until the end. Only questions you have never seen, and never two versions of the same problem in one mock.</li></ul></details></section>
+    <section class="blocks">${SPEC.modes.map(card).join('')}</section>
+    <section class="grid2">${nextMockCard(nm)}
+      <div class="card stack"><h2>Other ways to practise</h2>${SPEC.links.map(l => `<div class="row" style="justify-content:space-between"><div><b>${esc(l.name)}</b><p class="fine">${esc(l.text)}</p></div><button class="btn small" data-act="tab" data-arg="${esc(l.tab)}">Open</button></div>`).join('')}
+        <p class="fine">Exam specification: ${esc(SPEC.examName)} (${esc(SPEC.version)}). Structure, timing and navigation are the official ones; the question mix inside a section and the scoring are GMAT Lab estimates.</p></div></section>`;
+}
+/* Score over time: GMAT Lab full mocks (comparable modes) and official practice exams, against the target. */
+function scoreChart(sims, offs, tg){
+  const pts = [...sims.map(m => ({ d: m.date, v: m.total })), ...offs.map(m => ({ d: m.date, v: m.total }))];
+  if (!pts.length) return '';
+  const W = 680, H = 250, L = 46, R = 24, T = 16, B = 30, hi = 805;
+  const lo = Math.max(205, Math.min(505, Math.floor((Math.min(...pts.map(p => p.v), ...sims.map(m => m.range ? m.range[0] : m.total), tg ? tg.score : 805) - 20) / 50) * 50));
+  const t0 = Math.min(...pts.map(p => parseD(p.d).getTime())), t1 = Math.max(...pts.map(p => parseD(p.d).getTime()));
+  const x = d => t1 === t0 ? L + (W - L - R) / 2 : L + (parseD(d).getTime() - t0) / (t1 - t0) * (W - L - R);
+  const y = v => T + (hi - Math.max(lo, Math.min(hi, v))) / (hi - lo) * (H - T - B);
+  let g = '';
+  for (let v = lo; v <= hi; v += 50) g += `<line class="grid" x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/><text x="${L - 8}" y="${y(v) + 4}" text-anchor="end">${v}</text>`;
+  if (tg) g += `<line class="target" x1="${L}" x2="${W - R}" y1="${y(tg.score)}" y2="${y(tg.score)}"/><text class="tlabel" x="${W - R}" y="${y(tg.score) - 6}" text-anchor="end">target ${tg.score}</text>`;
+  const dates = [...new Set(pts.map(p => p.d))].sort(); const ticks = dates.length <= 6 ? dates : [dates[0], dates[Math.floor(dates.length / 2)], dates[dates.length - 1]];
+  for (const d of ticks) g += `<text x="${x(d)}" y="${H - 10}" text-anchor="middle">${esc(fmtDate(d))}</text>`;
+  if (sims.length > 1) g += `<polyline class="s1 line" points="${sims.map(m => `${x(m.date)},${y(m.total)}`).join(' ')}"/>`;
+  if (offs.length > 1) g += `<polyline class="s2 line" points="${offs.map(m => `${x(m.date)},${y(m.total)}`).join(' ')}"/>`;
+  sims.forEach((m, i) => {
+    if (m.range) g += `<line class="s1 whisker" x1="${x(m.date)}" x2="${x(m.date)}" y1="${y(m.range[0])}" y2="${y(m.range[1])}"/>`;
+    g += `<circle class="s1 dot" cx="${x(m.date)}" cy="${y(m.total)}" r="${i === sims.length - 1 ? 5.5 : 4}"><title>Mock #${i + 1} · ${esc(fmtDate(m.date))} · ${m.total}${m.range ? ` (range ${m.range[0]}–${m.range[1]})` : ''}</title></circle>`;
+    if (i === sims.length - 1) g += `<text class="val" x="${x(m.date)}" y="${y(m.total) - 11}" text-anchor="middle">${m.total}</text>`;
+  });
+  offs.forEach((m, i) => {
+    g += `<rect class="s2 dot" x="${x(m.date) - 4.5}" y="${y(m.total) - 4.5}" width="9" height="9"><title>${esc(m.name)} · ${esc(fmtDate(m.date))} · ${m.total}</title></rect>`;
+    if (i === offs.length - 1) g += `<text class="val" x="${x(m.date)}" y="${y(m.total) + 20}" text-anchor="middle">${m.total}</text>`;
+  });
+  const label = `Total scores over time: ${sims.length} GMAT Lab full mock${sims.length === 1 ? '' : 's'}${sims.length ? `, latest ${sims[sims.length - 1].total}` : ''}; ${offs.length} official practice exam${offs.length === 1 ? '' : 's'}${offs.length ? `, latest ${offs[offs.length - 1].total}` : ''}.`;
+  return `<figure class="chart trend" style="margin:0"><div class="legend">${sims.length ? '<span><i class="k1"></i>GMAT Lab full mocks (estimate, with range)</span>' : ''}${offs.length ? '<span><i class="k2"></i>Official practice exams</span>' : ''}</div>
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(label)}">${g}</svg></figure>`;
+}
+function topCats(cats, k){ return Object.entries(cats || {}).sort((a, b) => b[1] - a[1]).slice(0, k || 2).map(([c, n]) => `${c.replace(/ Error$/, '')} ${n}`).join(' · ') || '—'; }
+function mockHistoryView(){
+  const sims = simulations(), full = fullSims(), offs = officialMocks(), tg = target();
+  if (!sims.length && !loggedMocks().length) return '<section><p class="muted">No mocks yet. Take one from the first page, or log an official practice exam under Official exams.</p></section>';
+  const sec = (m, s) => { const x = (m.sections || []).find(z => z.section === s); return x ? x.score : '—'; };
+  const lvl = m => { const l = (m.sections || []).filter(s => s.avgDifficulty != null); return l.length ? levelOf(l.reduce((t, s) => t + s.avgDifficulty * s.questions, 0) / l.reduce((t, s) => t + s.questions, 0)) : '—'; };
+  const evo = full.map((m, i) => `Mock #${i + 1}: ${m.total}${i ? ` (${m.total - full[i - 1].total >= 0 ? '+' : '−'}${Math.abs(m.total - full[i - 1].total)})` : ''}`);
+  return `${full.length || offs.length ? `<section class="card stack"><h2>Score over time</h2>${scoreChart(full, offs, tg)}
+      ${evo.length ? `<p class="mono fine">${evo.map(esc).join(' → ')}</p>` : ''}
+      <p class="fine">Only full mocks in comparable modes are in the trend. The whisker is the estimate’s range; official practice exams use GMAC’s own scoring.</p></section>` : ''}
+    ${sims.length ? `<section><h2>GMAT Lab mocks</h2><div class="box scroll"><table class="tbl"><thead><tr><th>Date</th><th>Mode</th><th class="num">Score</th><th class="num">Q</th><th class="num">V</th><th class="num">DI</th><th class="num">Time</th><th class="num">Accuracy</th><th class="num">Avg level</th><th class="num">Time efficiency</th><th class="num">Unanswered</th><th>Main error types</th><th class="num">Ability estimate</th><th></th></tr></thead><tbody>
+      ${[...sims].reverse().map(m => `<tr><td>${fmtDate(m.date)}</td><td>${esc(m.modeName)}${m.order && m.order.length > 1 ? `<br><span class="fine">${m.order.map(x => SHORT[x]).join(' → ')}</span>` : ''}</td>
+        <td class="num"><strong>${m.total != null ? m.total : (m.sections || []).map(s => s.score).join(' · ')}</strong><br><span class="fine">${m.range ? m.range.join('–') : m.sections && m.sections[0] ? m.sections[0].range.join('–') : ''}</span></td>
+        <td class="num">${sec(m, 'Quant')}</td><td class="num">${sec(m, 'Verbal')}</td><td class="num">${sec(m, 'Data Insights')}</td><td class="num">${fmtLong(m.durationSec)}</td><td class="num">${pct(m.accuracy)}</td><td class="num">${lvl(m)}</td>
+        <td class="num">${m.timeEfficiency == null ? '—' : m.timeEfficiency.toFixed(2)}</td><td class="num">${m.unanswered}</td><td>${esc(topCats(m.errorCategories))}</td><td class="num">${m.ability && m.ability.estimate ? m.ability.estimate : '—'}</td>
+        <td><button class="linkbtn" data-act="mockreport" data-arg="${esc(m.id)}">Report</button> · <button class="linkbtn" data-act="mockreview" data-arg="${esc(m.id)}">Review</button></td></tr>`).join('')}
+    </tbody></table></div><p class="fine">Accuracy counts unanswered questions as wrong. Avg level: 1–6. Time efficiency: expected time ÷ time used (1.00 = real pace, higher = faster). Ability estimate: the ability model’s total at the time, from all your answers.</p></section>` : ''}`;
+}
+function officialView(){
+  const list = loggedMocks();
+  return `<section class="grid2">
+      <form class="card stack" data-form="mock" data-dirty><h2>Log an official practice exam</h2><p class="muted">Official Practice Exams use GMAC’s real scoring and there are only a few, so keep them for when the numbers matter.</p>
         <div class="fgrid"><div><label class="lab" for="m-date">Date</label><input id="m-date" type="date" value="${today()}" required></div>
         <div><label class="lab" for="m-name">Exam</label><select id="m-name">${['Official Practice Exam 1','Official Practice Exam 2','Official Practice Exam 3','Official Practice Exam 4','Official Practice Exam 5','Official Practice Exam 6','Other official material','Third-party mock'].map(x => `<option>${x}</option>`).join('')}</select></div></div>
         <div class="fgrid"><div><label class="lab" for="m-total">Total (205–805)</label><input id="m-total" type="number" min="205" max="805" step="10" required></div>
@@ -934,19 +1181,124 @@ VIEWS.mocks = function(){
         <div><label class="lab" for="m-di">Data Insights (60–90)</label><input id="m-di" type="number" min="60" max="90"></div></div>
         <div><label class="lab" for="m-notes">Notes</label><textarea id="m-notes" rows="2" placeholder="Section order, break, how the timing felt, what went wrong"></textarea></div>
         <div class="row"><button class="btn primary" type="submit">Save result</button></div></form>
-      <div class="stack"><h2>Score history</h2>${list.length ? `<div class="box scroll"><table class="tbl"><thead><tr><th>Date</th><th>Mock</th><th class="num">Total</th><th class="num">Q</th><th class="num">V</th><th class="num">DI</th><th>Notes</th><th></th></tr></thead><tbody>${[...list].reverse().map(m => `<tr><td>${fmtDate(m.date)}</td><td>${esc(m.name)}</td><td class="num"><strong>${m.total}</strong></td><td class="num">${m.quant || '—'}</td><td class="num">${m.verbal || '—'}</td><td class="num">${m.di || '—'}</td><td>${esc(m.notes || '')}</td><td>${S.ui.delMock === m.id ? `<button class="btn small danger" data-act="mockdelok" data-arg="${esc(m.id)}">Delete</button> <button class="btn small ghost" data-act="mockdelno">Keep</button>` : `<button class="linkbtn" data-act="mockdel" data-arg="${esc(m.id)}">Remove</button>`}</td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">No mocks yet. The first official mock usually comes after the foundations phase.</p>'}</div>
+      <div class="stack"><h2>Logged exams</h2>${list.length ? `<div class="box scroll"><table class="tbl"><thead><tr><th>Date</th><th>Exam</th><th class="num">Total</th><th class="num">Q</th><th class="num">V</th><th class="num">DI</th><th>Notes</th><th></th></tr></thead><tbody>${[...list].reverse().map(m => `<tr><td>${fmtDate(m.date)}</td><td>${esc(m.name)}</td><td class="num"><strong>${m.total}</strong></td><td class="num">${m.quant || '—'}</td><td class="num">${m.verbal || '—'}</td><td class="num">${m.di || '—'}</td><td>${esc(m.notes || '')}</td><td>${S.ui.delMock === m.id ? `<button class="btn small danger" data-act="mockdelok" data-arg="${esc(m.id)}">Delete</button> <button class="btn small ghost" data-act="mockdelno">Keep</button>` : `<button class="linkbtn" data-act="mockdel" data-arg="${esc(m.id)}">Remove</button>`}</td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">None yet. The first official practice exam usually comes after the foundations phase.</p>'}</div>
     </section>`;
-};
-function mockChart(list, tg){
-  const W = 680, H = 240, L = 46, R = 20, T = 18, B = 30, lo = 505, hi = 805;
-  const y = v => T + (hi - Math.max(lo, Math.min(hi, v))) / (hi - lo) * (H - T - B);
-  const x = i => list.length === 1 ? L + (W - L - R)/2 : L + i * (W - L - R) / (list.length - 1);
-  let g = '';
-  for (let v = lo; v <= hi; v += 50){ g += `<line class="grid" x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end">${v}</text>`; }
-  if (tg) g += `<line class="target" x1="${L}" x2="${W-R}" y1="${y(tg.score)}" y2="${y(tg.score)}"/><text class="tlabel" x="${W-R}" y="${y(tg.score)-6}" text-anchor="end">target ${tg.score}</text>`;
-  if (list.length > 1) g += `<polyline class="line" points="${list.map((m,i) => `${x(i)},${y(m.total)}`).join(' ')}"/>`;
-  list.forEach((m,i) => { g += `<circle class="dot" cx="${x(i)}" cy="${y(m.total)}" r="${i === list.length-1 ? 5 : 3.5}"/><text class="val" x="${x(i)}" y="${y(m.total)-10}" text-anchor="middle">${m.total}</text><text x="${x(i)}" y="${H-10}" text-anchor="middle">${fmtDate(m.date)}</text>`; });
-  return `<figure class="chart" style="margin:0"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Mock total scores over time">${g}</svg></figure>`;
+}
+/* Exam readiness: every judgement next to the numbers behind it. */
+function readinessView(){
+  const ab = abilityNow(), tg = target(), sims = fullSims();
+  const R = ENGINE.readiness(SPEC, sims, officialMocks(), ab, attemptsAll(), tg ? tg.score : null, today(), errorsByCategory(60));
+  const est = ab.estimatedScore, open = R.checks.filter(c => !c.pass);
+  const verdict = !open.length ? `All ${R.checks.length} checks are met. On this evidence the exam is a reasonable next step; keep one full mock a week until test day so the numbers stay current.`
+    : `${R.passed} of ${R.checks.length} checks met. Each check below shows your current value; the ones marked ✗ are still open, so the data does not yet support sitting the exam.`;
+  const skillRow = s => `<tr><td>${esc(s.skill)}<br><span class="fine">${esc(s.topic)}</span></td><td class="num">≈ ${toSection(s.theta)}</td><td class="num">${s.n}</td></tr>`;
+  const skillTable = (title, list) => `<div class="stack"><h3>${title}</h3>${list.length ? `<div class="box scroll"><table class="tbl"><thead><tr><th>Skill</th><th class="num">Level</th><th class="num">Answers</th></tr></thead><tbody>${list.map(skillRow).join('')}</tbody></table></div>` : '<p class="fine">Needs 4+ answers on a skill.</p>'}</div>`;
+  const topics = Object.entries(ab.topics).filter(([, v]) => v.n >= 3).sort((a, b) => a[1].theta - b[1].theta);
+  const allSk = Object.values(ab.skills).filter(s => s.n >= 4).sort((a, b) => a.theta - b.theta), half = Math.min(5, Math.ceil(allSk.length / 2));
+  const cats = Object.entries(R.errorRate.byType).sort((a, b) => b[1] - a[1]);
+  return `<section class="card stack"><div class="row" style="justify-content:space-between"><h2>Exam readiness</h2><span class="pill ${open.length ? 'warn' : 'good'}">${R.passed} of ${R.checks.length} checks met</span></div>
+      <p class="muted" style="max-width:75ch">${esc(verdict)}</p>${checkList(R.checks)}
+      <p class="fine">Thresholds are GMAT Lab’s rule of thumb, set in the exam specification; the value after each check is yours.</p></section>
+    <section class="grid2">
+      <div class="card stack"><h2>Where you are</h2><ul class="facts">
+        <li><b>Latest full mock</b><span>${R.overall.last ? `${R.overall.last.total} (range ${R.overall.last.range.join('–')}), ${fmtDate(R.overall.last.date)}` : 'none yet'}</span></li>
+        <li><b>Ability model</b><span>${est.total != null ? `≈ ${est.total} (range ${est.range.join('–')}), confidence ${esc(ab.confidence.label)}` : esc(est.note)}</span></li>
+        <li><b>Target</b><span>${tg ? `${tg.score} · ${esc(tg.label)}` : 'not set: choose it in Profile'}</span></li>
+        <li><b>Last 3 mocks</b><span class="mono">${R.recent.length ? R.recent.map(x => x.total).join(' → ') : '—'}${R.trend != null ? ` · ${R.trend >= 0 ? '+' : '−'}${Math.abs(Math.round(R.trend))} per mock` : ''}</span></li>
+        <li><b>Stability</b><span>${R.stability.sd != null ? `totals vary by ±${Math.round(R.stability.sd)} (standard deviation)` : 'needs 2+ full mocks'}</span></li></ul></div>
+      <div class="card stack"><h2>Sections</h2><div class="box scroll"><table class="tbl"><thead><tr><th>Section</th><th class="num">Last mock</th><th class="num">Spread, last 3</th><th class="num">Model</th><th class="num">Answers</th></tr></thead><tbody>
+        ${est.sections.map(s => { const c = R.sectionConsistency.find(x => x.section === s.section) || {}; return `<tr><td>${esc(s.section)}</td><td class="num">${c.last || '—'}</td><td class="num">${c.sd == null ? '—' : '±' + c.sd.toFixed(1)}</td><td class="num nw">${s.n ? `${s.score} <span class="fine">${s.range.join('–')}</span>` : '—'}</td><td class="num">${s.n}</td></tr>`; }).join('')}
+      </tbody></table></div><p class="fine">Model: the section score your answers point to, from every question you have answered, recent and timed work weighing more.</p></div>
+      <div class="card stack"><h2>Time and difficulty</h2><ul class="facts">
+        <li><b>Unanswered</b><span class="mono">${R.timeManagement.unanswered.length ? R.timeManagement.unanswered.join(' · ') + ' in the last mocks' : '—'}</span></li>
+        <li><b>Efficiency</b><span>${R.timeManagement.efficiency != null ? `${R.timeManagement.efficiency.toFixed(2)} on timed work in the last 60 days` : '—'}${R.timeManagement.lastEfficiency != null ? ` · ${R.timeManagement.lastEfficiency.toFixed(2)} in the last mock` : ''}</span></li>
+        <li><b>Level 5–6</b><span>${R.difficultyTolerance.n ? `${pct(R.difficultyTolerance.acc)} right on ${R.difficultyTolerance.n} timed questions (60 days)` : 'no timed level 5–6 questions yet'}</span></li>
+        <li><b>Error rate</b><span>${R.errorRate.answered ? `${pct(R.errorRate.wrong / R.errorRate.answered)} wrong of ${R.errorRate.answered} answers (60 days)` : '—'}</span></li>
+        <li><b>Error types</b><span>${cats.length ? cats.map(([c, n]) => `${esc(c)} ${n}`).join(' · ') : 'none logged'}</span></li></ul>
+        <p class="fine">Efficiency: expected time ÷ time used; 1.00 is the real pace.</p></div>
+      <div class="card stack"><h2>Your ability model</h2><ul class="facts">
+        <li><b>Answers</b><span>${ab.n} · confidence ${esc(ab.confidence.label)} (±${ab.overallAbility.se.toFixed(2)} on the ability scale)</span></li>
+        <li><b>Recent 30</b><span>${ab.recentPerformance.n ? `${pct(ab.recentPerformance.accuracy)} right, ${pct(ab.recentPerformance.expected)} expected at your level` : '—'}</span></li>
+        <li><b>Consistency</b><span>${ab.consistency.sd != null ? `sessions differ from expectation by ±${pct(ab.consistency.sd)} (${ab.consistency.sessions} sessions)` : 'needs 2+ sessions of 5+ questions'}</span></li></ul>
+        <p class="fine">Updated after every answer in practice, retests, the diagnostic and mocks. Mocks weigh 1.5×, learn mode 0.7×; answers lose half their weight every 45 days.</p></div>
+    </section>
+    <section class="grid2">${skillTable('Weakest skills', allSk.slice(0, half))}${skillTable('Strongest skills', allSk.slice(half).reverse().slice(0, 5))}</section>
+    ${topics.length ? `<section><h2>Topics, weakest first</h2><div class="box scroll"><table class="tbl"><thead><tr><th>Topic</th><th>Section</th><th class="num">Level</th><th class="num">Answers</th><th></th></tr></thead><tbody>
+      ${topics.slice(0, 12).map(([t, v]) => `<tr><td>${esc(t)}</td><td>${esc(v.section)}</td><td class="num">≈ ${toSection(v.theta)}</td><td class="num">${v.n}</td><td><button class="linkbtn" data-act="startsmart" data-arg="learn|${esc(t)}|6">Practise</button></td></tr>`).join('')}
+    </tbody></table></div><p class="fine">Level: the section score (60–90) that your answers on the topic point to.</p></section>` : ''}`;
+}
+/* The Examiner's report on one mock: per-section performance, time management, every error explained, focus, next mock. */
+function mockSections(m){
+  return (m.sections || []).map(s => { const ses = S.sessions[s.sid]; return { rec: s, ses, res: ses ? sectionResult({ section: s.section, attempts: ses.attempts || [], durationSec: ses.durationSec, limitSec: ses.limitSec, notReached: s.notReached || 0 }) : null }; });
+}
+function perfTable(title, rows, pace){
+  const list = rows.filter(r => r.key !== '—'); if (!list.length) return '';
+  return `<div class="stack" style="gap:6px"><h3>${title}</h3><div class="box scroll"><table class="tbl"><thead><tr><th>${title.replace(/^By /, '')}</th><th class="num">Right</th><th class="num">Accuracy</th>${pace ? '<th class="num">Time vs expected</th>' : ''}</tr></thead><tbody>
+    ${list.map(r => `<tr><td>${esc(r.key)}</td><td class="num">${r.correct}/${r.n}</td><td class="num">${pct(r.acc)}</td>${pace ? `<td class="num">${r.ratio ? r.ratio.toFixed(2) + '×' : '—'}</td>` : ''}</tr>`).join('')}</tbody></table></div></div>`;
+}
+function errorCardHTML(e, withQ){
+  const head = `<b>${withQ ? `Question ${e.index + 1} · ` : ''}${esc(e.topic)}</b><span class="pill bad">${esc(e.category)}</span>`;
+  const body = `<dl class="kv"><div><dt>What happened</dt><dd>${inline(e.what)}</dd></div><div><dt>Why</dt><dd>${inline(e.why)}</dd></div>
+      ${e.skill ? `<div><dt>Skill to rebuild</dt><dd>${esc(e.skill)}</dd></div>` : ''}<div><dt>Pattern</dt><dd>${esc(e.pattern)}</dd></div>
+      <div><dt>How to fix it</dt><dd>${esc(e.fix)}</dd></div>
+      <div><dt>Next exercise</dt><dd>${e.next.n} questions on ${esc(e.next.topic)} around level ${e.next.level}. <button class="btn small" data-act="startsmart" data-arg="learn|${esc(e.next.topic)}|${e.next.n}">Practise now</button>${lessonOf(e.next.topic) ? ` <button class="btn small ghost" data-act="lesson" data-arg="${esc(e.next.topic)}">Theory</button>` : ''}</dd></div></dl>`;
+  return withQ ? `<li class="err"><details><summary>${head}<span class="fine">${esc((e.what.match(/^.*?\.(?=\s|$)/) || [e.what])[0])}</span></summary>${body}</details></li>`
+    : `<li class="card stack err"><div class="row" style="justify-content:space-between">${head}</div>${body}</li>`;
+}
+function mockReportView(m){
+  const secs = mockSections(m), full = m.total != null, nm = nextMockNow();
+  const cats = Object.entries(m.errorCategories || {}).sort((a, b) => b[1] - a[1]);
+  const secHTML = ({ rec, res }) => {
+    if (!res) return `<section class="card"><h2>${esc(rec.section)}</h2><p class="muted">The answers of this section are not on this device.</p></section>`;
+    const an = res.an, pace = PACE[rec.section];
+    const cells = [['Score', `${rec.score}`, `range ${rec.range.join('–')}`], ['Accuracy', pct(an.correct / res.questions), `${an.correct} of ${res.questions}`], ['Avg time', an.avgTime == null ? '—' : fmtTime(an.avgTime), `real pace ${fmtTime(pace)}`],
+      ['Time used', fmtTime(rec.timeUsed), rec.timeLimit ? `of ${fmtTime(rec.timeLimit)}${rec.timeUp ? ', ran out' : ''}` : 'no clock'], ['Efficiency', an.timeEfficiency == null ? '—' : an.timeEfficiency.toFixed(2), 'expected ÷ used'],
+      ['Time lost', fmtTime(an.timeLost), 'over expected, on misses'], ['Unanswered', String(res.missing), rec.notReached ? `${rec.notReached} not reached` : 'incl. not reached'], ['Changes', String(an.changes.questionsWithChanges + (rec.editsUsed || 0)), `${an.changes.questionsWithChanges} while answering, ${rec.editsUsed || 0} at review`]];
+    return `<section class="stack"><h2>${esc(rec.section)}</h2>
+      <div class="metrics m4">${cells.map(([k, v, c]) => `<div><span class="k">${k}</span><span class="v">${v}</span><span class="fine">${esc(c)}</span></div>`).join('')}</div>
+      <div class="grid2"><div class="stack" style="gap:6px"><h3>By difficulty</h3><div class="box scroll"><table class="tbl"><thead><tr><th>Questions</th><th class="num">Right</th><th class="num">Accuracy</th></tr></thead><tbody>${an.difficulty.map(b => `<tr><td>${esc(b.label)}</td><td class="num">${b.n ? Math.round(b.acc * b.n) + '/' + b.n : '—'}</td><td class="num">${pct(b.acc)}</td></tr>`).join('')}</tbody></table></div><p class="fine">Relative to your estimated level in this section. Average question level ${levelOf(an.avgDifficulty)}.</p></div>
+        ${perfTable('By topic', an.topics, true)}${rec.section !== 'Quant' ? perfTable('By question type', an.types, true) : ''}${perfTable('By skill', an.skills, false)}</div>
+      <div class="stack" style="gap:6px"><h3>Time management</h3>${an.patterns.length ? `<ul class="alerts">${an.patterns.map(p => `<li><span class="pill ${p.severity >= 3 ? 'bad' : p.severity === 2 ? 'warn' : ''}">${{ slowType: 'Slow type', rushHard: 'Rushing', earlyOverspend: 'Early overspend', endgame: 'Endgame', accurateSlow: 'Speed', stuck: 'Stuck' }[p.id] || 'Timing'}</span><span>${esc(p.text)}</span></li>`).join('')}</ul>` : '<p class="muted">No timing pattern: time went where it should.</p>'}</div></section>`;
+  };
+  const errs = m.errors || [];
+  return `<section class="stack"><div class="row"><button class="btn small ghost" data-act="mockview" data-arg="history">← History</button><button class="btn small" data-act="mockreview" data-arg="${esc(m.id)}">Review the exam</button></div>
+      <p class="eyebrow">Examiner report · ${esc(m.modeName)} · ${fmtDate(m.date)}${m.order && m.order.length > 1 ? ' · ' + m.order.map(x => SHORT[x]).join(' → ') : ''}</p>
+      <h1>${full ? `Estimated score ${m.total} <span class="muted mono" style="font-size:16px">${m.range.join('–')}</span>` : m.sections.map(s => `${esc(s.section)} ${s.score}`).join(' · ')}</h1>
+      <p class="fine" style="max-width:75ch">${esc(SCORE_NOTE)} ${esc(percentileNote())}</p></section>
+    <section class="grid2"><div class="card stack"><h2>What the Examiner found</h2>${m.findings && m.findings.length ? `<ul class="answer">${m.findings.map(f => `<li>${esc(f)}</li>`).join('')}</ul>` : '<p class="muted">No pattern stands out in this mock.</p>'}
+        ${cats.length ? `<div class="chips">${cats.map(([c, n]) => `<span class="pill">${esc(c)} · ${n}</span>`).join('')}</div>` : ''}</div>
+      <div class="card stack"><h2>Focus for the next ${m.focusDays || 9} days</h2>${m.focus && m.focus.length ? `<ul class="answer">${m.focus.map(f => `<li><b>${esc(f.topic)}</b>: ${esc(f.why)} <button class="linkbtn" data-act="startsmart" data-arg="learn|${esc(f.topic)}|6">Practise</button></li>`).join('')}</ul><p class="fine">These topics now weigh more in Today’s plan and in coach sets, and weakness-based mocks aim at them.</p>` : '<p class="muted">No focus topic: no miss stood out from your usual level.</p>'}</div></section>
+    ${secs.map(secHTML).join('')}
+    <section class="stack"><h2>Every error, explained</h2>${errs.length ? `<p class="muted">Open any miss for what happened, why, the skill behind it, whether it repeats, how to fix it and the next exercise.</p>` + m.sections.map(s => { const l = errs.filter(e => e.section === s.section); return l.length ? `<h3>${esc(s.section)} · ${l.length} miss${l.length > 1 ? 'es' : ''}</h3><ul class="errs">${l.map(e => errorCardHTML(e, true)).join('')}</ul>` : ''; }).join('') : '<p class="muted">No wrong answers.</p>'}
+      <p class="fine">The category comes from the wrong option you chose (each one maps to a typical mistake), your time on the question and your record on the topic. Correct it in the guided review if the cause was different.</p></section>
+    <section class="grid2">${nextMockCard(nm)}</section>`;
+}
+/* Review Exam: every question with your answer, the right one, time and changes; open any one for the solution. */
+function mockReviewView(m){
+  const secs = mockSections(m), sel = S.ui.reviewQ, errs = m.errors || [];
+  const rowHTML = (a, i, q) => `<tr><td class="num">${i + 1}</td><td>${esc(a.topic)}</td><td>${esc(a.type)}</td><td class="num">${a.difficulty || '—'}</td><td class="mono">${esc(q ? answerText(q, a.answer) : '—')}</td><td class="mono">${esc(q ? correctText(q) : '—')}</td>
+    <td>${a.unanswered ? '<span class="res-skip">Unanswered</span>' : a.correct ? '<span class="res-ok">✓ Right</span>' : '<span class="res-no">✗ Wrong</span>'}${a.bookmarked ? ' <span class="pill">bookmarked</span>' : ''}${a.edited ? ' <span class="pill">changed at review</span>' : ''}</td>
+    <td class="num">${fmtTime(a.timeSec)}</td><td class="num">${fmtTime(a.expectedSec)}</td><td class="num">${a.changes || 0}</td><td>${q ? `<button class="linkbtn" data-act="reviewq" data-arg="${esc(a.qid)}">${sel === a.qid ? 'Hide' : 'Open'}</button>` : ''}</td></tr>`;
+  const panel = (a, i, q) => {
+    const e = errs.find(x => x.qid === a.qid);
+    return `<div class="card stack" id="rq"><p class="eyebrow">Question ${i + 1} · ${esc(a.topic)} · level ${a.difficulty || '—'} · ${fmtTime(a.timeSec)} (expected ${fmtTime(a.expectedSec)})</p>
+      ${qBody(q, a.answer, { locked: true, reveal: true, userAns: a.answer, userLabel: 'Your answer' })}
+      ${a.events && a.events.length > 1 ? `<p class="fine">Your answers on screen: ${a.events.map(([t, v]) => `${esc(answerText(q, v))} at ${fmtTime(t)}`).join(' → ')}.</p>` : ''}
+      ${a.edited && a.changedFrom != null ? `<p class="fine">Changed at review from ${esc(answerText(q, a.changedFrom))} to ${esc(answerText(q, a.answer))}.</p>` : ''}
+      ${!a.correct && !a.unanswered ? diagnosisHTML(diagnose(q, a.answer)) : ''}${e ? `<ul class="errs">${errorCardHTML(e, false)}</ul>` : ''}
+      ${solutionHTML(q)}</div>`;
+  };
+  return `<section class="stack"><div class="row"><button class="btn small ghost" data-act="mockview" data-arg="history">← History</button><button class="btn small" data-act="mockreport" data-arg="${esc(m.id)}">Examiner report</button></div>
+      <p class="eyebrow">Review · ${esc(m.modeName)} · ${fmtDate(m.date)}</p><h1>Review the exam</h1>
+      <p class="muted" style="max-width:75ch">Every question in the order you saw it. Open one to see it with the right answer, why your option was tempting and the full solution. The guided review makes you retry each miss before any answer is shown, and logs the error with a retest.</p></section>
+    ${secs.map(({ rec, ses }) => {
+      if (!ses) return `<section class="card"><h2>${esc(rec.section)}</h2><p class="muted">The answers of this section are not on this device.</p></section>`;
+      const at = ses.attempts || [], open = at.findIndex(a => a.qid === sel);
+      return `<section class="stack"><div class="row" style="justify-content:space-between"><h2>${esc(rec.section)} · ${rec.score}</h2>${at.some(a => !a.correct) ? `<button class="btn small primary" data-act="openResults" data-arg="${esc(ses.id)}">${ses.reviewed ? 'Guided review (done)' : 'Guided review of the misses'}</button>` : ''}</div>
+        <div class="box scroll"><table class="tbl"><thead><tr><th class="num">#</th><th>Topic</th><th>Type</th><th class="num">Level</th><th>Your answer</th><th>Right answer</th><th>Result</th><th class="num">Time</th><th class="num">Expected</th><th class="num">Changes</th><th></th></tr></thead><tbody>
+          ${at.map((a, i) => rowHTML(a, i, S.bank[a.qid])).join('')}${rec.notReached ? `<tr><td colspan="11" class="fine">${rec.notReached} question${rec.notReached > 1 ? 's' : ''} not reached before time ran out: counted as wrong.</td></tr>` : ''}
+        </tbody></table></div>${open >= 0 && S.bank[sel] ? panel(at[open], open, S.bank[sel]) : ''}</section>`;
+    }).join('')}`;
 }
 VIEWS.profile = function(){
   const iv = interview();
@@ -1063,8 +1415,8 @@ const ACTIONS = {
   restartBlock(el){ for (const s of diagSessions(el.dataset.arg).filter(s => s.status === 'active')) write('sessions/' + s.id, 'update', { status:'abandoned' }); startBlock(el.dataset.arg); },
   openResults(el){ openResults(el.dataset.arg); },
   startRetests(el){ const k = +(el && el.dataset.arg || 0); let qids = dueErrors().map(e => e.qid); if (k > 0) qids = qids.slice(0, k); if (qids.length) startLearn(qids, 'Retests', 'retest'); },
-  pick(el){ const t = curTarget(); if (!t) return; const i = +el.dataset.i; t.set(i); $$('[data-act="pick"]', el.closest('.choices')).forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.i === i))); syncReady(); },
-  pickpart(el){ const t = curTarget(); if (!t) return; const p = +el.dataset.p, i = +el.dataset.i; const v = Array.isArray(t.get()) ? [...t.get()] : t.q.parts.map(() => null); v[p] = i; t.set(v); $$(`[data-act="pickpart"][data-p="${p}"]`).forEach(b => { const on = +b.dataset.i === i; b.setAttribute('aria-pressed', String(on)); b.textContent = on ? '●' : '○'; }); syncReady(); },
+  pick(el){ const t = curTarget(); if (!t) return; const i = +el.dataset.i, before = clone(t.get()); t.set(i); noteAnswer(t, before); $$('[data-act="pick"]', el.closest('.choices')).forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.i === i))); syncReady(); },
+  pickpart(el){ const t = curTarget(); if (!t) return; const p = +el.dataset.p, i = +el.dataset.i, before = clone(t.get()); const v = Array.isArray(t.get()) ? [...t.get()] : t.q.parts.map(() => null); v[p] = i; t.set(v); noteAnswer(t, before); $$(`[data-act="pickpart"][data-p="${p}"]`).forEach(b => { const on = +b.dataset.i === i; b.setAttribute('aria-pressed', String(on)); b.textContent = on ? '●' : '○'; }); syncReady(); },
   conf(el){ const q = curTarget().q; const r = S.run; r.answers[q.id] = r.answers[q.id] || {}; r.answers[q.id].confidence = +el.dataset.v; $$('button', el.parentElement).forEach(b => b.setAttribute('aria-pressed', String(b === el))); syncReady(); },
   bookmark(el){ const r = S.run; const q = curQ(); const a = r.answers[q.id] = r.answers[q.id] || {}; a.bookmarked = !a.bookmarked; el.setAttribute('aria-pressed', String(a.bookmarked)); el.textContent = a.bookmarked ? 'Bookmarked' : 'Bookmark'; },
   toggleclock(){ S.ui.clockHidden = !S.ui.clockHidden; tick(); },
@@ -1078,7 +1430,7 @@ const ACTIONS = {
     if (JSON.stringify(a.answer) !== JSON.stringify(r.editDraft) && r.editsUsed < 3){ if (!a.edited) a.changedFrom = clone(a.answer); a.answer = clone(r.editDraft); a.edited = true; r.editsUsed++; toast(`Answer changed. ${3 - r.editsUsed} change${3 - r.editsUsed === 1 ? '' : 's'} left.`); }
     stampTime(); r.phase = 'review'; saveDraft(); render(); },
   reviewstart(){ const r = S.run; const list = buildDebrief(r.attempts, r.reviewedQids); if (!list.length) return; r.debrief = newDebrief(list); r.phase = 'debrief'; S.ui.msrTab = 0; render(); window.scrollTo(0,0); },
-  closeresults(){ const r = S.run; if (!buildDebrief(r.attempts, r.reviewedQids).length) write('sessions/' + r.id, 'update', { reviewed:true }); endRun(r.kind === 'diagnostic' ? 'diagnostic' : 'today'); },
+  closeresults(){ const r = S.run; if (!buildDebrief(r.attempts, r.reviewedQids).length) write('sessions/' + r.id, 'update', { reviewed:true }); endRun(r.kind === 'diagnostic' ? 'diagnostic' : r.kind === 'exam' ? 'mocks' : 'today'); },
   dcheck(){ const d = S.run.debrief; const q = curTarget().q; d.tries++;
     if (isCorrect(q, d.retry)){ d.solved = true; d.msg = { kind:'good', text:`Correct on retry${d.hints ? `, after ${d.hints} hint${d.hints > 1 ? 's' : ''}` : ''}. Now log why the first attempt went wrong.` }; }
     else { d.msg = { kind:'bad', text: d.tries > 1 ? 'Still not correct. Take the next hint.' : 'Still not correct. Try another angle or take a hint.' }; d.retry = null; }
@@ -1096,7 +1448,7 @@ const ACTIONS = {
   lnext(){ learnAdvance(); },
   lend(){ const r = S.run; if (r.phase === 'learn' && r.sub === 'answer'){ r.phase = 'done'; r.closed = true; stopTicker(); write('sessions/' + r.id, 'update', { status:'done', end:new Date().toISOString(), durationSec: Math.round((Date.now() - r.started)/1000) }); render(); } else learnAdvanceEnd(); },
   closedone(){ endRun('today'); },
-  msrtab(el){ const q = curTarget().q; const t = +el.dataset.t; S.ui.msrTab = t; $$('[data-act="msrtab"]').forEach(b => b.setAttribute('aria-selected', String(+b.dataset.t === t))); const body = $('#msr-body'); if (body) body.innerHTML = rich(q.tabs[t].body); },
+  msrtab(el){ const ct = curTarget(), q = ct ? ct.q : S.bank[S.ui.reviewQ]; if (!q) return; const t = +el.dataset.t; S.ui.msrTab = t; $$('[data-act="msrtab"]').forEach(b => b.setAttribute('aria-selected', String(+b.dataset.t === t))); const body = $('#msr-body'); if (body) body.innerHTML = rich(q.tabs[t].body); },
   sort(el){ const id = el.dataset.q, c = +el.dataset.c; const st = S.ui.sort[id] || { c:null, dir:1 }; S.ui.sort[id] = st.c === c ? { c, dir: -st.dir } : { c, dir: 1 }; const box = $(`.ta[data-q="${id}"]`); if (box) box.outerHTML = tableHTML(S.bank[id]); },
   startpractice(){ const P = S.ui.practice; const seen = new Set(attemptsAll().map(a => a.qid));
     let pool = practicePool().filter(q => (!P.section || q.section === P.section) && (!P.topic || q.topic === P.topic) && (!P.diff || String(q.difficulty) === P.diff || (P.diff === '5' && q.difficulty >= 5)) && (!P.unseen || !seen.has(q.id)));
@@ -1112,7 +1464,7 @@ const ACTIONS = {
     else startLearn(pool.map(q => q.id), label, 'practice'); },
   report(){ const b = $('#report-box'); if (b) b.hidden = false; },
   reportcancel(){ const b = $('#report-box'); if (b) b.hidden = true; },
-  async reportsend(){ const q = curTarget().q; const note = ($('#report-note') || {}).value || ''; const ok = await write('bank/' + q.id, 'update', { flagged:true, flagNote: note.trim(), flaggedAt: new Date().toISOString() }); if (ok){ toast('Reported. Claude will check this question.'); const b = $('#report-box'); if (b) b.hidden = true; } },
+  async reportsend(){ const ct = curTarget(), q = ct ? ct.q : S.bank[S.ui.reviewQ]; if (!q) return; const note = ($('#report-note') || {}).value || ''; const ok = await write('bank/' + q.id, 'update', { flagged:true, flagNote: note.trim(), flaggedAt: new Date().toISOString() }); if (ok){ toast('Reported. Claude will check this question.'); const b = $('#report-box'); if (b) b.hidden = true; } },
   mockdel(el){ S.ui.delMock = el.dataset.arg; render(); },
   mockdelno(){ S.ui.delMock = null; render(); },
   mockdelok(el){ write('mocks/' + el.dataset.arg, 'delete'); S.ui.delMock = null; render(); toast('Mock removed.'); },
@@ -1120,10 +1472,14 @@ const ACTIONS = {
   coachq(el){ S.ui.coachQ = el.dataset.v; render(); },
   startsmart(el){ const [mode, topic, n] = el.dataset.arg.split('|'); startSmart(mode, +n, { topic: topic || null }); },
   startsmartform(){ const P = S.ui.practice; startSmart(P.mode === 'timed' ? 'timed' : 'learn', +P.count, { section: P.section || null, topic: P.topic || null }); },
-  startexam(){ startExam(); },
+  startmock(el){ startMock(el.dataset.arg); },
   examnext(){ examNext(); },
-  exambreak(){ const r = S.run; S.exam.breakUsed = true; r.phase = 'break'; r.breakEnds = Date.now() + 10 * 60000; startTicker(); render(); window.scrollTo(0,0); },
-  examclose(){ S.exam = null; endRun('mocks'); },
+  exambreak(){ const r = S.run; S.exam.breakUsed = true; r.phase = 'break'; r.breakEnds = Date.now() + SPEC.navigationRules.breaks.minutes * 60000; startTicker(); render(); window.scrollTo(0,0); },
+  examclose(){ S.exam = null; S.ui.mockView = 'history'; endRun('mocks'); },
+  mockview(el){ S.ui.mockView = el.dataset.arg; S.ui.reviewQ = null; render(); window.scrollTo(0,0); },
+  mockreport(el){ openMockPage('report', el.dataset.arg); },
+  mockreview(el){ openMockPage('review', el.dataset.arg); },
+  reviewq(el){ S.ui.reviewQ = S.ui.reviewQ === el.dataset.arg ? null : el.dataset.arg; S.ui.msrTab = 0; render(); const n = $('#rq'); if (n) n.scrollIntoView({ block:'start' }); },
   exportdata(){ downloadJSON(GMATStore.exportData(), `gmat-lab-backup-${today()}.json`); },
   importpick(){ const i = $('#import-file'); if (i) i.click(); },
   erase(){ S.ui.erase = true; render(); },
@@ -1132,6 +1488,11 @@ const ACTIONS = {
   async syncnow(){ S.ui.dirty = false; await GMATStore.sync.now(); const st = GMATStore.sync.status(); toast(st.status === 'ok' ? 'Synced with GitHub.' : syncErrText(st.error)); render(); },
   syncoff(){ GMATStore.sync.disable(); S.ui.dirty = false; render(); toast('Sync turned off. Progress stays in this browser.'); },
 };
+function openMockPage(view, id){
+  S.ui.mockView = view; S.ui.mockId = id; S.ui.reviewQ = null;
+  if (S.run){ S.exam = null; endRun('mocks'); return; }
+  S.tab = 'mocks'; try { history.replaceState(null, '', '#mocks'); } catch(e){} render(); window.scrollTo(0,0);
+}
 function learnAdvanceEnd(){ const r = S.run; if (r.adaptive) r.adaptive.n = r.qids.length; r.idx = r.qids.length - 1; learnAdvance(); }
 const SUBMITS = {
   async studylog(f){ const min = Number($('#sl-min').value), date = $('#sl-date').value || today(), note = $('#sl-note').value.trim();
@@ -1142,7 +1503,7 @@ const SUBMITS = {
   async mock(f){ const total = Number($('#m-total').value);
     if (!total || total < 205 || total > 805 || total % 10 !== 5){ toast('Totals run from 205 to 805 and end in 5.'); return; }
     const sec = id => { const v = Number($(id).value); return v >= 60 && v <= 90 ? v : null; };
-    const ok = await write('mocks/' + uid('m'), 'set', { date: $('#m-date').value || today(), name: $('#m-name').value, total, quant: sec('#m-q'), verbal: sec('#m-v'), di: sec('#m-di'), notes: $('#m-notes').value.trim() });
+    const ok = await write('mocks/' + uid('m'), 'set', { kind:'logged', date: $('#m-date').value || today(), name: $('#m-name').value, total, quant: sec('#m-q'), verbal: sec('#m-v'), di: sec('#m-di'), notes: $('#m-notes').value.trim() });
     if (ok){ toast('Mock saved.'); S.ui.dirty = false; render(); } },
   async interview(f){
     const g = id => ($(id) || {}).value || '';
@@ -1174,7 +1535,7 @@ document.addEventListener('click', e => {
 document.addEventListener('change', e => {
   const el = e.target;
   if (el.id === 'import-file'){ importFile(el); return; }
-  if (el.matches('select[data-p]')){ const t = curTarget(); if (!t) return; const p = +el.dataset.p; const v = Array.isArray(t.get()) ? [...t.get()] : t.q.parts.map(() => null); v[p] = el.value === '' ? null : +el.value; t.set(v); syncReady(); return; }
+  if (el.matches('select[data-p]')){ const t = curTarget(); if (!t) return; const p = +el.dataset.p, before = clone(t.get()); const v = Array.isArray(t.get()) ? [...t.get()] : t.q.parts.map(() => null); v[p] = el.value === '' ? null : +el.value; t.set(v); noteAnswer(t, before); syncReady(); return; }
   if (el.dataset.ui){ const [grp, key] = el.dataset.ui.split('.'); S.ui[grp] = S.ui[grp] || {}; S.ui[grp][key] = el.type === 'checkbox' ? el.checked : el.value;
     if (grp === 'practice' && key === 'section') S.ui.practice.topic = '';
     render(); }

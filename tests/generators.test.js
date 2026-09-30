@@ -283,26 +283,61 @@ test('two-part, table, chart and multi-source answers check out', () => {
     let pairs = 0; for (const a of q.parts[0].options) for (const b of q.parts[1].options) if (hp * a + hq * b === H && pp * a + pq * b === M) pairs++;
     assert.equal(pairs, 1, `${q.id}: exactly one consistent pair`);
   }
-  for (const q of all('gibars', 20)){
-    const v = q.chart.values, L = q.chart.labels, [p1, p2] = q.parts;
-    const [, b, a] = p1.label.match(/value for (.+?) was greater than the value for (.+?) by/);
-    const ch = 100 * (v[L.indexOf(b)] - v[L.indexOf(a)]) / v[L.indexOf(a)];
-    assert.ok(Math.abs(+p1.options[p1.answer].replace('%', '') - ch) <= 0.5 + 1e-9, q.id);
-    const k = L.indexOf(p2.label.split(' accounted')[0]), sh = 100 * v[k] / v.reduce((s, x) => s + x, 0);
-    assert.ok(Math.abs(+p2.options[p2.answer].replace('%', '') - sh) <= 0.5 + 1e-9, q.id);
+  for (const q of all('gibars', 25)){
+    const v = q.chart.values, L = q.chart.labels, tot = v.reduce((s, x) => s + x, 0), mean = tot / v.length;
+    for (const p of q.parts){
+      const got = +p.options[p.answer].replace('%', ''); let want, tol = 0.5 + 1e-9, m;
+      if ((m = /value for (.+?) was greater than the value for (.+?) by/.exec(p.label))) want = 100 * (v[L.indexOf(m[1])] - v[L.indexOf(m[2])]) / v[L.indexOf(m[2])];
+      else if (/accounted for/.test(p.label)) want = 100 * v[L.indexOf(p.label.split(' accounted')[0])] / tot;
+      else if (/times the smallest/.test(p.label)){ want = Math.max(...v) / Math.min(...v); tol = 0.05 + 1e-9; }
+      else if (/average of the \d+ values/.test(p.label)) want = mean;
+      else if (/number of bars above the average/.test(p.label)){ want = v.filter(x => x > mean).length; tol = 0; }
+      else assert.fail('unknown statement ' + p.label);
+      assert.ok(Math.abs(got - want) <= tol, `${q.id}: ${p.label} ${got} vs ${want}`);
+      // the keyed option is the closest one
+      const vals = p.options.map(o => +o.replace('%', ''));
+      assert.ok(vals.every(x => Math.abs(x - want) >= Math.abs(got - want) - 1e-9), `${q.id}: a closer option exists`);
+    }
     assert.ok(q.chart.max >= Math.max(...v), q.id);
   }
-  for (const q of all('tastore', 20)) for (const p of q.parts){
-    const rows = q.table.rows, rev = rows.map(r => r[2]), emp = rows.map(r => r[3]), gr = rows.map(r => r[4]); let t, m;
-    const sum = a => a.reduce((s, x) => s + x, 0), s = rev.slice().sort((a, b) => a - b);
-    if (/highest revenue per employee/.test(p.label)){ const r = rev.map((x, i) => x / emp[i]); t = r.indexOf(Math.max(...r)) === gr.indexOf(Math.max(...gr)); }
-    else if ((m = /median revenue .+? greater than \$([\d,]+),000/.exec(p.label))) t = (s[2] + s[3]) / 2 > N(m[1]);
-    else if ((m = /^The (\w+) stores together/.exec(p.label))) t = sum(rev.filter((_, i) => rows[i][1] === m[1])) > sum(rev) / 2;
-    else if ((m = /^At least (\d+) of the stores/.exec(p.label))) t = rev.filter(x => x > sum(rev) / 6).length >= +m[1];
-    else if ((m = /employees per store is greater than (\d+)/.exec(p.label))) t = sum(emp) / 6 > +m[1];
-    else if ((m = /growth above (\d+)% has more than (\d+) employees/.exec(p.label))) t = rows.every((r, i) => !(gr[i] > +m[1]) || emp[i] > +m[2]);
+  for (const q of all('tastore', 25)) for (const p of q.parts){
+    const rows = q.table.rows, cols = q.table.columns.map(c => c.toLowerCase());
+    const col = w => { const i = cols.findIndex(c => c.startsWith(w.replace(/^number of /, ''))); assert.ok(i >= 2, `${q.id}: no column for "${w}"`); return rows.map(r => r[i]); };
+    const sum = a => a.reduce((s, x) => s + x, 0); let t, m;
+    if ((m = /^The \w+ with the highest (.+?) per (\w+) also has the highest (.+)\.$/.exec(p.label))){ const a = col(m[1]), b = col(m[2] + 's'), c = col(m[3]); const r = a.map((x, i) => x / b[i]); t = r.indexOf(Math.max(...r)) === c.indexOf(Math.max(...c)); }
+    else if ((m = /^The median (.+?) of the six \w+ is greater than (\$)?([\d,]+?)(,000)?\.$/.exec(p.label))){ const s = col(m[1]).slice().sort((a, b) => a - b); t = (s[2] + s[3]) / 2 > (m[2] ? N(m[3]) : N(m[3] + (m[4] || ''))); }
+    else if ((m = /^The (\w+) \w+ together account for more than half of the total (.+?) of the six/.exec(p.label))){ const a = col(m[2]); t = sum(a.filter((_, i) => rows[i][1] === m[1])) > sum(a) / 2; }
+    else if ((m = /^At least (\d+) of the \w+ have (?:more )?(.+?) (?:above|than) the average/.exec(p.label))){ const a = col(m[2]); t = a.filter(x => x > sum(a) / 6).length >= +m[1]; }
+    else if ((m = /^The average number of (\w+) per \w+ is greater than (\d+)\.$/.exec(p.label))) t = sum(col(m[1])) / 6 > +m[2];
+    else if ((m = /^Every \w+ with (.+?) above (\d+)(?:%| points) has more than (\d+) (\w+)\.$/.exec(p.label))){ const c = col(m[1]), e = col(m[4]); t = rows.every((r, i) => !(c[i] > +m[2]) || e[i] > +m[3]); }
     else assert.fail('unknown statement ' + p.label);
     assert.equal(p.answer, t ? 0 : 1, `${q.id}: ${p.label}`);
+  }
+  for (const q of all('tparange', 25)){
+    const S = +q.stem.match(/x \+ y = (\d+)/)[1], conds = [];
+    let m;
+    if ((m = /x − y is greater than (\d+)/.exec(q.stem))) conds.push((x, y) => x - y > +m[1]);
+    if (/x is more than twice y/.test(q.stem)) conds.push((x, y) => x > 2 * y);
+    const ym = /y is at least (\d+)/.exec(q.stem); if (ym) conds.push((x, y) => y >= +ym[1]);
+    const mq = /x is a multiple of (\d+)/.exec(q.stem); if (mq) conds.push(x => x % +mq[1] === 0);
+    const ok = []; for (let y = 1; y < S; y++) if (conds.every(f => f(S - y, y))) ok.push([S - y, y]);
+    assert.equal(+q.parts[0].options[q.parts[0].answer], Math.min(...ok.map(p => p[0])), q.id);
+    assert.equal(+q.parts[1].options[q.parts[1].answer], Math.max(...ok.map(p => p[1])), q.id);
+  }
+  for (const q of all('msrstaff', 25)){
+    const p = +q.tabs[0].body.match(/at most (\d+) patients\. A trainee/)[1], tp = +q.tabs[0].body.match(/trainee nurse may care for at most (\d+)/)[1];
+    const [cn, ct] = [...q.tabs[2].body.matchAll(/\$([\d,]+) per shift/g)].map(x => N(x[1]));
+    const wards = Object.fromEntries([...q.tabs[1].body.matchAll(/Ward (\w+): (\d+) patients per shift; (\d+) nurses and (\d+) trainees?/g)].map(x => [x[1], { pts: +x[2], n: +x[3], t: +x[4] }]));
+    const cap = w => w.n * p + w.t * tp, short = w => Math.max(0, w.pts - cap(w));
+    for (const part of q.parts){
+      let t, m;
+      if ((m = /^Ward (\w+) is adequately staffed/.exec(part.label))) t = cap(wards[m[1]]) >= wards[m[1]].pts;
+      else if ((m = /at least (\d+) more nurses are needed/.exec(part.label))) t = Object.values(wards).reduce((s, w) => s + Math.ceil(short(w) / p), 0) >= +m[1];
+      else if (/with trainees instead of nurses would cost less/.test(part.label)) t = Object.values(wards).reduce((s, w) => s + Math.ceil(short(w) / tp), 0) * ct < Object.values(wards).reduce((s, w) => s + Math.ceil(short(w) / p), 0) * cn;
+      else if ((m = /patients on Ward (\w+) rose by (\d+)%/.exec(part.label))) t = cap(wards[m[1]]) >= Math.ceil(wards[m[1]].pts * (1 + +m[2] / 100) - 1e-9);
+      else assert.fail('unknown statement ' + part.label);
+      assert.equal(part.answer, t ? 0 : 1, `${q.id}: ${part.label}`);
+    }
   }
   for (const q of all('msrship', 20)){
     const rule = q.tabs[0].body, base = N(rule.match(/costs \$([\d.]+) for/)[1]), inc = +rule.match(/up to (\d+) kg/)[1], per = N(rule.match(/plus \$([\d.]+) for each/)[1]), ex = +rule.match(/costs (\d+)% more/)[1];

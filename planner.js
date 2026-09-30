@@ -27,11 +27,13 @@ function claudeFocus(ctx){
   if (!p || !Array.isArray(p.focus) || !p.updatedAt || daysBetween(String(p.updatedAt).slice(0, 10), ctx.today) > 9) return [];
   return p.focus.map(f => f && f.topic).filter(Boolean);
 }
+/* Topics the Examiner flagged after the last mock (app.js keeps them for the mock's focus period). */
+const examinerFocus = ctx => Array.isArray(ctx.examinerFocus) ? ctx.examinerFocus : [];
 
 /* Every topic with a weight: higher = needs more work now. Strong topics keep a small weight so they stay sharp. */
 function topicWeights(ctx){
   const recentCut = addDays(ctx.today, -14);
-  const focus = new Set(claudeFocus(ctx));
+  const focus = new Set(claudeFocus(ctx)), exf = new Set(examinerFocus(ctx));
   return ctx.topics.map(t => {
     const qs = ctx.pool.filter(q => q.topic === t.topic);
     let recentErr = 0;
@@ -44,7 +46,8 @@ function topicWeights(ctx){
     if (slow) weight += 0.15;
     if (stale) weight += 0.25;
     if (focus.has(t.topic)) weight += 0.3;
-    return { ...t, weight, recentErr, slow, stale, staleDays, claudeFocus: focus.has(t.topic), available: qs.length, unseen: qs.filter(q => !q.seen).length };
+    if (exf.has(t.topic)) weight += 0.3;
+    return { ...t, weight, recentErr, slow, stale, staleDays, claudeFocus: focus.has(t.topic), examinerFocus: exf.has(t.topic), available: qs.length, unseen: qs.filter(q => !q.seen).length };
   }).sort((a, b) => b.weight - a.weight || a.topic.localeCompare(b.topic));
 }
 
@@ -55,12 +58,13 @@ function reason(t){
   if (t.slow) parts.push(`${t.ratio.toFixed(1)}× the expected time`);
   if (t.stale) parts.push(`strong, but not seen for ${t.staleDays} days`);
   if (t.claudeFocus) parts.push('in Claude’s focus for this week');
+  if (t.examinerFocus) parts.push('in the Examiner’s focus after your last mock');
   return cap(parts.join(', ')) + '.';
 }
 
 /* A topic needs work when accuracy is low, errors are recent, it is slow, it is going stale, or Claude flagged it.
    "Developing" with high accuracy only means few questions so far. */
-const needsWork = t => t.status <= 2 || (t.status === 3 && (t.acc == null || t.acc < 0.8)) || t.recentErr > 0 || t.slow || t.stale || t.claudeFocus;
+const needsWork = t => t.status <= 2 || (t.status === 3 && (t.acc == null || t.acc < 0.8)) || t.recentErr > 0 || t.slow || t.stale || t.claudeFocus || t.examinerFocus;
 
 const targetDifficulty = status => status <= 2 ? 3 : status === 3 ? 4 : 5;
 
@@ -96,8 +100,6 @@ function pickSet(ctx, n, opts){
    Like the real GMAT Focus, difficulty moves question by question: up after a right answer, down after a wrong one.
    Exam mode balances content the way a test does (no weakness weighting, topics spread out); practice mode leans
    toward weak topics and, after a miss, often stays on the same topic. Reading passages keep their questions together. */
-const EXAM_COUNTS = { 'Quant': 21, 'Verbal': 23, 'Data Insights': 20 };
-const EXAM_MINUTES = 45;
 function levelAfter(level, res){
   if (!res) return level;
   if (res.unanswered || !res.correct) return clamp(level - 0.75, 1.5, 6);
@@ -133,10 +135,6 @@ function nextAdaptive(ctx, st, opts){
   for (let i = 0; i < src.length; i++){ if (r < ws[i]) return src[i].id; r -= ws[i]; }
   return src[src.length - 1].id;
 }
-/* Unseen questions per section against what a simulation needs. */
-function examReadiness(ctx, sections){
-  return sections.map(section => { const have = ctx.pool.filter(q => q.section === section && !q.seen).length; const need = EXAM_COUNTS[section]; return { section, have, need, ok: have >= need }; });
-}
 
 /* Today's plan within the minutes available. Order: interview, unfinished review, diagnostic, retests,
    weakest topic (learn mode), then a timed mixed set with what is left. */
@@ -171,12 +169,24 @@ function plan(ctx){
     add({ id:'analyse', title:'Ask Claude to analyse your diagnostic', why:'Write “analizza il diagnostic” to Claude, with GitHub sync on (or attach a backup). Claude builds your profile, your plan and new questions on your weak topics.', minutes:0 });
   else if (ctx.diagnosticDone && !ctx.pool.some(q => !q.seen))
     add({ id:'more', title:'You have seen every practice question', why:'Write “nuove domande” to Claude, or wait for tomorrow morning’s review: it adds questions on your weak topics.', minutes:0 });
-  const mr = mockReadiness(ctx);
+  const mr = mockReadiness(ctx), fm = fullMockItem(ctx, mr);
   const lastMock = ctx.mocks.map(m => m.date).sort().pop();
-  if (mr.ready && (!lastMock || daysBetween(lastMock, ctx.today) >= 14))
+  if (fm) add(fm);
+  else if (mr.ready && (!lastMock || daysBetween(lastMock, ctx.today) >= 14))
     add({ id:'mock', title:'Plan an official practice exam this week', why:'Your timed numbers are steady enough for a full mock to be informative. Log the result in Mocks.', minutes:0 });
   if (!items.length) add({ id:'rest', title:'Nothing urgent today', why:'No reviews, retests or unseen questions are waiting. Rest, or read the Official Guide chapter for your weakest topic.', minutes:0 });
   return { minutes: M, used: M - Math.max(0, left), items };
+}
+
+/* A full GMAT Lab mock, when the Examiner recommends one (ctx.nextMock) and every section has enough unseen questions.
+   The first one waits until the timed numbers are steady (mockReadiness). */
+function fullMockItem(ctx, mr){
+  const nm = ctx.diagnosticDone ? ctx.nextMock : null;
+  if (!nm || !(nm.lastFull ? nm.ready : mr.ready) || !ctx.mockPoolReady) return null;
+  const why = !nm.lastFull ? 'Your timed numbers are steady enough: a full adaptive mock gives you an estimated score and the Examiner’s report. About 2 h 15 min, plus an optional break.'
+    : nm.overdue ? `${nm.days} days since your last full mock: time for a new measurement, about 2 h 15 min.`
+    : `All ${nm.checks.length} of the Examiner’s checks are met, ${nm.days} days after your last full mock: a new one will measure real progress.`;
+  return { id:'fullmock', title: nm.lastFull ? 'Take a full mock this week' : 'Take your first full mock this week', why, minutes:0, act:'tab', arg:'mocks' };
 }
 
 /* ------------------------------------------------------------------ analysis */
@@ -285,15 +295,25 @@ function answer(ctx, key){
     }
   }
   if (key === 'mock'){
-    const mr = mockReadiness(ctx);
-    L.push(mr.ready ? 'Yes: a full official practice exam would be informative now.' : 'Not yet. A mock is most useful when these are true:');
+    const mr = mockReadiness(ctx), nm = ctx.nextMock;
+    if (nm && nm.lastFull){
+      L.push(nm.ready ? `GMAT Lab full mock: yes${nm.overdue ? `, ${nm.days} days have passed since the last one` : ''}.` : 'GMAT Lab full mock: not yet. The Examiner checks:');
+      for (const c of nm.checks) L.push(`${c.pass ? '✓' : '✗'} ${c.label}`);
+    }
+    L.push(mr.ready ? `${nm && nm.lastFull ? 'Official practice exam' : 'A full mock'}: yes, one would be informative now.` : `${nm && nm.lastFull ? 'Official practice exam' : 'A full mock'}: not yet. It is most useful when these are true:`);
     for (const c of mr.checks) L.push(`${c.ok ? '✓' : '✗'} ${c.text}`);
     L.push('These thresholds are GMAT Lab’s rule of thumb, not an official standard.');
   }
   if (key === 'level'){
     const official = ctx.mocks.filter(m => /official/i.test(m.name || '')).sort((a, b) => String(a.date).localeCompare(String(b.date))).pop();
-    L.push('GMAT Lab does not turn its own questions into a GMAT score: there are too few of them and they are not calibrated on real test takers, so any number would be a guess.');
-    L.push(official ? `Your best estimate is your latest official practice exam: ${official.total} (${official.name}, ${official.date}).` : 'Your first real estimate will come from an official practice exam.');
+    const est = ctx.ability && ctx.ability.estimate;
+    if (est && est.total != null){
+      L.push(`GMAT Lab estimate: about ${est.total} (range ${est.range[0]}–${est.range[1]}), from ${plural(ctx.ability.n, 'answer')}; confidence ${ctx.ability.confidence}.`);
+      L.push('By section: ' + est.sections.map(s => `${s.section} ${s.score} (${s.range[0]}–${s.range[1]})`).join(', ') + '.');
+    } else if (est) L.push(`No score estimate yet: ${est.note ? est.note.charAt(0).toLowerCase() + est.note.slice(1) : 'it needs answers in every section.'}`);
+    if (ctx.latestSim) L.push(`Latest full GMAT Lab mock: ${ctx.latestSim.total} (range ${ctx.latestSim.range[0]}–${ctx.latestSim.range[1]}, ${ctx.latestSim.date}).`);
+    L.push('These are estimates, not a GMAT score: GMAC does not publish its scoring, and GMAT Lab’s questions are not calibrated on real test takers.');
+    L.push(official ? `Your most reliable number is your latest official practice exam: ${official.total} (${official.name}, ${official.date}).` : 'An official practice exam gives the most reliable number.');
     for (const s of sectionStats(ctx)) if (s.n) L.push(`${s.section}: ${pct(s.acc)} right in ${plural(s.n, 'question')}${s.hardN ? `; ${pct(s.hardAcc)} at level 4+ (${s.hardN})` : ''}.`);
     if (!n) L.push('No answers yet: start with the diagnostic.');
   }
@@ -305,7 +325,7 @@ function answer(ctx, key){
   return { title: (QUESTIONS.find(q => q[0] === key) || [key, key])[1], lines: L };
 }
 
-const api = { topicWeights, pickSet, plan, answer, QUESTIONS, mockReadiness, trend, errorStats, weekSplit, reason, levelAfter, startLevel, nextAdaptive, examReadiness, EXAM_COUNTS, EXAM_MINUTES };
+const api = { topicWeights, pickSet, plan, answer, QUESTIONS, mockReadiness, trend, errorStats, weekSplit, reason, levelAfter, startLevel, nextAdaptive };
 root.GMATPlanner = api;
 if (typeof module === 'object' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

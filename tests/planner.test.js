@@ -89,7 +89,9 @@ test('mock readiness needs every check; the level answer never invents a score',
   const attempts = Array.from({ length: 70 }, (_, i) => ({ timed: true, correct: i % 4 !== 0, unanswered: false, timeSec: 110, expectedSec: 120, at: '2026-10-10T10:00:00Z', section: 'Quant', topic: 'Percents' }));
   assert.equal(P.mockReadiness(ctx({ attempts })).ready, true);
   const lvl = P.answer(ctx({ attempts }), 'level');
-  assert.ok(lvl.lines.some(l => /does not turn its own questions into a GMAT score/.test(l)));
+  assert.ok(lvl.lines.some(l => /not a GMAT score/.test(l)));
+  const withEst = P.answer(ctx({ attempts, ability: { n: 70, confidence: 'medium', estimate: { total: 615, range: [585, 645], sections: [{ section: 'Quant', score: 82, range: [80, 84] }] } } }), 'level');
+  assert.ok(withEst.lines.some(l => /about 615 \(range 585–645\)/.test(l)) && withEst.lines.some(l => /not a GMAT score/.test(l)));
   const withMock = P.answer(ctx({ mocks: [{ name: 'Official Practice Exam 1', total: 625, date: '2026-10-01' }] }), 'level');
   assert.ok(withMock.lines.some(l => /625/.test(l)));
 });
@@ -172,9 +174,17 @@ test('simulation spreads topics; practice leans toward weak topics', () => {
   assert.ok(pracProb > 150, 'practice should favour the weak topic: ' + pracProb);
 });
 
-test('simulation readiness counts unseen questions per section', () => {
-  const r = P.examReadiness(ctx(), ['Quant', 'Verbal']);
-  assert.deepEqual(r.map(x => [x.section, x.have, x.need, x.ok]), [['Quant', 7, 21, false], ['Verbal', 2, 23, false]]);
+test('the Examiner’s focus raises a topic and a full mock enters the plan only when recommended', () => {
+  const base = P.topicWeights(ctx()).find(t => t.topic === 'Percents');
+  const f = P.topicWeights(ctx({ examinerFocus: ['Percents'] })).find(t => t.topic === 'Percents');
+  assert.ok(f.weight > base.weight + 0.25 && f.examinerFocus && /Examiner/.test(P.reason(f)));
+  const nm = ready => ({ lastFull: '2026-10-01', ready, overdue: false, days: 19, checks: [{ label: 'At least 7 days since the last full simulation (19)', pass: true }, { label: 'At least 30 questions practised since then (12)', pass: ready }] });
+  const ids = over => P.plan(ctx({ minutes: 30, ...over })).items.map(i => i.id);
+  assert.ok(ids({ nextMock: nm(true), mockPoolReady: true }).includes('fullmock'));
+  assert.ok(!ids({ nextMock: nm(false), mockPoolReady: true }).includes('fullmock'));
+  assert.ok(!ids({ nextMock: nm(true), mockPoolReady: false }).includes('fullmock'), 'no full mock without enough unseen questions');
+  const m = P.answer(ctx({ nextMock: nm(false) }), 'mock');
+  assert.ok(m.lines.some(l => /✗ At least 30 questions/.test(l)));
 });
 
 test('generated questions fill in, but written questions at the same level come first', () => {
@@ -188,5 +198,4 @@ test('generated questions fill in, but written questions at the same level come 
   assert.ok(written / N > share * 1.5, `written picked ${written}/${N}`);
   // with the written ones used up, a long topic set keeps going on generated questions
   const used = ['b1', 'b2']; for (let i = 0; i < 15; i++){ const id = P.nextAdaptive(ctx({ pool }), { n: 20, topic: 'Probability', level: 4, used }, { rng }); assert.ok(id && !used.includes(id)); used.push(id); }
-  assert.ok(P.examReadiness(ctx({ pool: [...ctx().pool, ...G.candidates({ seed: 1, section: 'Quant' }).map(x => ({ ...x, seen: false }))] }), ['Quant'])[0].ok);
 });

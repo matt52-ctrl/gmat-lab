@@ -2020,7 +2020,7 @@ function dsBuild(R, L, cfg){
     });
     const few = e => e.fit.slice(0, 4).map(cfg.show).join('; ');
     const always = [S1, S2].map((s, i) => [e1, e2][i].fit.length === cfg.domain.length ? i + 1 : 0).filter(Boolean);
-    return { type: 'DS', stem: `${cfg.intro} ${Qn.text}`, statements: [S1.text, S2.text], answer: letter, diagnosis,
+    return { type: 'DS', sig: [Qn.key, S1.key, S2.key], stem: `${cfg.intro} ${Qn.text}`, statements: [S1.text, S2.text], answer: letter, diagnosis,
       solution: diagnosis.map((d, l) => `(${LETTER[l]}) ${d ? d.why : 'the right answer.'}`).join(' '),
       hints: [
         `What does the question need: ${Qn.yn ? 'a definite Yes or a definite No' : 'one single value'}?`,
@@ -2139,77 +2139,167 @@ T({ id: 'tpamix', topic: 'Two-Part Analysis', type: 'TPA', levels: [3, 5], make(
     trap: 'A pair that fits the resource total but not the profit.', subtopic: 'Two linear conditions', skill: 'Simultaneous equations' };
 } });
 
-/* ---------------- Table Analysis: a sortable table and three Yes/No statements */
+/* ---------------- Two-Part Analysis: extreme values under constraints */
+T({ id: 'tparange', topic: 'Two-Part Analysis', type: 'TPA', levels: [3, 5], make(L, R){
+  const S = R.int(24, 70), k = R.int(2, 12), m = R.int(2, 8), q = R.pick([3, 4, 5]);
+  const C = [
+    { text: `x − y is greater than ${k}`, ok: (x, y) => x - y > k, loose: (x, y) => x - y >= k, show: (x, y) => `x − y = ${num(x - y)}, which is not greater than ${k}`, strict: true },
+    L === 4 ? { text: 'x is more than twice y', ok: (x, y) => x > 2 * y, loose: (x, y) => x >= 2 * y, show: (x, y) => `x = ${x} is not more than twice y = ${y}`, strict: true } : null,
+    { text: `y is at least ${m}`, ok: (x, y) => y >= m, loose: (x, y) => y >= m, show: (x, y) => `y = ${y} is less than ${m}` },
+    L === 5 ? { text: `x is a multiple of ${q}`, ok: x => x % q === 0, loose: x => x % q === 0, show: x => `x = ${x} is not a multiple of ${q}`, mult: true } : null,
+  ].filter(Boolean);
+  const pairs = f => { const out = []; for (let y = 1; y < S; y++){ const x = S - y; if (f(x, y)) out.push([x, y]); } return out; };
+  const good = pairs((x, y) => C.every(c => c.ok(x, y)));
+  need(good.length >= 3);
+  const xmin = Math.min(...good.map(p => p[0])), ymax = Math.max(...good.map(p => p[1]));
+  const loose = pairs((x, y) => C.every(c => c.loose(x, y))), noMult = pairs((x, y) => C.filter(c => !c.mult).every(c => c.ok(x, y)));
+  const cands = [xmin, ymax, Math.min(...loose.map(p => p[0])), Math.max(...loose.map(p => p[1])), Math.max(...good.map(p => p[0])), Math.min(...good.map(p => p[1])), Math.min(...noMult.map(p => p[0])), Math.max(...noMult.map(p => p[1])), xmin + 1, ymax - 1, xmin - 2, ymax + 2];
+  const opts = [...new Set(cands.filter(v => v >= 1 && v < S))].slice(0, 6).sort((a, b) => a - b);
+  need(opts.length === 6 && opts.includes(xmin) && opts.includes(ymax) && xmin !== ymax);
+  const fails = (x, y) => C.find(c => !c.ok(x, y));
+  const why = (v, col) => {
+    const [x, y] = col === 'x' ? [v, S - v] : [S - v, v];
+    if (col === 'x' ? v === xmin : v === ymax) return null;
+    if (col === 'x' ? v === ymax : v === xmin) return { why: `${v} is the answer for the other column: ${col === 'x' ? 'the greatest y' : 'the least x'}.`, type: 'Interpretation' };
+    const f = fails(x, y);
+    if (!f) return { why: col === 'x' ? `x = ${v} (with y = ${y}) meets every condition, but x = ${xmin} does too, and it is smaller.` : `y = ${v} (with x = ${x}) meets every condition, but y = ${ymax} does too, and it is greater.`, type: col === 'x' ? (v === Math.max(...good.map(p => p[0])) ? 'Reading' : 'Logic') : (v === Math.min(...good.map(p => p[1])) ? 'Reading' : 'Logic') };
+    const eq = f.strict && f.loose(x, y);
+    return { why: `With ${col} = ${v}, ${col === 'x' ? 'y' : 'x'} = ${col === 'x' ? y : x}, and ${f.show(x, y)}.${eq ? ' The condition is strict: equality is not enough.' : ''}`, type: eq ? 'Reading' : f.mult ? 'Careless' : 'Calculation' };
+  };
+  return { type: 'TPA', partStyle: 'tpa', sig: ['L' + L],
+    stem: `The positive integers x and y satisfy x + y = ${S}. In addition, ${list(C.map(c => c.text))}.\n\nSelect for **Least possible x** the least possible value of x, and select for **Greatest possible y** the greatest possible value of y. Make only two selections, one in each column.`,
+    parts: [{ label: 'Least possible x', options: opts.map(String), answer: opts.indexOf(xmin), diagnosis: opts.map(v => why(v, 'x')) },
+      { label: 'Greatest possible y', options: opts.map(String), answer: opts.indexOf(ymax), diagnosis: opts.map(v => why(v, 'y')) }],
+    hints: ['Since x + y is fixed, what happens to y when x gets smaller?', 'The least x and the greatest y come from the same pair.', 'Key idea: write y = ' + S + ' − x and turn every condition into a condition on one variable.', `Try y = ${ymax + 1}: which condition fails?`],
+    method: `y = ${S} − x. Conditions: ${C.map(c => c.text).join('; ')}. The pairs that work run from (x, y) = (${xmin}, ${ymax}) upward in x, so the least x is ${xmin} and the greatest y is ${ymax}.`,
+    altMethod: `Test the options from the extremes: the largest y option that satisfies every condition is ${ymax}, and then x = ${S} − ${ymax} = ${xmin}.`,
+    trap: 'Treating a strict inequality (“greater than”) as if equality were allowed.', subtopic: 'Extreme values under constraints', skill: 'Constraints on two variables' };
+} });
+
+/* ---------------- Table Analysis: a sortable table and three Yes/No statements, in one of several settings */
+const TA_CONTEXTS = [
+  { id: 'stores', intro: 'The table shows 2026 data for the six stores of a retail chain. Revenue is in thousands of dollars; growth compares 2026 revenue with 2025.', entity: 'store', entities: 'stores', groupCol: 'Region', groups: ['North', 'South', 'West'],
+    names: ['Aarhus', 'Bergen', 'Cork', 'Dresden', 'Evora', 'Fribourg', 'Graz', 'Haarlem', 'Innsbruck', 'Lyon', 'Malmö', 'Nantes', 'Porto', 'Turku', 'Utrecht'],
+    c1: 'Revenue ($000)', w1: 'revenue', r1: [60, 210, 10], f1: v => `$${num(v)},000`, c2: 'Employees', w2: 'employees', one2: 'employee', r2: [12, 48], c3: 'Growth vs 2025 (%)', w3: 'growth', u3: '%', r3: [-30, 99] },
+  { id: 'hospitals', intro: 'The table shows last year’s data for the six hospitals of a regional health service. Satisfaction change compares patient satisfaction scores with the year before, in points.', entity: 'hospital', entities: 'hospitals', groupCol: 'District', groups: ['Central', 'Coastal', 'Upland'],
+    names: ['Ashford', 'Brookside', 'Castleton', 'Deerfield', 'Elmwood', 'Fairview', 'Glenhaven', 'Hillcrest', 'Ivybridge', 'Kingsmere', 'Lakeview', 'Millbrook'],
+    c1: 'Patients treated', w1: 'patients treated', r1: [200, 900, 10], f1: v => num(v), c2: 'Doctors', w2: 'doctors', one2: 'doctor', r2: [20, 95], c3: 'Satisfaction change (points)', w3: 'satisfaction change', u3: ' points', r3: [-40, 60] },
+  { id: 'routes', intro: 'The table shows one month of data for six routes of a regional airline. Load-factor change compares the share of seats filled with the same month a year earlier, in percentage points.', entity: 'route', entities: 'routes', groupCol: 'Hub', groups: ['Oslo', 'Riga', 'Tallinn'],
+    names: ['Aalborg', 'Bodø', 'Gdańsk', 'Kaunas', 'Luleå', 'Malmö', 'Oulu', 'Poznań', 'Tartu', 'Tromsø', 'Umeå', 'Vilnius'],
+    c1: 'Passengers', w1: 'passengers', r1: [300, 1800, 10], f1: v => num(v), c2: 'Flights', w2: 'flights', one2: 'flight', r2: [30, 120], c3: 'Load-factor change (points)', w3: 'load-factor change', u3: ' points', r3: [-50, 80] },
+  { id: 'schools', intro: 'The table shows this year’s data for six schools in one district. Pass-rate change compares the share of students who passed the final exam with last year, in percentage points.', entity: 'school', entities: 'schools', groupCol: 'Type', groups: ['Public', 'Private', 'Charter'],
+    names: ['Alder', 'Birchwood', 'Cedar Hill', 'Dunmore', 'Eastfield', 'Foxglove', 'Greenway', 'Hawthorn', 'Juniper', 'Kestrel', 'Linden', 'Maplewood'],
+    c1: 'Students', w1: 'students', r1: [30, 150, 10], f1: v => num(v), c2: 'Teachers', w2: 'teachers', one2: 'teacher', r2: [20, 90], c3: 'Pass-rate change (points)', w3: 'pass-rate change', u3: ' points', r3: [-45, 70] },
+];
 T({ id: 'tastore', topic: 'Table Analysis', type: 'TA', levels: [3, 5], make(L, R){
-  const names = R.sample(['Aarhus', 'Bergen', 'Cork', 'Dresden', 'Evora', 'Fribourg', 'Graz', 'Haarlem', 'Innsbruck', 'Lyon', 'Malmö', 'Nantes', 'Porto', 'Turku', 'Utrecht'], 6).sort();
-  const regions = names.map(() => R.pick(['North', 'South', 'West']));
-  const rev = names.map(() => 10 * R.int(60, 210)), emp = names.map(() => R.int(12, 48)), gr = names.map(() => round(R.int(-30, 99) / 10, 1));
-  need(new Set(rev).size === 6 && new Set(gr).size === 6);
-  const rpe = rev.map((r, i) => r / emp[i]); need(new Set(rpe.map(v => v.toFixed(2))).size === 6);
-  const total = sum(rev), sorted = rev.slice().sort((a, b) => a - b), med = (sorted[2] + sorted[3]) / 2, mean = total / 6;
+  const X = R.pick(TA_CONTEXTS), n1 = X.id === 'stores' ? X.w1 : 'number of ' + X.w1;
+  const names = R.sample(X.names, 6).sort(), groups = names.map(() => R.pick(X.groups));
+  const v1 = names.map(() => X.r1[2] * R.int(X.r1[0], X.r1[1])), v2 = names.map(() => R.int(X.r2[0], X.r2[1])), v3 = names.map(() => round(R.int(X.r3[0], X.r3[1]) / 10, 1));
+  need(new Set(v1).size === 6 && new Set(v3).size === 6);
+  const per = v1.map((r, i) => r / v2[i]); need(new Set(per.map(v => v.toFixed(2))).size === 6);
+  const total = sum(v1), sorted = v1.slice().sort((a, b) => a - b), med = (sorted[2] + sorted[3]) / 2, mean = total / 6;
   const iMax = a => a.indexOf(Math.max(...a));
   const S = [];
-  { const i = iMax(rpe), j = iMax(gr), t = i === j, k = iMax(rev);
-    S.push({ label: 'The store with the highest revenue per employee also has the highest growth.', t, type: k !== i ? 'Trap' : 'Calculation',
-      why: `Revenue per employee is highest at ${names[i]} (${num(rev[i])}/${emp[i]} ≈ ${num(round(rpe[i], 1))}); the highest growth is at ${names[j]} (${gr[j]}%).${k !== i ? ` Judging by revenue alone points to ${names[k]}.` : ''}` }); }
-  { const v = 10 * Math.round((med + R.pick([-30, -20, -10, 10, 20, 30])) / 10), t = med > v;
-    S.push({ label: `The median revenue of the six stores is greater than $${num(v)},000.`, t, type: 'Procedural',
-      why: `Sorted revenues: ${sorted.map(v => num(v)).join(', ')}. With six values the median is the average of the 3rd and 4th: (${num(sorted[2])} + ${num(sorted[3])})/2 = ${num(med)}.` }); }
-  { const regs = [...new Set(regions)].filter(r => regions.filter(x => x === r).length >= 2); need(regs.length);
-    const reg = R.pick(regs), rs = sum(rev.filter((_, i) => regions[i] === reg)), t = rs > total / 2;
-    S.push({ label: `The ${reg} stores together account for more than half of the chain’s total revenue.`, t, type: 'Calculation',
-      why: `${reg}: ${rev.filter((_, i) => regions[i] === reg).map(v => num(v)).join(' + ')} = ${num(rs)}; half of the total ${num(total)} is ${num(total / 2)}.` }); }
-  { const above = rev.filter(r => r > mean).length, k = R.pick([above, above + 1]), t = above >= k;
-    S.push({ label: `At least ${k} of the stores have revenue above the average revenue of the six stores.`, t, type: 'Calculation',
-      why: `Average revenue: ${num(total)}/6 ≈ ${num(round(mean, 1))}. Stores above it: ${above}.` }); }
-  { const avgE = sum(emp) / 6, v = R.int(Math.floor(avgE) - 2, Math.ceil(avgE) + 2), t = avgE > v;
-    need(!isInt(avgE) || avgE !== v);
-    S.push({ label: `The average number of employees per store is greater than ${v}.`, t, type: 'Calculation',
-      why: `Employees: ${emp.join(' + ')} = ${sum(emp)}; ${sum(emp)}/6 ≈ ${num(round(avgE, 2))}.` }); }
-  { const g = R.pick([0, 2, 4, 5]), grow = names.map((_, i) => i).filter(i => gr[i] > g), e = R.int(18, 35), t = grow.every(i => emp[i] > e);
-    need(grow.length >= 2);
-    S.push({ label: `Every store with growth above ${g}% has more than ${e} employees.`, t, type: 'Reading',
-      why: `Stores with growth above ${g}%: ${grow.map(i => `${names[i]} (${emp[i]})`).join(', ')}.` }); }
+  { const i = iMax(per), j = iMax(v3), t = i === j, k = iMax(v1);
+    S.push({ kind: 'ratio', label: `The ${X.entity} with the highest ${n1} per ${X.one2} also has the highest ${X.w3}.`, t, type: k !== i ? 'Trap' : 'Calculation',
+      why: `${X.w1[0].toUpperCase() + X.w1.slice(1)} per ${X.one2} is highest at ${names[i]} (${num(v1[i])}/${v2[i]} ≈ ${num(round(per[i], 1))}); the highest ${X.w3} is at ${names[j]} (${v3[j]}${X.u3}).${k !== i ? ` Judging by ${X.w1} alone points to ${names[k]}.` : ''}` }); }
+  { const step = X.r1[2], v = step * Math.round((med + R.pick([-3, -2, -1, 1, 2, 3]) * step) / step), t = med > v;
+    need(v !== med);
+    S.push({ kind: 'median', label: `The median ${n1} of the six ${X.entities} is greater than ${X.f1(v)}.`, t, type: 'Procedural',
+      why: `Sorted ${X.w1}: ${sorted.map(x => num(x)).join(', ')}. With six values the median is the average of the 3rd and 4th: (${num(sorted[2])} + ${num(sorted[3])})/2 = ${num(med)}.` }); }
+  { const regs = [...new Set(groups)].filter(r => groups.filter(x => x === r).length >= 2); need(regs.length);
+    const reg = R.pick(regs), part = v1.filter((_, i) => groups[i] === reg), rs = sum(part), t = rs > total / 2;
+    S.push({ kind: 'share', label: `The ${reg} ${X.entities} together account for more than half of the total ${n1} of the six ${X.entities}.`, t, type: 'Calculation',
+      why: `${reg}: ${part.map(x => num(x)).join(' + ')} = ${num(rs)}; half of the total ${num(total)} is ${num(total / 2)}.` }); }
+  { const above = v1.filter(r => r > mean).length, k = R.pick([above, above + 1]), t = above >= k;
+    S.push({ kind: 'above', label: X.id === 'stores' ? `At least ${k} of the stores have revenue above the average revenue of the six stores.` : `At least ${k} of the ${X.entities} have more ${X.w1} than the average of the six ${X.entities}.`, t, type: 'Calculation',
+      why: `Average ${X.w1}: ${num(total)}/6 ≈ ${num(round(mean, 1))}. ${X.entities[0].toUpperCase() + X.entities.slice(1)} above it: ${above}.` }); }
+  { const avg = sum(v2) / 6, v = R.int(Math.floor(avg) - 2, Math.ceil(avg) + 2), t = avg > v;
+    need(avg !== v);
+    S.push({ kind: 'avg2', label: `The average number of ${X.w2} per ${X.entity} is greater than ${v}.`, t, type: 'Calculation',
+      why: `${X.w2[0].toUpperCase() + X.w2.slice(1)}: ${v2.join(' + ')} = ${sum(v2)}; ${sum(v2)}/6 ≈ ${num(round(avg, 2))}.` }); }
+  { const g = R.pick([0, 2, 3, 4]), idx = names.map((_, i) => i).filter(i => v3[i] > g), mid = Math.round((X.r2[0] + X.r2[1]) / 2), e = R.int(mid - 10, mid + 8), t = idx.every(i => v2[i] > e);
+    need(idx.length >= 2);
+    S.push({ kind: 'every', label: `Every ${X.entity} with ${X.w3} above ${g}${X.u3} has more than ${e} ${X.w2}.`, t, type: 'Reading',
+      why: `${X.entities[0].toUpperCase() + X.entities.slice(1)} with ${X.w3} above ${g}${X.u3}: ${idx.map(i => `${names[i]} (${v2[i]})`).join(', ')}.` }); }
   const pick = R.sample(S, 3); need(pick.some(s => s.t) && pick.some(s => !s.t));
-  return { type: 'TA', partStyle: 'yesno',
-    stem: 'The table shows 2026 data for the six stores of a retail chain. Revenue is in thousands of dollars; growth compares 2026 revenue with 2025. You can sort the table by any column.\n\nFor each statement, select **Yes** if it is true based on the table. Otherwise select **No**.',
-    table: { columns: ['Store', 'Region', 'Revenue ($000)', 'Employees', 'Growth vs 2025 (%)'], numeric: [false, false, true, true, true], rows: names.map((n, i) => [n, regions[i], rev[i], emp[i], gr[i]]) },
+  return { type: 'TA', partStyle: 'yesno', sig: [X.id, ...pick.map(s => s.kind)],
+    stem: `${X.intro} You can sort the table by any column.\n\nFor each statement, select **Yes** if it is true based on the table. Otherwise select **No**.`,
+    table: { columns: [X.entity[0].toUpperCase() + X.entity.slice(1), X.groupCol, X.c1, X.c2, X.c3], numeric: [false, false, true, true, true], rows: names.map((n, i) => [n, groups[i], v1[i], v2[i], v3[i]]) },
     parts: pick.map(s => ({ label: s.label, options: ['Yes', 'No'], answer: s.t ? 0 : 1, diagnosis: s.t ? [null, { why: s.why + ' So the statement is true.', type: s.type }] : [{ why: s.why + ' So the statement is false.', type: s.type }, null] })),
     hints: ['Which statements need a calculation, and which can you settle by sorting or estimating?', 'Sort by the column each statement is about.', 'Key idea: compute only what a statement needs, and check the exact wording (more than, at least, every).', 'Start with the statement that needs the least arithmetic.'],
     method: pick.map((s, i) => `${i + 1}) ${s.why} → ${s.t ? 'Yes' : 'No'}.`).join(' '), trap: 'Answering from a quick impression of one column when the statement needs a ratio, a median or a sum.',
     subtopic: 'Ratios, medians, shares', skill: 'Sort and compute only what is needed' };
 } });
 
-/* ---------------- Graphics Interpretation: a bar chart with two drop-down statements */
+/* ---------------- Graphics Interpretation: a bar chart with two drop-down statements of different kinds */
+const GI_CONTEXTS = [['sales', 'Quarterly sales, 2025', '$ million', ['Q1', 'Q2', 'Q3', 'Q4'], 'million dollars'], ['visitors', 'Visitors to a museum', 'thousand visitors', ['2021', '2022', '2023', '2024', '2025'], 'thousand visitors'],
+  ['orders', 'Orders by region', 'hundred orders', ['North', 'South', 'East', 'West'], 'hundred orders'], ['energy', 'Energy use by month', 'MWh', ['Jan', 'Feb', 'Mar', 'Apr', 'May'], 'MWh']];
 T({ id: 'gibars', topic: 'Graphics Interpretation', type: 'GI', levels: [3, 5], make(L, R){
-  const [title, unit, labels, words] = R.pick([['Quarterly sales, 2025', '$ million', ['Q1', 'Q2', 'Q3', 'Q4'], 'million dollars'], ['Visitors to a museum', 'thousand visitors', ['2021', '2022', '2023', '2024', '2025'], 'thousand visitors'], ['Orders by region', 'hundred orders', ['North', 'South', 'East', 'West'], 'hundred orders'], ['Energy use by month', 'MWh', ['Jan', 'Feb', 'Mar', 'Apr', 'May'], 'MWh']]);
-  const values = labels.map(() => R.int(8, 40)), total = sum(values);
-  const ia = R.int(0, labels.length - 2), ib = R.int(ia + 1, labels.length - 1); need(values[ib] > values[ia] * 1.1);
+  const [cid, title, unit, labels, words] = R.pick(GI_CONTEXTS);
+  const values = labels.map(() => R.int(8, 40)), total = sum(values), n = labels.length, mean = total / n;
   const pc = (x, b) => Math.round(100 * x / b);
-  const ch = pc(values[ib] - values[ia], values[ia]), wrongBase = pc(values[ib] - values[ia], values[ib]);
-  const o1 = [[ch, null], [wrongBase, { why: `Using ${labels[ib]} as the base (${values[ib] - values[ia]}/${values[ib]}) gives about ${wrongBase}%. The base of “greater than ${labels[ia]}” is ${labels[ia]}: ${values[ib] - values[ia]}/${values[ia]}.`, type: 'Trap' }],
-    [values[ib] - values[ia], { why: `${values[ib] - values[ia]} is the difference in ${words}, not a percent.`, type: 'Reading' }],
-    [pc(values[ib], values[ia]), { why: `${values[ib]}/${values[ia]} ≈ ${pc(values[ib], values[ia])}% is ${labels[ib]} as a percent of ${labels[ia]}; subtract 100%.`, type: 'Conceptual' }],
-    [ch + 2 * (R.chance(0.5) ? 10 : -10), { why: 'Recompute the change and divide by the starting value.', type: 'Calculation' }]];
-  const k = R.int(0, labels.length - 1), sh = pc(values[k], total), drop = (k + 1) % labels.length;
-  const o2 = [[sh, null], [pc(values[k], total - values[drop]), { why: `That leaves ${labels[drop]} out of the total. The total is ${values.join(' + ')} = ${total}.`, type: 'Careless' }],
-    [pc(values[drop], total), { why: `${pc(values[drop], total)}% is ${labels[drop]}’s share, not ${labels[k]}’s.`, type: 'Reading' }],
-    [values[k] < Math.max(...values) ? pc(values[k], Math.max(...values)) : -1, { why: `That compares ${labels[k]} with the tallest bar, not with the total.`, type: 'Interpretation' }],
-    [Math.round(100 / labels.length), { why: `${Math.round(100 / labels.length)}% would be an equal share for every bar; the bars differ.`, type: 'Guessing' }]];
-  const part = (label, list) => {
+  const part = (label, list, fmt) => {
     const seen = [], use = [];
-    for (const [v, d] of list){ if (v <= 0 || seen.some(s => Math.abs(s - v) < 4)) continue; seen.push(v); use.push([v, d]); if (use.length === 4) break; }
+    for (const [v, d] of list){ if (v == null || v < 0 || seen.some(s => Math.abs(s - v) < (fmt === 'n' ? 1 : fmt === 'x' ? 0.15 : 4))) continue; seen.push(v); use.push([v, d]); if (use.length === 4) break; }
     need(use.length === 4 && use[0][1] === null);
     use.sort((a, b) => a[0] - b[0]);
-    return { label, options: use.map(([v]) => v + '%'), answer: use.findIndex(x => x[1] === null), diagnosis: use.map(x => x[1]) };
+    const show = v => fmt === 'n' ? String(v) : fmt === 'x' ? num(v) : v + '%';
+    return { label, options: use.map(([v]) => show(v)), answer: use.findIndex(x => x[1] === null), diagnosis: use.map(x => x[1]) };
   };
+  const K = {
+    change(){
+      const ia = R.int(0, n - 2), ib = R.int(ia + 1, n - 1); need(values[ib] > values[ia] * 1.1);
+      const ch = pc(values[ib] - values[ia], values[ia]), wb = pc(values[ib] - values[ia], values[ib]);
+      return { m: `(${values[ib]} − ${values[ia]})/${values[ia]} ≈ ${ch}%`, p: part(`The value for ${labels[ib]} was greater than the value for ${labels[ia]} by approximately`, [[ch, null],
+        [wb, { why: `Using ${labels[ib]} as the base (${values[ib] - values[ia]}/${values[ib]}) gives about ${wb}%. The base of “greater than ${labels[ia]}” is ${labels[ia]}: ${values[ib] - values[ia]}/${values[ia]}.`, type: 'Trap' }],
+        [values[ib] - values[ia], { why: `${values[ib] - values[ia]} is the difference in ${words}, not a percent.`, type: 'Reading' }],
+        [pc(values[ib], values[ia]), { why: `${values[ib]}/${values[ia]} ≈ ${pc(values[ib], values[ia])}% is ${labels[ib]} as a percent of ${labels[ia]}; subtract 100%.`, type: 'Conceptual' }],
+        [ch + (R.chance(0.5) ? 20 : -20), { why: 'Recompute the change and divide by the starting value.', type: 'Calculation' }]]) };
+    },
+    share(){
+      const k = R.int(0, n - 1), sh = pc(values[k], total), drop = (k + 1) % n, mx = Math.max(...values);
+      return { m: `Total ${total}; ${values[k]}/${total} ≈ ${sh}%`, p: part(`${labels[k]} accounted for approximately this share of the total of all bars:`, [[sh, null],
+        [pc(values[k], total - values[drop]), { why: `That leaves ${labels[drop]} out of the total. The total is ${values.join(' + ')} = ${total}.`, type: 'Careless' }],
+        [pc(values[drop], total), { why: `${pc(values[drop], total)}% is ${labels[drop]}’s share, not ${labels[k]}’s.`, type: 'Reading' }],
+        [values[k] < mx ? pc(values[k], mx) : null, { why: `That compares ${labels[k]} with the tallest bar, not with the total.`, type: 'Interpretation' }],
+        [Math.round(100 / n), { why: `${Math.round(100 / n)}% would be an equal share for every bar; the bars differ.`, type: 'Guessing' }]]) };
+    },
+    ratio(){
+      const hi = values.indexOf(Math.max(...values)), lo = values.indexOf(Math.min(...values)); need(hi !== lo && values[hi] / values[lo] >= 1.4);
+      const r = round(values[hi] / values[lo], 1);
+      return { m: `${values[hi]}/${values[lo]} ≈ ${num(r)}`, p: part(`The largest value was approximately this many times the smallest:`, [[r, null],
+        [round(values[lo] / values[hi], 1), { why: 'The ratio is upside down: divide the largest value by the smallest.', type: 'Careless' }],
+        [round((values[hi] - values[lo]) / values[lo], 1), { why: `That is how much larger it is, as a multiple (${values[hi] - values[lo]}/${values[lo]}); “times as large” is ${values[hi]}/${values[lo]}.`, type: 'Conceptual' }],
+        [round(r + 1, 1), { why: 'Recompute the division.', type: 'Calculation' }],
+        [round(values[hi] / values[(hi + 1) % n], 1), { why: `That divides by ${labels[(hi + 1) % n]}, not by the smallest bar.`, type: 'Reading' }]], 'x') };
+    },
+    average(){
+      const avg = round(mean, 0), s = values.slice().sort((a, b) => a - b), medv = n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2;
+      need(Math.abs(medv - avg) >= 2);
+      const opts = [[avg, null], [Math.round(medv), { why: `That is the median (${num(medv)}); the average is ${total}/${n}.`, type: 'Conceptual' }],
+        [Math.round((Math.max(...values) + Math.min(...values)) / 2), { why: 'Averaging only the largest and smallest bars ignores the others.', type: 'Procedural' }],
+        [Math.round(total / (n - 1)), { why: `Divide the total by ${n}, the number of bars.`, type: 'Careless' }], [avg + 3, { why: 'Recompute the total.', type: 'Calculation' }]];
+      return { m: `${values.join(' + ')} = ${total}; ${total}/${n} ≈ ${num(round(mean, 1))}`, p: part(`The average of the ${n} values is closest to`, opts, 'n') };
+    },
+    above(){
+      const cnt = values.filter(v => v > mean).length, s = values.slice().sort((a, b) => a - b), medv = n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2;
+      const byMed = values.filter(v => v > medv).length, ge = values.filter(v => v >= Math.round(mean)).length;
+      return { m: `Average ${total}/${n} ≈ ${num(round(mean, 1))}; ${cnt} bars are above it`, p: part(`The number of bars above the average of all ${n} bars is`, [[cnt, null],
+        [byMed !== cnt ? byMed : null, { why: 'That counts the bars above the median, not above the average.', type: 'Conceptual' }],
+        [ge !== cnt ? ge : null, { why: `A bar equal to the rounded average (${Math.round(mean)}) is not above ${num(round(mean, 2))}.`, type: 'Careless' }],
+        [n - cnt, { why: 'That counts the bars at or below the average.', type: 'Reading' }],
+        [cnt + 1, { why: `Recount: the average is ${num(round(mean, 2))}.`, type: 'Calculation' }], [cnt - 1 >= 0 ? cnt - 1 : null, { why: `Recount: the average is ${num(round(mean, 2))}.`, type: 'Calculation' }]], 'n') };
+    },
+  };
+  const kinds = R.sample(Object.keys(K), 2), built = kinds.map(k => K[k]());
   const step = 10, max = Math.ceil(Math.max(...values) / step) * step + (Math.max(...values) % step === 0 ? step : 0);
-  return { type: 'GI', partStyle: 'dropdown', stem: 'The chart shows ' + title.toLowerCase() + '. Use the drop-down menus to complete each statement so that it is accurate based on the chart.',
+  return { type: 'GI', partStyle: 'dropdown', sig: [cid, ...kinds], stem: 'The chart shows ' + title.toLowerCase() + '. Use the drop-down menus to complete each statement so that it is accurate based on the chart.',
     chart: { kind: 'bar', title, unit, labels, values, max, step },
-    parts: [part(`The value for ${labels[ib]} was greater than the value for ${labels[ia]} by approximately`, o1), part(`${labels[k]} accounted for approximately this share of the total of all bars:`, o2)],
-    hints: ['In part 1, which bar is the starting point of the comparison?', 'Percent change = change ÷ starting value.', 'Key idea: “greater than A by x%” uses A as the base; a share uses the total of all bars.', `Read the bars: ${labels.map((l, i) => `${l} ${values[i]}`).join(', ')}.`],
-    method: `1) (${values[ib]} − ${values[ia]})/${values[ia]} ≈ ${ch}%. 2) Total ${total}; ${values[k]}/${total} ≈ ${sh}%.`,
-    trap: 'Using the wrong bar as the base, or leaving a bar out of the total.', subtopic: 'Bar chart: percent change and share', skill: 'Choosing the base' };
+    parts: built.map(b => b.p),
+    hints: ['For each statement, which bars does it use, and which one is the base?', 'Read the values first and write them down.', 'Key idea: “greater than A by x%” uses A as the base; a share or an average uses all the bars.', `Read the bars: ${labels.map((l, i) => `${l} ${values[i]}`).join(', ')}.`],
+    method: built.map((b, i) => `${i + 1}) ${b.m}.`).join(' '),
+    trap: 'Using the wrong bar as the base, or leaving a bar out of a total.', subtopic: 'Bar chart: ' + kinds.join(' and '), skill: 'Reading a chart precisely' };
 } });
 
 /* ---------------- Multi-Source Reasoning: a price list, an order list and three Yes/No statements */
@@ -2237,7 +2327,7 @@ T({ id: 'msrship', topic: 'Multi-Source Reasoning', type: 'MSR', levels: [4, 6],
     S.push({ label: `Order #${a.id} costs more to deliver than order #${b.id}.`, t: ca > cb, type: a.w > b.w !== ca > cb ? 'Trap' : 'Calculation',
       why: `#${a.id}: ${money(ca)}${a.x ? ' (express)' : ''}; #${b.id}: ${money(cb)}${b.x ? ' (express)' : ''}.${a.w > b.w !== ca > cb ? ' The heavier order is not always the dearer one: express adds ' + ex + '%.' : ''}` }); }
   const pick = R.sample(S, 3); need(pick.some(s => s.t) && pick.some(s => !s.t));
-  return { type: 'MSR', partStyle: 'yesno',
+  return { type: 'MSR', partStyle: 'yesno', sig: ['ship', ...pick.map(s => s.label.split(' ')[0])],
     stem: 'For each statement, select **Yes** if it is supported by the information in the two sources. Otherwise select **No**.',
     tabs: [{ title: 'Price list', body: `Standard delivery costs ${money(base)} for a parcel of up to ${inc} kg, plus ${money(per)} for each additional kg or part of a kg.\n\nExpress delivery costs ${ex}% more than standard delivery for the same parcel.` },
       { title: 'Today’s orders', body: orders.map(o => `Order #${o.id}: ${o.w} kg, ${o.x ? 'express' : 'standard'}`).join('\n') }],
@@ -2245,6 +2335,40 @@ T({ id: 'msrship', topic: 'Multi-Source Reasoning', type: 'MSR', levels: [4, 6],
     hints: ['Which facts come from which tab? Write down the pricing rule first.', '“Each additional kg or part of a kg” means rounding the extra weight up.', `Key idea: standard price = ${money(base)} + ${money(per)} × (extra kg rounded up); express = standard × ${1 + ex / 100}.`, `For example, ${orders[0].w} kg has ${extra(orders[0].w)} extra kg.`],
     method: pick.map((s, i) => `${i + 1}) ${s.why} → ${s.t ? 'Yes' : 'No'}.`).join(' '), trap: 'Not rounding a part of a kg up, or applying the express surcharge to the base fee only.',
     subtopic: 'Pricing rule across two sources', skill: 'Combining sources' };
+} });
+
+/* ---------------- Multi-Source Reasoning: a staffing rule, a ward roster and costs */
+T({ id: 'msrstaff', topic: 'Multi-Source Reasoning', type: 'MSR', levels: [4, 6], make(L, R){
+  const p = R.pick([4, 5, 6]), tp = Math.floor(p / 2), cn = 10 * R.int(28, 45), ct = 10 * R.int(14, 24);
+  const wards = R.sample(['Amber', 'Birch', 'Cedar', 'Dune', 'Elder', 'Fern'], 3).map(name => ({ name, pts: R.int(12, 40), n: R.int(2, 7), t: R.int(0, 3) }));
+  const cap = w => w.n * p + w.t * tp, short = w => Math.max(0, w.pts - cap(w));
+  const nurses = w => Math.ceil(short(w) / p), trainees = w => Math.ceil(short(w) / tp);
+  need(wards.some(w => short(w) > 0) && wards.some(w => short(w) === 0));
+  const S = [];
+  { const w = R.pick(wards), ok = cap(w) >= w.pts, wrong = w.n * p + w.t * p >= w.pts;
+    S.push({ kind: 'staffed', label: `Ward ${w.name} is adequately staffed under the staffing rule.`, t: ok, type: wrong !== ok ? 'Trap' : 'Calculation',
+      why: `Ward ${w.name}: ${w.n} nurses × ${p} + ${w.t} trainee${w.t === 1 ? '' : 's'} × ${tp} = ${cap(w)} patients covered, for ${w.pts} patients.${wrong !== ok ? ' Counting trainees as full nurses gives the wrong answer.' : ''}` }); }
+  { const total = sum(wards.map(nurses)), K = total + R.pick([-1, 0, 1]); need(K >= 1);
+    const naive = Math.ceil(sum(wards.map(short)) / p);
+    S.push({ kind: 'total', label: `If no trainees are added, at least ${K} more nurses are needed in total to staff every ward adequately.`, t: total >= K, type: naive !== total && (naive >= K) !== (total >= K) ? 'Procedural' : 'Calculation',
+      why: `Shortfalls: ${wards.map(w => `${w.name} ${short(w)} patients → ${nurses(w)} nurse${nurses(w) === 1 ? '' : 's'}`).join('; ')}. Total ${total}. Each ward is staffed separately, so round up ward by ward.` }); }
+  { const cN = sum(wards.map(nurses)) * cn, cT = sum(wards.map(trainees)) * ct;
+    need(cN !== cT);
+    S.push({ kind: 'cost', label: 'Covering every shortfall with trainees instead of nurses would cost less per shift.', t: cT < cN, type: 'Calculation',
+      why: `Nurses: ${sum(wards.map(nurses))} × $${num(cn)} = $${num(cN)}. Trainees (each covers ${tp}): ${sum(wards.map(trainees))} × $${num(ct)} = $${num(cT)}.` }); }
+  { const w = R.pick(wards.filter(x => short(x) === 0)), r = R.pick([10, 20, 25, 30, 50]), np = Math.ceil(w.pts * (1 + r / 100)), ok = cap(w) >= np;
+    S.push({ kind: 'rise', label: `If the number of patients on Ward ${w.name} rose by ${r}%, its current staff would still be adequate.`, t: ok, type: 'Calculation',
+      why: `Ward ${w.name}: ${w.pts} × ${1 + r / 100} = ${num(round(w.pts * (1 + r / 100), 2))}, so ${np} patients; current staff covers ${cap(w)}.` }); }
+  const pick = R.sample(S, 3); need(pick.some(s => s.t) && pick.some(s => !s.t));
+  return { type: 'MSR', partStyle: 'yesno', sig: ['staff', ...pick.map(s => s.kind)],
+    stem: 'For each statement, select **Yes** if it is supported by the information in the three sources. Otherwise select **No**.',
+    tabs: [{ title: 'Staffing rule', body: `From: Director of nursing\n\nOn every shift, each nurse may care for at most ${p} patients. A trainee nurse may care for at most ${tp} patients. A ward is adequately staffed when its nurses and trainees together can cover all of its patients.` },
+      { title: 'Ward roster', body: wards.map(w => `Ward ${w.name}: ${w.pts} patients per shift; ${w.n} nurses and ${w.t} trainee${w.t === 1 ? '' : 's'} on each shift`).join('\n') },
+      { title: 'Costs', body: `A nurse costs $${num(cn)} per shift. A trainee costs $${num(ct)} per shift. Extra staff are hired ward by ward.` }],
+    parts: pick.map(s => ({ label: s.label, options: ['Yes', 'No'], answer: s.t ? 0 : 1, diagnosis: s.t ? [null, { why: s.why + ' So the statement is true.', type: s.type }] : [{ why: s.why + ' So the statement is false.', type: s.type }, null] })),
+    hints: ['Which tab gives the rule, which the numbers, which the costs?', `Work out how many patients each ward’s current staff can cover: nurses × ${p} + trainees × ${tp}.`, 'Key idea: staff come in whole people, and every ward is staffed separately, so round up ward by ward.', `Ward ${wards[0].name} can cover ${cap(wards[0])} patients now.`],
+    method: pick.map((s, i) => `${i + 1}) ${s.why} → ${s.t ? 'Yes' : 'No'}.`).join(' '), trap: 'Counting a trainee as a full nurse, or pooling the shortfalls of different wards before rounding up.',
+    subtopic: 'Staffing rule across three sources', skill: 'Combining sources' };
 } });
 
 /* ================================================================== API */
