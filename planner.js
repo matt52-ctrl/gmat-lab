@@ -8,6 +8,7 @@
 const LEARN_MIN = 3;        // minutes per question in learn mode, review included
 const TIMED_MIN = 2.2;      // minutes per question at real test pace (about 2:09 Q, 1:57 V, 2:15 DI)
 const RETEST_MIN = 3;
+const DRILL_MIN = 5;        // one foundations drill (drills.js): 10 quick questions
 const STATUS_WEIGHT = [0.8, 0.9, 1.0, 0.7, 0.35, 0.15];   // by mastery status 0..5: not started … mastered
 const GEN_WEIGHT = 0.3;     // a generated question (pool entry with gen: true) counts less than a written one, so written ones come first
 
@@ -154,6 +155,11 @@ function plan(ctx){
     const k = Math.min(ctx.due.length, Math.max(1, Math.floor(left / RETEST_MIN)));
     add({ id:'retests', title:`${plural(k, 'retest')}${k < ctx.due.length ? ` of ${ctx.due.length} due` : ' due'}`, why:'A miss counts as fixed only when you get it right again days later.', minutes: k * RETEST_MIN, act:'startRetests', arg: String(k) });
   }
+  if (ctx.ogDue > 0 && left >= RETEST_MIN)
+    add({ id:'ogretests', title:`Redo ${plural(ctx.ogDue, 'Official Guide question')} in your book`, why:'Official Guide questions you missed are due for a retest: solve them again without looking at your notes, then record the result.', minutes: Math.min(ctx.ogDue, 5) * RETEST_MIN, act:'tab', arg:'retests' });
+  const dr = ctx.drill;
+  if (dr && !dr.allMastered && !dr.doneToday && left >= DRILL_MIN)
+    add({ id:'drill', title:`Daily drill: ${dr.name}, level ${dr.level}`, why:'Five minutes on the basics the GMAT takes for granted: when they are automatic, your time goes to the real problem.', minutes: DRILL_MIN, act:'startdrill', arg: dr.skill });
   const weights = topicWeights(ctx);
   const top = weights.find(t => t.unseen > 0);
   if (top && left >= 2 * LEARN_MIN){

@@ -36,3 +36,17 @@ test('guides are complete', () => {
   for (const g of guides) assert.ok(str(g.id) && str(g.title) && g.points.length && g.points.every(str), g.id);
   assert.equal(new Set(guides.map(g => g.id)).size, guides.length);
 });
+
+test('the glossary is complete: every entry has an Italian meaning and an area, and no term appears twice', () => {
+  const glossary = JSON.parse(fs.readFileSync(path.join(dir, index.glossary), 'utf8'));
+  assert.ok(glossary.length >= 150, `${glossary.length} entries`);
+  const seen = new Set();
+  for (const e of glossary){
+    assert.ok(str(e.term) && str(e.it), JSON.stringify(e));
+    assert.ok(['quant', 'di', 'verbal', 'exam'].includes(e.area), e.term + ' area');
+    assert.ok(e.note === undefined || str(e.note), e.term + ' note');
+    assert.ok(e.tap === undefined || e.tap === false, e.term + ' tap');
+    assert.ok(/^[a-z][a-z '-]*$/.test(e.term), e.term + ': lower-case letters only, so it can be matched in a question');
+    for (const f of [e.term, ...(e.forms || [])]){ const k = f.toLowerCase().replace(/[\s-]+/g, ' '); assert.ok(!seen.has(k), 'twice: ' + f); seen.add(k); }
+  }
+});
