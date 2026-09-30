@@ -66,8 +66,42 @@ const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
 const ESC = { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' };
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ESC[c]);
 const clone = o => o == null ? o : JSON.parse(JSON.stringify(o));
-function inline(s){ return esc(s).replace(/\^\{([^}]*)\}/g,'<sup>$1</sup>').replace(/_\{([^}]*)\}/g,'<sub>$1</sub>').replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>'); }
-function rich(s){ return String(s == null ? '' : s).split(/\n{2,}/).map(p => '<p>' + inline(p).replace(/\n/g,'<br>') + '</p>').join(''); }
+/* sec: the section whose glossary terms get underlined (see glossary below); omit it for plain text. */
+function inline(s, sec){ return gloss(esc(s), sec).replace(/\^\{([^}]*)\}/g,'<sup>$1</sup>').replace(/_\{([^}]*)\}/g,'<sub>$1</sub>').replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>'); }
+function rich(s, sec){ return String(s == null ? '' : s).split(/\n{2,}/).map(p => '<p>' + inline(p, sec).replace(/\n/g,'<br>') + '</p>').join(''); }
+/* English–Italian glossary (knowledge/glossary.json): terms are underlined in practice questions, solutions, lessons and drills;
+   a tap shows the Italian. Never in a mock or while a diagnostic block runs, as on the real exam. Each term only once per paragraph. */
+let GL = null;
+const GLOSS_AREAS = { 'Quant': ['quant', 'di', 'exam'], 'Data Insights': ['quant', 'di', 'exam'], 'Verbal': ['verbal', 'exam'] };
+function buildGloss(list){
+  const byForm = new Map(), forms = [];
+  for (const e of list || []) for (const f of [e.term, ...(e.forms || [])]){ byForm.set(glossKey(f), e); if (e.tap !== false) forms.push(f); }
+  forms.sort((a, b) => b.length - a.length);
+  const re = forms.length ? new RegExp('\\b(' + forms.map(f => f.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/[ -]/g, '[\\s-]+')).join('|') + ')(?:s|es)?\\b', 'gi') : null;
+  return { re, byForm, list: list || [] };
+}
+const glossKey = w => String(w).toLowerCase().replace(/[\s-]+/g, ' ');
+function glossEntry(w){ return GL.byForm.get(glossKey(w)) || null; }
+function glossOn(){
+  if (!GL || !GL.re || S.ui.gloss === false) return false;
+  const r = S.run; return !(r && (r.kind === 'exam' || r.kind === 'diagnostic') && LOCKED.includes(r.phase));
+}
+function gloss(html, sec){
+  const areas = sec && GLOSS_AREAS[sec]; if (!areas || !glossOn()) return html;
+  const used = new Set();
+  return html.replace(GL.re, (m, w) => { const e = glossEntry(w); if (!e || !areas.includes(e.area) || used.has(e.term)) return m; used.add(e.term); return `<button type="button" class="gl" data-gl="${esc(e.term)}">${m}</button>`; });
+}
+function showGloss(btn){
+  const e = GL && GL.byForm.get(glossKey(btn.dataset.gl)), pop = $('#glpop'); if (!e || !pop) return;
+  pop.innerHTML = `<b lang="en">${esc(e.term)}</b><span class="it" lang="it">${esc(e.it)}</span>${e.note ? `<span class="note" lang="it">${esc(e.note)}</span>` : ''}`;
+  pop.hidden = false;
+  const r = btn.getBoundingClientRect(), w = Math.min(300, window.innerWidth - 24);
+  pop.style.width = w + 'px';
+  const x = Math.min(Math.max(12, r.left), window.innerWidth - w - 12);
+  let y = r.bottom + 6; if (y + pop.offsetHeight > window.innerHeight - 8) y = Math.max(8, r.top - pop.offsetHeight - 6);
+  pop.style.left = x + 'px'; pop.style.top = y + 'px';
+}
+function hideGloss(){ const pop = $('#glpop'); if (pop && !pop.hidden) pop.hidden = true; }
 const pad = n => String(n).padStart(2,'0');
 function ymd(d){ return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()); }
 const today = () => ymd(new Date());
@@ -166,7 +200,7 @@ function pendingReview(){ return Object.values(S.sessions).find(s => s.status ==
 
 function attemptsAll(){
   const out = [];
-  for (const s of Object.values(S.sessions)) for (const a of (s.attempts || [])) out.push({ ...a, kind: s.kind, timed: !!s.timed, sid: s.id });
+  for (const s of Object.values(S.sessions)) for (const a of (s.attempts || [])) out.push({ ...a, kind: s.kind, timed: a.timed != null ? !!a.timed : !!s.timed, sid: s.id });
   return out.sort((a,b) => String(a.at).localeCompare(String(b.at)));
 }
 function dueErrors(){ const t = today(); return Object.values(S.errors).filter(e => e.status === 'active' && e.nextDue && e.nextDue <= t && S.bank[e.qid]).sort((a,b) => String(a.nextDue).localeCompare(String(b.nextDue))); }
@@ -185,6 +219,7 @@ function computeStats(){
   const pace = ans.length ? ans.reduce((s,a) => s + a.timeSec / (PACE[a.section] || 120), 0) / ans.length : null;
   let sec = 0; for (const s of Object.values(S.sessions)) sec += Number(s.durationSec) || 0;
   let min = 0; for (const m of Object.values(S.studylog)) for (const e of (m.entries || [])) min += Number(e.minutes) || 0;
+  sec += Number((S.profile.drills || {}).totalSec) || 0;
   return { n, acc, tacc, tn: t.length, pace, hours: sec/3600 + min/60, due: dueErrors().length };
 }
 function alerts(){
@@ -245,8 +280,8 @@ function renderChrome(){
   $('#countdown').textContent = (days > 0 ? `${days} days to ${fmtDate(examDate())}` : `Exam date: ${fmtDate(examDate())}`) + (S.dbStatus === 'ok' ? ' · ' + saveText() : '');
   const inTest = S.run && LOCKED.includes(S.run.phase);
   const nav = $('#tabs'); nav.hidden = !!inTest;
-  const due = S.dbStatus === 'ok' ? dueErrors().length : 0;
-  const tabs = [['today','Today'],['coach','Coach'],['learn','Learn'],['diagnostic','Diagnostic'],['practice','Practice'],['retests','Retests', due],['errors','Error log'],['mastery','Mastery'],['mocks','Mocks'],['profile','Profile'],['settings','Settings']];
+  const due = S.dbStatus === 'ok' ? dueErrors().length + dueOgErrors().length : 0;
+  const tabs = [['today','Today'],['coach','Coach'],['learn','Learn'],['drills','Drills'],['diagnostic','Diagnostic'],['practice','Practice'],['retests','Retests', due],['errors','Error log'],['mastery','Mastery'],['mocks','Mocks'],['profile','Profile'],['settings','Settings']];
   nav.innerHTML = tabs.map(([k,l,b]) => `<button data-act="tab" data-arg="${k}" ${S.tab === k && !S.run ? 'aria-current="page"' : ''}>${l}${b ? ` <span class="badge">${b}</span>` : ''}</button>`).join('');
   let msg = '';
   if (S.dbStatus === 'absent') msg = dbErrorText({ code:'no_storage' });
@@ -260,33 +295,34 @@ function render(){
   renderChrome();
   const main = $('#main');
   if (S.run){ main.innerHTML = runView(); return; }
+  if (S.drill){ main.innerHTML = drillView(); const f = S.drill.last || S.drill.phase !== 'ask' ? $('#drill-go') : $('#drill-in'); if (f) f.focus(); return; }
   S.ui.dirty = false;
   main.innerHTML = (VIEWS[S.tab] || VIEWS.today)();
 }
 let rq = false;
 function scheduleRender(){
   if (rq) return; rq = true;
-  setTimeout(() => { rq = false; renderChrome(); if (S.run || S.ui.dirty) return; $('#main').innerHTML = (VIEWS[S.tab] || VIEWS.today)(); }, 40);
+  setTimeout(() => { rq = false; renderChrome(); if (S.run || S.drill || S.ui.dirty) return; $('#main').innerHTML = (VIEWS[S.tab] || VIEWS.today)(); }, 40);
 }
 
 /* ------------------------------------------------------------------ question rendering */
 function qBody(q, ans, opt){
   opt = opt || {};
   const ctx = contextHTML(q);
-  const main = `<div class="stem">${rich(q.stem)}</div>${statementsHTML(q)}${answerHTML(q, ans, opt)}`;
+  const main = `<div class="stem">${rich(q.stem, q.section)}</div>${statementsHTML(q)}${answerHTML(q, ans, opt)}`;
   if (q.passage || q.tabs) return `<div class="qgrid split"><div>${ctx}</div><div class="qgrid">${main}</div></div>`;
   return `<div class="qgrid">${ctx}${main}</div>`;
 }
 function contextHTML(q){
-  if (q.passage) return `<article class="passage"><p class="eyebrow">${esc(q.passage.title || 'Passage')}</p>${rich(q.passage.text)}</article>`;
-  if (q.tabs){ const t = Math.min(S.ui.msrTab || 0, q.tabs.length-1); return `<div class="msr"><div class="msr-tabs" role="tablist">${q.tabs.map((tb,i) => `<button role="tab" aria-selected="${i===t}" data-act="msrtab" data-t="${i}">${esc(tb.title)}</button>`).join('')}</div><div class="msr-body" role="tabpanel" id="msr-body">${rich(q.tabs[t].body)}</div></div>`; }
+  if (q.passage) return `<article class="passage"><p class="eyebrow">${esc(q.passage.title || 'Passage')}</p>${rich(q.passage.text, q.section)}</article>`;
+  if (q.tabs){ const t = Math.min(S.ui.msrTab || 0, q.tabs.length-1); return `<div class="msr"><div class="msr-tabs" role="tablist">${q.tabs.map((tb,i) => `<button role="tab" aria-selected="${i===t}" data-act="msrtab" data-t="${i}">${esc(tb.title)}</button>`).join('')}</div><div class="msr-body" role="tabpanel" id="msr-body">${rich(q.tabs[t].body, q.section)}</div></div>`; }
   if (q.table) return tableHTML(q);
   if (q.chart) return chartHTML(q.chart);
   return '';
 }
 function statementsHTML(q){
   if (q.type !== 'DS' || !q.statements) return '';
-  return `<ol class="stmts">${q.statements.map((s,i) => `<li><span class="n">(${i+1})</span>${inline(s)}</li>`).join('')}</ol>`;
+  return `<ol class="stmts">${q.statements.map((s,i) => `<li><span class="n">(${i+1})</span>${inline(s, q.section)}</li>`).join('')}</ol>`;
 }
 function tableHTML(q){
   const t = q.table; const st = S.ui.sort[q.id] || { c:null, dir:1 };
@@ -316,9 +352,9 @@ function answerHTML(q, ans, opt){
       return `<div class="box scroll"><table class="tbl parts"><thead><tr>${q.parts.map(p => `<th>${esc(p.label)}</th>`).join('')}<th>Value</th></tr></thead><tbody>${opts.map((o,i) => `<tr>${q.parts.map((p,pi) => `<td><button class="opt ${cls(p,i,pi)}" data-act="pickpart" data-p="${pi}" data-i="${i}" aria-pressed="${cur[pi]===i}" aria-label="${esc(p.label)}: ${esc(o)}" ${lock?'disabled':''}>${cur[pi]===i ? '●' : '○'}</button></td>`).join('')}<td class="mono">${esc(o)}</td></tr>`).join('')}</tbody></table></div>`;
     }
     if (q.partStyle === 'dropdown'){
-      return `<div class="stack">${q.parts.map((p,pi) => `<p class="dd">${inline(p.label)} <select data-p="${pi}" ${lock?'disabled':''} aria-label="Part ${pi+1}"><option value="">Select…</option>${p.options.map((o,i) => `<option value="${i}" ${cur[pi]===i?'selected':''}>${esc(o)}</option>`).join('')}</select>${rev ? `<span class="ok">Correct: ${esc(p.options[p.answer])}</span>` : ''}</p>`).join('')}</div>`;
+      return `<div class="stack">${q.parts.map((p,pi) => `<p class="dd">${inline(p.label, q.section)} <select data-p="${pi}" ${lock?'disabled':''} aria-label="Part ${pi+1}"><option value="">Select…</option>${p.options.map((o,i) => `<option value="${i}" ${cur[pi]===i?'selected':''}>${esc(o)}</option>`).join('')}</select>${rev ? `<span class="ok">Correct: ${esc(p.options[p.answer])}</span>` : ''}</p>`).join('')}</div>`;
     }
-    return `<div class="box scroll"><table class="tbl parts"><thead><tr><th>Yes</th><th>No</th><th>Statement</th></tr></thead><tbody>${q.parts.map((p,pi) => `<tr>${p.options.map((o,i) => `<td><button class="opt ${cls(p,i,pi)}" data-act="pickpart" data-p="${pi}" data-i="${i}" aria-pressed="${cur[pi]===i}" aria-label="${esc(o)}: statement ${pi+1}" ${lock?'disabled':''}>${cur[pi]===i ? '●' : '○'}</button></td>`).join('')}<td class="stmt">${inline(p.label)}</td></tr>`).join('')}</tbody></table></div>`;
+    return `<div class="box scroll"><table class="tbl parts"><thead><tr><th>Yes</th><th>No</th><th>Statement</th></tr></thead><tbody>${q.parts.map((p,pi) => `<tr>${p.options.map((o,i) => `<td><button class="opt ${cls(p,i,pi)}" data-act="pickpart" data-p="${pi}" data-i="${i}" aria-pressed="${cur[pi]===i}" aria-label="${esc(o)}: statement ${pi+1}" ${lock?'disabled':''}>${cur[pi]===i ? '●' : '○'}</button></td>`).join('')}<td class="stmt">${inline(p.label, q.section)}</td></tr>`).join('')}</tbody></table></div>`;
   }
   const ch = choicesOf(q);
   return `<div class="choices" role="group" aria-label="Answer choices">${ch.map((c,i) => {
@@ -342,13 +378,13 @@ function calc(expr){
 }
 function solutionHTML(q){
   const rows = [['Answer', esc(correctText(q))]];
-  if (q.method) rows.push(['Best method', inline(q.method)]);
-  if (q.altMethod) rows.push(['Another route', inline(q.altMethod)]);
-  if (q.trap) rows.push(['The trap', inline(q.trap)]);
-  if (q.solution) rows.push(['Every option', inline(q.solution)]);
+  if (q.method) rows.push(['Best method', inline(q.method, q.section)]);
+  if (q.altMethod) rows.push(['Another route', inline(q.altMethod, q.section)]);
+  if (q.trap) rows.push(['The trap', inline(q.trap, q.section)]);
+  if (q.solution) rows.push(['Every option', inline(q.solution, q.section)]);
   const L = lessonOf(q.topic);
   return `<div class="sol"><dl>${rows.map(([k,v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl>
-    ${L ? `<details class="more"><summary>Theory: ${esc(q.topic)}</summary><div class="stack" style="margin-top:8px"><p class="muted">${inline(L.summary)}</p><div><p class="eyebrow">Key ideas</p><ul class="answer">${L.ideas.map(x => `<li>${inline(x)}</li>`).join('')}</ul></div><div><p class="eyebrow">Traps</p><ul class="answer">${L.traps.map(x => `<li>${inline(x)}</li>`).join('')}</ul></div></div></details>` : ''}
+    ${L ? `<details class="more"><summary>Theory: ${esc(q.topic)}</summary><div class="stack" style="margin-top:8px"><p class="muted">${inline(L.summary, L.section)}</p><div><p class="eyebrow">Key ideas</p><ul class="answer">${L.ideas.map(x => `<li>${inline(x, L.section)}</li>`).join('')}</ul></div><div><p class="eyebrow">Traps</p><ul class="answer">${L.traps.map(x => `<li>${inline(x, L.section)}</li>`).join('')}</ul></div></div></details>` : ''}
     <p class="fine">Expected time ≈ ${fmtTime(expOf(q))} · ${esc(q.topic || '')}${q.subtopic ? ' · ' + esc(q.subtopic) : ''} · level ${q.difficulty || '—'}${q.set === 'generated' ? ' · generated question: new numbers every time, answer computed exactly' : ''} · <button class="linkbtn" data-act="report">Report a problem</button></p>
     <div id="report-box" hidden><label class="lab" for="report-note">What looks wrong?</label><textarea id="report-note" rows="2"></textarea><div class="row" style="margin-top:8px"><button class="btn small" data-act="reportsend">Send report</button><button class="btn small ghost" data-act="reportcancel">Cancel</button></div></div></div>`;
 }
@@ -746,14 +782,14 @@ function plannerCtx(minutes, topic){
     pool: practicePool().map(q => ({ id: q.id, topic: q.topic, section: q.section, type: q.type, group: groupOf(q), difficulty: q.difficulty || 3, seen: seen.has(q.id), gen: q.set === 'generated' }))
       .concat(genPool(topic).map(q => ({ ...q, seen: seen.has(q.id) }))),
     mocks: loggedMocks(), hoursPerWeek: interview().hoursPerWeek || null, claudePlan: S.profile.coach || null,
-    examinerFocus: examinerFocus().map(f => f.topic),
+    examinerFocus: examinerFocus().map(f => f.topic), drill: drillPlanInfo(), ogDue: dueOgErrors().length,
     // computed only when the plan or the coach's answers read them
     get nextMock(){ return nextMockNow(); },
     get mockPoolReady(){ return SECTIONS.every(s => poolCheck(s).ok); },
     get ability(){ const ab = abilityNow(); return { estimate: ab.estimatedScore, confidence: ab.confidence.label, n: ab.n }; },
     get latestSim(){ const m = fullSims().slice(-1)[0]; return m ? { date: m.date, total: m.total, range: m.range } : null; } };
 }
-const CTA = { interview:'Open the interview', review:'Continue the review', diagnostic:'Start', retests:'Start retests', weak:'Start', mixed:'Start', fullmock:'Open Mocks' };
+const CTA = { interview:'Open the interview', review:'Continue the review', diagnostic:'Start', retests:'Start retests', weak:'Start', mixed:'Start', fullmock:'Open Mocks', drill:'Start' };
 function planCard(nx){
   if (nx) return `<div class="card next"><p class="eyebrow">Next step · ${fmtDate(today())}</p><h1>${esc(nx.title)}</h1><p class="muted">${esc(nx.why)}</p></div>`;
   const min = todayMinutes(), p = GMATPlanner.plan(plannerCtx(min)), [first, ...rest] = p.items;
@@ -1025,17 +1061,20 @@ VIEWS.practice = function(){
       <div class="row"><button class="btn primary" data-act="startpractice" ${can ? '' : 'disabled'}>Start ${can} question${can === 1 ? '' : 's'}</button><button class="btn" data-act="startsmartform" ${inSec.length || genSec.length ? '' : 'disabled'}>Let the coach pick</button><span class="fine">${match.length} written question${match.length === 1 ? '' : 's'} match${match.length === 1 ? 'es' : ''} these filters${genMatch.length ? ', plus new generated questions without limit (written ones come first)' : ''}. The coach picks within the section and topic, weighted toward your weak spots.</span></div></div>`
     : `<div class="card stack"><h2>Your training sets are not here yet</h2><p class="muted">Practice opens section by section once you finish that section’s diagnostic block. Then Quant and Data Insights have new generated questions without limit, and Claude adds Verbal sets aimed at your weakest topics.</p><div class="row"><button class="btn primary" data-act="tab" data-arg="diagnostic">Go to the diagnostic</button></div></div>`;
   return `<section><h1>Practice</h1><p class="muted" style="max-width:70ch">Every set logs time, confidence and errors, like the diagnostic. In Learn mode a miss goes straight to review: retry, hints one at a time, then the solution.</p></section>
-    <section class="grid2">${form}</section>`;
+    <section class="grid2">${form}</section>
+    ${ogCard()}`;
 };
 VIEWS.retests = function(){
   const due = dueErrors(); const t = today();
   const upcoming = Object.values(S.errors).filter(e => e.status === 'active' && e.nextDue && e.nextDue > t).sort((a,b) => String(a.nextDue).localeCompare(String(b.nextDue)));
-  const retired = Object.values(S.errors).filter(e => e.status === 'retired').length;
-  const row = e => `<tr><td>${esc(e.topic)}</td><td>${esc(e.errorType || '—')}</td><td class="num">${e.count || 1}</td><td class="num">${e.box || 0}/${INTERVALS.length}</td><td class="num">${fmtDate(e.nextDue)}</td></tr>`;
+  const retired = Object.values(S.errors).filter(e => e.status === 'retired').length, ogDue = dueOgErrors();
+  const row = e => `<tr><td>${esc(e.topic)}${isOg(e.qid) ? ` <span class="pill">${esc(ogName(e.og))}</span>` : ''}</td><td>${esc(e.errorType || '—')}</td><td class="num">${e.count || 1}</td><td class="num">${e.box || 0}/${INTERVALS.length}</td><td class="num">${fmtDate(e.nextDue)}</td></tr>`;
   const head = '<thead><tr><th>Topic</th><th>Last error type</th><th class="num">Misses</th><th class="num">Step</th><th class="num">Due</th></tr></thead>';
   return `<section><h1>Retests</h1><p class="muted" style="max-width:70ch">Every logged error comes back after 1 day, then 3, 7, 21 and 45 days while you keep getting it right. One miss sends it back to the start. After the fifth correct retest it is retired.</p>
     <div class="row"><button class="btn primary" data-act="startRetests" ${due.length ? '' : 'disabled'}>Start ${due.length} due retest${due.length === 1 ? '' : 's'}</button><span class="fine">${retired} retired so far.</span></div></section>
     ${due.length ? `<section><h2>Due now</h2><div class="box scroll"><table class="tbl">${head}<tbody>${due.map(row).join('')}</tbody></table></div></section>` : ''}
+    ${ogDue.length ? `<section><h2>Official Guide: redo these in your book</h2><p class="muted" style="max-width:70ch">Solve each one again without your notes and without looking at the answer, then record the result here.</p><div class="box scroll"><table class="tbl"><thead><tr><th>Question</th><th>Topic</th><th>Last error type</th><th class="num">Misses</th><th class="num">Step</th><th>Result</th></tr></thead><tbody>
+      ${ogDue.map(e => `<tr><td>${esc(ogName(e.og))}</td><td>${esc(e.topic)}</td><td>${esc(e.errorType || '—')}</td><td class="num">${e.count || 1}</td><td class="num">${e.box || 0}/${INTERVALS.length}</td><td><button class="btn small" data-act="ogretest" data-arg="${esc(e.qid)}|1">Right</button> <button class="btn small ghost" data-act="ogretest" data-arg="${esc(e.qid)}|0">Wrong again</button></td></tr>`).join('')}</tbody></table></div></section>` : ''}
     <section><h2>Coming up</h2>${upcoming.length ? `<div class="box scroll"><table class="tbl">${head}<tbody>${upcoming.map(row).join('')}</tbody></table></div>` : '<p class="muted">No retests scheduled yet. They appear as you log errors.</p>'}</section>`;
 };
 VIEWS.errors = function(){
@@ -1408,9 +1447,9 @@ function importFile(input){
 
 /* ------------------------------------------------------------------ actions */
 const ACTIONS = {
-  lesson(el){ S.ui.lesson = el.dataset.arg; if (S.run){ if (LOCKED.includes(S.run.phase)) return; endRun('learn'); return; } S.tab = 'learn'; try { history.replaceState(null, '', '#learn'); } catch(e){} render(); window.scrollTo(0,0); },
+  lesson(el){ S.ui.lesson = el.dataset.arg; quitDrill(); if (S.run){ if (LOCKED.includes(S.run.phase)) return; endRun('learn'); return; } S.tab = 'learn'; try { history.replaceState(null, '', '#learn'); } catch(e){} render(); window.scrollTo(0,0); },
   lessonback(){ S.ui.lesson = null; render(); window.scrollTo(0,0); },
-  tab(el){ const t = el.dataset.arg; if (t === 'learn') S.ui.lesson = null; if (S.run){ if (LOCKED.includes(S.run.phase)) return; endRun(t); return; } S.tab = t; try { history.replaceState(null, '', '#' + t); } catch(e){} render(); window.scrollTo(0,0); },
+  tab(el){ const t = el.dataset.arg; if (t === 'learn') S.ui.lesson = null; quitDrill(); if (S.run){ if (LOCKED.includes(S.run.phase)) return; endRun(t); return; } S.tab = t; try { history.replaceState(null, '', '#' + t); } catch(e){} render(); window.scrollTo(0,0); },
   startBlock(el){ startBlock(el.dataset.arg); },
   restartBlock(el){ for (const s of diagSessions(el.dataset.arg).filter(s => s.status === 'active')) write('sessions/' + s.id, 'update', { status:'abandoned' }); startBlock(el.dataset.arg); },
   openResults(el){ openResults(el.dataset.arg); },
@@ -1448,7 +1487,7 @@ const ACTIONS = {
   lnext(){ learnAdvance(); },
   lend(){ const r = S.run; if (r.phase === 'learn' && r.sub === 'answer'){ r.phase = 'done'; r.closed = true; stopTicker(); write('sessions/' + r.id, 'update', { status:'done', end:new Date().toISOString(), durationSec: Math.round((Date.now() - r.started)/1000) }); render(); } else learnAdvanceEnd(); },
   closedone(){ endRun('today'); },
-  msrtab(el){ const ct = curTarget(), q = ct ? ct.q : S.bank[S.ui.reviewQ]; if (!q) return; const t = +el.dataset.t; S.ui.msrTab = t; $$('[data-act="msrtab"]').forEach(b => b.setAttribute('aria-selected', String(+b.dataset.t === t))); const body = $('#msr-body'); if (body) body.innerHTML = rich(q.tabs[t].body); },
+  msrtab(el){ const ct = curTarget(), q = ct ? ct.q : S.bank[S.ui.reviewQ]; if (!q) return; const t = +el.dataset.t; S.ui.msrTab = t; $$('[data-act="msrtab"]').forEach(b => b.setAttribute('aria-selected', String(+b.dataset.t === t))); const body = $('#msr-body'); if (body) body.innerHTML = rich(q.tabs[t].body, q.section); },
   sort(el){ const id = el.dataset.q, c = +el.dataset.c; const st = S.ui.sort[id] || { c:null, dir:1 }; S.ui.sort[id] = st.c === c ? { c, dir: -st.dir } : { c, dir: 1 }; const box = $(`.ta[data-q="${id}"]`); if (box) box.outerHTML = tableHTML(S.bank[id]); },
   startpractice(){ const P = S.ui.practice; const seen = new Set(attemptsAll().map(a => a.qid));
     let pool = practicePool().filter(q => (!P.section || q.section === P.section) && (!P.topic || q.topic === P.topic) && (!P.diff || String(q.difficulty) === P.diff || (P.diff === '5' && q.difficulty >= 5)) && (!P.unseen || !seen.has(q.id)));
@@ -1473,6 +1512,13 @@ const ACTIONS = {
   startsmart(el){ const [mode, topic, n] = el.dataset.arg.split('|'); startSmart(mode, +n, { topic: topic || null }); },
   startsmartform(){ const P = S.ui.practice; startSmart(P.mode === 'timed' ? 'timed' : 'learn', +P.count, { section: P.section || null, topic: P.topic || null }); },
   startmock(el){ startMock(el.dataset.arg); },
+  startdrill(el){ const [skill, level] = String(el.dataset.arg || '').split('|'); quitDrill(); startDrill(skill || null, level ? +level : null); },
+  ogetype(el){ const U = ogUI(); U.etype = el.dataset.v; $$('[data-act="ogetype"]').forEach(b => b.setAttribute('aria-pressed', String(b === el))); },
+  ogretest(el){ const [qid, ok] = el.dataset.arg.split('|'); ogRetest(qid, ok === '1'); },
+  ogdel(el){ ogStash(); S.ui.ogDel = el.dataset.arg; render(); },
+  ogdelno(){ ogStash(); S.ui.ogDel = null; render(); },
+  ogdelok(el){ ogStash(); ogDelete(el.dataset.arg); },
+  drillquit(){ quitDrill(); S.tab = 'drills'; render(); window.scrollTo(0,0); },
   examnext(){ examNext(); },
   exambreak(){ const r = S.run; S.exam.breakUsed = true; r.phase = 'break'; r.breakEnds = Date.now() + SPEC.navigationRules.breaks.minutes * 60000; startTicker(); render(); window.scrollTo(0,0); },
   examclose(){ S.exam = null; S.ui.mockView = 'history'; endRun('mocks'); },
@@ -1495,6 +1541,8 @@ function openMockPage(view, id){
 }
 function learnAdvanceEnd(){ const r = S.run; if (r.adaptive) r.adaptive.n = r.qids.length; r.idx = r.qids.length - 1; learnAdvance(); }
 const SUBMITS = {
+  drill(){ drillSubmit(); },
+  og(){ ogSave(); },
   async studylog(f){ const min = Number($('#sl-min').value), date = $('#sl-date').value || today(), note = $('#sl-note').value.trim();
     if (!min || min < 1){ toast('Enter the minutes you studied.'); return; }
     const key = date.slice(0,7); const doc = S.studylog[key];
@@ -1528,6 +1576,9 @@ const SUBMITS = {
 
 /* ------------------------------------------------------------------ events */
 document.addEventListener('click', e => {
+  const g = e.target.closest('[data-gl]');
+  if (g){ e.preventDefault(); showGloss(g); return; }
+  if (!e.target.closest('#glpop')) hideGloss();
   const el = e.target.closest('[data-act]'); if (!el || el.disabled) return;
   const fn = ACTIONS[el.dataset.act]; if (!fn) return;
   e.preventDefault(); fn(el, e);
@@ -1535,38 +1586,257 @@ document.addEventListener('click', e => {
 document.addEventListener('change', e => {
   const el = e.target;
   if (el.id === 'import-file'){ importFile(el); return; }
+  if (el.id === 'gl-toggle'){ S.ui.gloss = el.checked; try { localStorage.setItem('gmatlab.gloss', el.checked ? 'on' : 'off'); } catch(e){} toast(el.checked ? 'Glossary words are underlined again.' : 'Glossary underlining is off.'); return; }
   if (el.matches('select[data-p]')){ const t = curTarget(); if (!t) return; const p = +el.dataset.p, before = clone(t.get()); const v = Array.isArray(t.get()) ? [...t.get()] : t.q.parts.map(() => null); v[p] = el.value === '' ? null : +el.value; t.set(v); noteAnswer(t, before); syncReady(); return; }
+  if (el.id === 'og-result'){ ogUI().result = el.value; const box = $('#og-err'); if (box) box.hidden = el.value !== 'wrong'; return; }
+  if (el.dataset.ui && el.dataset.ui.startsWith('og.')) ogStash();
   if (el.dataset.ui){ const [grp, key] = el.dataset.ui.split('.'); S.ui[grp] = S.ui[grp] || {}; S.ui[grp][key] = el.type === 'checkbox' ? el.checked : el.value;
     if (grp === 'practice' && key === 'section') S.ui.practice.topic = '';
     render(); }
 });
 document.addEventListener('input', e => {
   const el = e.target;
+  if (el.id === 'gl-search'){ const q = el.value.trim().toLowerCase(); $$('[data-glrow]').forEach(n => { n.hidden = !!q && !n.dataset.glrow.includes(q); }); return; }
   if (el.id === 'kb-search'){ const q = el.value.trim().toLowerCase(); $$('[data-kb]').forEach(n => { n.hidden = !!q && !n.dataset.kb.includes(q); }); return; }
   if (el.id === 'calc-in'){ const out = $('#calc-out'); const v = el.value.trim(); if (!v){ out.textContent = '='; return; } try { const r = calc(v); out.textContent = isFinite(r) ? '= ' + (Math.round(r*1e8)/1e8).toLocaleString('en-US', { maximumFractionDigits: 8 }) : '= —'; } catch(_){ out.textContent = '= …'; } return; }
   if (el.closest('form[data-dirty]')) S.ui.dirty = true;
 });
 document.addEventListener('submit', e => { e.preventDefault(); const f = e.target; const fn = SUBMITS[f.dataset.form]; if (fn) fn(f); });
-window.addEventListener('hashchange', () => { const t = location.hash.slice(1); if (VIEWS[t] && !S.run){ S.tab = t; render(); } });
+window.addEventListener('hashchange', () => { const t = location.hash.slice(1); if (VIEWS[t] && !S.run && !S.drill){ S.tab = t; render(); } });
 
 /* ------------------------------------------------------------------ boot */
+/* ------------------------------------------------------------------ Official Guide tracker
+   Questions from the official books are logged, never copied: book, number, topic, level, result, time and, for a miss,
+   the cause. Each day's entries are one session (kind 'og', mode 'log', id og-YYYY-MM-DD), so they count in mastery, the
+   ability model and the plan; a miss goes to the error log (errors/og-…, source 'og') and comes back in Retests, to redo in the book. */
+const OG_BOOKS = [
+  { key: 'og', name: 'GMAT Official Guide 2026–2027', short: 'OG' },
+  { key: 'qr', name: 'Official Guide Quantitative Review', short: 'OG Quant Review', section: 'Quant' },
+  { key: 'dir', name: 'Official Guide Data Insights Review', short: 'OG DI Review', section: 'Data Insights' },
+  { key: 'vr', name: 'Official Guide Verbal Review', short: 'OG Verbal Review', section: 'Verbal' },
+  { key: 'online', name: 'Official online question bank', short: 'OG online' },
+  { key: 'other', name: 'Other official material', short: 'Official' },
+];
+const OG_DIFF = [['Easy', 2], ['Medium', 4], ['Hard', 5]];     // GMAT Lab's reading of the official labels on its 1–6 scale
+const DI_TYPE = { 'Data Sufficiency': 'DS', 'Two-Part Analysis': 'TPA', 'Table Analysis': 'TA', 'Graphics Interpretation': 'GI', 'Multi-Source Reasoning': 'MSR' };
+const typeOfTopic = (section, topic) => section === 'Quant' ? 'PS' : section === 'Verbal' ? (/^RC/.test(topic) ? 'RC' : 'CR') : (DI_TYPE[topic] || 'DS');
+const ogBook = key => OG_BOOKS.find(b => b.key === key) || OG_BOOKS[0];
+const isOg = qid => /^og-/.test(String(qid));
+const ogName = o => o ? `${ogBook(o.book).short} · ${SHORT[o.section] || o.section} #${o.num}` : '';
+function ogUI(){
+  const U = S.ui.og = S.ui.og || {};
+  if (!U.book) U.book = 'og';
+  const b = ogBook(U.book); if (b.section) U.section = b.section;
+  if (!SECTIONS.includes(U.section)) U.section = 'Quant';
+  if (!SYLLABUS[U.section].includes(U.topic)) U.topic = SYLLABUS[U.section][0];
+  if (!U.diff) U.diff = 'Medium';
+  return U;
+}
+/* Keep what was typed when a select re-renders the form. */
+function ogStash(){ const U = ogUI(); for (const [k, id] of [['num', '#og-num'], ['time', '#og-time'], ['why', '#og-why'], ['rule', '#og-rule'], ['result', '#og-result'], ['mine', '#og-mine'], ['right', '#og-right']]){ const el = $(id); if (el) U[k] = el.value; } }
+function ogAttempts(){ return attemptsAll().filter(a => a.kind === 'og'); }
+function dueOgErrors(){ const t = today(); return Object.values(S.errors).filter(e => isOg(e.qid) && e.status === 'active' && e.nextDue && e.nextDue <= t).sort((a, b) => String(a.nextDue).localeCompare(String(b.nextDue))); }
+function parseTime(v){ v = String(v || '').trim(); if (!v) return 0; const m = /^(\d{1,2}):([0-5]\d)$/.exec(v); if (m) return +m[1] * 60 + +m[2]; return /^\d{1,4}$/.test(v) ? +v : NaN; }
+/* Append one attempt to today's Official Guide session. */
+function ogLogAttempt(at){
+  const sid = 'og-' + today(), ses = S.sessions[sid], attempts = [...((ses && ses.attempts) || []), at];
+  return write('sessions/' + sid, 'set', { kind: 'og', mode: 'log', label: 'Official Guide · ' + fmtDate(today()), status: 'done', reviewed: true, timed: false,
+    start: (ses && ses.start) || at.at, end: at.at, durationSec: attempts.reduce((t, x) => t + (x.timeSec || 0), 0), attempts });
+}
+function saveOgError(at, etype, why, rule, mine, right){
+  const t = today(), prev = S.errors[at.qid];
+  const doc = prev ? clone(prev) : { qid: at.qid, section: at.section, topic: at.topic, subtopic: '', type: at.type, difficulty: at.difficulty, created: t, count: 0, history: [], retests: [], relapses: 0, source: 'og', og: { ...at.og, section: at.section } };
+  delete doc.id;
+  doc.count = (doc.count || 0) + 1; doc.lastWrong = t; doc.errorType = etype; doc.why = why; doc.prevention = rule;
+  doc.myAnswer = mine || '—'; doc.correctAnswer = right || '—'; doc.correctMethod = ''; doc.stemShort = ogName(doc.og) + ' (in the book)';
+  doc.box = 0; doc.nextDue = addDays(t, INTERVALS[0]); doc.status = 'active';
+  doc.history = [...(doc.history || []), { date: t, answer: doc.myAnswer, errorType: etype, why, reason: 'wrong', sid: 'og-' + t }].slice(-20);
+  return write('errors/' + at.qid, 'set', doc);
+}
+async function ogSave(){
+  ogStash();
+  const U = ogUI(), num = String(U.num || '').trim(), sec = parseTime(U.time);
+  if (!/^\d{1,4}$/.test(num)){ toast('Enter the question number from the book.'); return; }
+  if (U.result !== 'right' && U.result !== 'wrong'){ toast('Choose Right or Wrong.'); return; }
+  if (isNaN(sec)){ toast('Write the time as m:ss (for example 2:10), or leave it empty.'); return; }
+  const section = U.section, topic = U.topic, correct = U.result === 'right', qid = `og-${U.book}-${SHORT[section].toLowerCase()}-${num}`;
+  const prev = S.errors[qid], redo = !!(prev && prev.status === 'active');
+  if (!correct && !redo && !U.etype){ toast('Pick the error type first.'); return; }
+  const at = { qid, answer: null, correct, unanswered: false, timeSec: sec, expectedSec: Math.round(PACE[section]), confidence: null, section, topic, type: typeOfTopic(section, topic), skill: null,
+    difficulty: (OG_DIFF.find(d => d[0] === U.diff) || OG_DIFF[1])[1], at: new Date().toISOString(), timed: sec > 0, og: { book: U.book, num: +num, diff: U.diff }, ...(redo ? { retest: true } : {}) };
+  const ok = await ogLogAttempt(at); if (!ok) return;
+  if (redo){ recordRetest({ id: qid }, correct); if (!correct && U.etype) write('errors/' + qid, 'update', { errorType: U.etype, why: (U.why || '').trim() || prev.why || '', prevention: (U.rule || '').trim() || prev.prevention || '' }); }
+  else if (!correct) saveOgError(at, U.etype, (U.why || '').trim(), (U.rule || '').trim(), U.mine, U.right);
+  toast(redo ? `Retest recorded: ${correct ? 'right, the next one comes later' : 'wrong again, it comes back tomorrow'}.` : correct ? `Saved: ${ogName({ ...at.og, section })}, right.` : `Saved to the error log: ${ogName({ ...at.og, section })}. Redo it in the book tomorrow.`);
+  Object.assign(U, { num: String(+num + 1), time: '', result: '', etype: null, why: '', rule: '', mine: '', right: '' });
+  S.ui.dirty = false; render();
+}
+function ogRetest(qid, correct){
+  const e = S.errors[qid]; if (!e) return;
+  const o = e.og || {}, section = e.section;
+  ogLogAttempt({ qid, answer: null, correct, unanswered: false, timeSec: 0, expectedSec: Math.round(PACE[section] || 120), confidence: null, section, topic: e.topic, type: e.type, skill: null, difficulty: e.difficulty, at: new Date().toISOString(), timed: false, og: { book: o.book, num: o.num, diff: o.diff }, retest: true });
+  recordRetest({ id: qid }, correct);
+  toast(correct ? 'Right: the next retest comes later.' : 'Wrong again: it comes back tomorrow.'); render();
+}
+function ogCard(){
+  const U = ogUI(), b = ogBook(U.book), at = ogAttempts(), recent = at.slice(-12).reverse();
+  const stats = SECTIONS.map(sec => { const l = at.filter(a => a.section === sec), t = l.filter(a => a.timeSec > 0);
+    return { sec, n: l.length, acc: l.length ? l.filter(a => a.correct).length / l.length : null, pace: t.length ? t.reduce((s, a) => s + a.timeSec / a.expectedSec, 0) / t.length : null }; });
+  const opt = (v, label, cur) => `<option value="${esc(v)}" ${String(cur) === String(v) ? 'selected' : ''}>${esc(label)}</option>`;
+  const letters = (id, cur, label) => `<div><label class="lab" for="${id}">${label}</label><select id="${id}">${opt('', '—', cur)}${[...LETTERS].map(l => opt(l, l, cur)).join('')}</select></div>`;
+  return `<section class="grid2">
+    <form class="card stack" data-form="og" data-dirty><h2>Official Guide tracker</h2>
+      <p class="muted">Log the official questions you do in the books: they count in Mastery, the Error log, your ability estimate and the plan. Only the number is saved, never the question.</p>
+      <div class="fgrid">
+        <div><label class="lab" for="og-book">Book</label><select id="og-book" data-ui="og.book">${OG_BOOKS.map(x => opt(x.key, x.name, U.book)).join('')}</select></div>
+        <div><label class="lab" for="og-sec">Section</label><select id="og-sec" data-ui="og.section" ${b.section ? 'disabled' : ''}>${SECTIONS.map(s => opt(s, s, U.section)).join('')}</select></div>
+        <div><label class="lab" for="og-num">Question number</label><input id="og-num" type="text" inputmode="numeric" autocomplete="off" value="${esc(U.num || '')}" placeholder="e.g. 123"></div>
+        <div><label class="lab" for="og-topic">Topic</label><select id="og-topic" data-ui="og.topic">${SYLLABUS[U.section].map(t => opt(t, t, U.topic)).join('')}</select></div>
+        <div><label class="lab" for="og-diff">Difficulty in the book</label><select id="og-diff" data-ui="og.diff">${OG_DIFF.map(([d]) => opt(d, d, U.diff)).join('')}</select></div>
+        <div><label class="lab" for="og-time">Your time (m:ss)</label><input id="og-time" type="text" inputmode="numeric" autocomplete="off" value="${esc(U.time || '')}" placeholder="e.g. 2:10, or empty"></div>
+        <div><label class="lab" for="og-result">Result</label><select id="og-result">${opt('', 'Choose…', U.result)}${opt('right', 'Right', U.result)}${opt('wrong', 'Wrong', U.result)}</select></div>
+      </div>
+      <div id="og-err" class="stack" ${U.result === 'wrong' ? '' : 'hidden'}>
+        <div class="chips" role="group" aria-label="Error type">${ERROR_TYPES.map(([k, d]) => `<button type="button" class="chip" data-act="ogetype" data-v="${k}" title="${esc(d)}" aria-pressed="${U.etype === k}">${k}</button>`).join('')}</div>
+        <div class="fgrid">${letters('og-mine', U.mine, 'Your answer (optional)')}${letters('og-right', U.right, 'Right answer (optional)')}</div>
+        <div><label class="lab" for="og-why">Why I missed it</label><textarea id="og-why" rows="2">${esc(U.why || '')}</textarea></div>
+        <div><label class="lab" for="og-rule">Prevention rule</label><textarea id="og-rule" rows="2">${esc(U.rule || '')}</textarea></div>
+        <p class="fine">If this question is already in your error log, it is recorded as a retest instead.</p>
+      </div>
+      <div class="row"><button class="btn primary" type="submit">Save</button><span class="fine">Expected time at real pace: ${fmtTime(PACE[U.section])} per question.</span></div>
+    </form>
+    <div class="stack"><h2>Your official questions</h2>
+      ${at.length ? `<div class="box scroll"><table class="tbl"><thead><tr><th>Section</th><th class="num">Questions</th><th class="num">Accuracy</th><th class="num">Time vs pace</th></tr></thead><tbody>${stats.map(x => `<tr><td>${esc(x.sec)}</td><td class="num">${x.n}</td><td class="num">${pct(x.acc)}</td><td class="num">${x.pace == null ? '—' : x.pace.toFixed(2) + '×'}</td></tr>`).join('')}</tbody></table></div>
+      <div class="box scroll"><table class="tbl"><thead><tr><th>Date</th><th>Question</th><th>Topic</th><th>Result</th><th class="num">Time</th><th></th></tr></thead><tbody>${recent.map(a => { const key = a.sid + '|' + a.at;
+        return `<tr><td>${fmtDate(a.at)}</td><td>${esc(ogName({ ...(a.og || {}), section: a.section }))}</td><td>${esc(a.topic)}</td><td>${a.correct ? '<span class="res-ok">✓ Right</span>' : '<span class="res-no">✗ Wrong</span>'}${a.retest ? ' <span class="pill">retest</span>' : ''}</td><td class="num">${a.timeSec ? fmtTime(a.timeSec) : '—'}</td>
+        <td>${S.ui.ogDel === key ? `<button class="btn small danger" data-act="ogdelok" data-arg="${esc(key)}">Delete</button> <button class="btn small ghost" data-act="ogdelno">Keep</button>` : `<button class="linkbtn" data-act="ogdel" data-arg="${esc(key)}">Remove</button>`}</td></tr>`; }).join('')}</tbody></table></div>` : '<p class="muted">Nothing logged yet. Do a few questions in the Official Guide, then log each one here: it takes ten seconds.</p>'}
+    </div></section>`;
+}
+/* Remove a logged entry (a typo); the error it created goes too if nothing else happened to it. */
+function ogDelete(key){
+  const i = key.lastIndexOf('|'), sid = key.slice(0, i), atIso = key.slice(i + 1), ses = S.sessions[sid]; if (!ses) return;
+  const gone = (ses.attempts || []).find(a => a.at === atIso), attempts = (ses.attempts || []).filter(a => a.at !== atIso);
+  write('sessions/' + sid, attempts.length ? 'update' : 'delete', attempts.length ? { attempts, durationSec: attempts.reduce((t, x) => t + (x.timeSec || 0), 0) } : undefined);
+  const e = gone && S.errors[gone.qid];
+  if (e && !gone.retest && e.count === 1 && !(e.retests || []).length && e.created === String(atIso).slice(0, 10)) write('errors/' + gone.qid, 'delete');
+  S.ui.ogDel = null; toast('Entry removed.'); render();
+}
+
+/* ------------------------------------------------------------------ drills: the basics, fast (drills.js)
+   Progress lives in profile/drills: { skills: { id: { passed: 0–3, runs: [...] } }, totalSec, lastDate, updatedAt }. */
+const DR = window.GMATDrills || null;
+let drillTimer = null;
+function drillProgress(){ return (S.profile.drills || {}).skills || {}; }
+function drillPlanInfo(){
+  if (!DR) return null;
+  const nx = DR.nextDrill(drillProgress()), d = S.profile.drills || {};
+  return { skill: nx ? nx.skill : null, name: nx ? nx.name : null, level: nx ? nx.level : null, doneToday: d.lastDate === today(), allMastered: !nx };
+}
+function drillLevelOf(skill){ return Math.min(DR.LEVELS, ((drillProgress()[skill] || {}).passed || 0) + 1); }
+function startDrill(skill, level){
+  if (!DR || S.run) return;
+  if (!skill){ const nx = DR.nextDrill(drillProgress()); skill = nx ? nx.skill : DR.skills()[0].id; }
+  level = level || drillLevelOf(skill);
+  S.drill = { skill, level, items: DR.makeSet(skill, level, DR.SET_SIZE), i: 0, results: [], phase: 'ask', start: Date.now(), qStart: Date.now(), last: null };
+  S.tab = 'drills'; try { history.replaceState(null, '', '#drills'); } catch(e){}
+  stopDrillTimer(); drillTimer = setInterval(() => { const D = S.drill, el = $('#drill-clock'); if (!D){ stopDrillTimer(); return; } if (el && D.phase === 'ask' && !D.last) el.textContent = ((Date.now() - D.qStart) / 1000).toFixed(1) + ' s'; }, 100);
+  render(); window.scrollTo(0,0);
+}
+function stopDrillTimer(){ if (drillTimer){ clearInterval(drillTimer); drillTimer = null; } }
+function quitDrill(){ S.drill = null; stopDrillTimer(); }
+function drillSubmit(){
+  const D = S.drill; if (!D || D.phase !== 'ask') return;
+  if (D.last){ // "Next"
+    D.last = null; D.i++; D.qStart = Date.now();
+    if (D.i >= D.items.length) saveDrill();
+    render(); return;
+  }
+  const it = D.items[D.i], input = ($('#drill-in') || {}).value || '', res = DR.check(it, input);
+  if (res.reason === 'empty' || res.reason === 'unreadable'){ D.hint = res.reason === 'empty' ? 'Type your answer first.' : 'Write a number, like 12, −3, 0.75 (or 0,75), 3/4 or 3:4.'; render(); return; }
+  const sec = Math.round((Date.now() - D.qStart) / 100) / 10;
+  D.results.push({ ok: res.ok, sec, input, reason: res.reason });
+  D.last = { ok: res.ok, sec, input, reason: res.reason }; D.hint = null;
+  render();
+}
+function saveDrill(){
+  const D = S.drill, ev = DR.evaluate(D.skill, D.level, D.results);
+  const doc = clone(S.profile.drills || {}); delete doc.id;
+  doc.skills = doc.skills || {};
+  const sp = doc.skills[D.skill] = doc.skills[D.skill] || { passed: 0, runs: [] };
+  const before = sp.passed || 0;
+  if (ev.passed && D.level > before) sp.passed = D.level;
+  sp.runs = [...(sp.runs || []), { date: today(), level: D.level, n: ev.n, correct: ev.correct, medianSec: ev.medianSec, passed: ev.passed }].slice(-20);
+  doc.totalSec = (doc.totalSec || 0) + Math.round((Date.now() - D.start) / 1000);
+  doc.lastDate = today(); doc.updatedAt = new Date().toISOString();
+  write('profile/drills', 'set', doc);
+  D.eval = ev; D.levelUp = (sp.passed || 0) > before; D.phase = 'done'; stopDrillTimer();
+}
+function drillView(){
+  const D = S.drill, sk = DR.skills().find(s => s.id === D.skill);
+  if (D.phase === 'done') return drillDoneView(sk);
+  const it = D.items[D.i], fb = D.last, lastQ = D.i === D.items.length - 1;
+  const hint = it.form === 'fraction' ? 'As a fraction in lowest terms, like 3/4.' : it.form === 'decimal' ? 'As a decimal, like 0.375 (or 0,375).' : /:/.test(DR.show(it)) ? 'As a ratio, like 3:4.' : 'Whole numbers, decimals (0.75 or 0,75) or fractions (3/4).';
+  let msg = '';
+  if (fb && fb.ok) msg = `<p class="msg good">✓ Right in ${fb.sec.toFixed(1)} s${fb.sec > it.target ? ` · the target is ${it.target} s: aim for speed next time` : ''}</p>`;
+  else if (fb) msg = `<p class="msg bad">✗ ${fb.reason === 'lowest' ? 'Right value, but not in lowest terms.' : fb.reason === 'form' ? (it.form === 'fraction' ? 'Write it as a fraction.' : 'Write it as a decimal.') : 'Not right.'} The answer is ${esc(DR.show(it))}.</p><p class="muted">${inline(it.tip, 'Quant')}</p>`;
+  return `<div class="testbar"><div class="tb-left"><strong>Drill · ${esc(sk.name)} · level ${D.level}</strong><span class="muted">Question ${D.i + 1} of ${D.items.length} · target ${it.target} s</span></div><div class="tb-right"><span class="clock fixed" id="drill-clock" role="timer" aria-label="Time on this question">${fb ? fb.sec.toFixed(1) + ' s' : '0.0 s'}</span></div></div>
+    <section class="card stack drill">
+      <p class="drill-q">${inline(it.prompt, 'Quant')}</p>
+      <form data-form="drill" class="row drill-row" autocomplete="off">
+        <label class="sr" for="drill-in">Your answer</label>
+        <input id="drill-in" type="text" inputmode="${it.keys === 'text' ? 'text' : 'decimal'}" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="${fb ? 'next' : 'done'}" value="${fb ? esc(fb.input) : ''}" ${fb ? 'readonly' : ''}>
+        <button class="btn primary" id="drill-go" type="submit">${fb ? (lastQ ? 'See the result' : 'Next') : 'Check'}</button>
+      </form>
+      ${msg || `<p class="fine">${D.hint ? `<span class="res-no">${esc(D.hint)}</span> ` : ''}${hint} Press Enter to check.</p>`}
+    </section>
+    <div class="row"><button class="btn ghost small" data-act="drillquit">Stop the drill</button></div>`;
+}
+function drillDoneView(sk){
+  const D = S.drill, ev = D.eval, misses = D.results.map((r, i) => ({ r, it: D.items[i] })).filter(x => !x.r.ok);
+  const nx = DR.nextDrill(drillProgress());
+  const verdict = ev.passed ? (D.levelUp ? (D.level < DR.LEVELS ? `Level ${D.level} passed. Next time: level ${D.level + 1}.` : `Level ${D.level} passed: ${sk.name} mastered.`) : `Passed again at level ${D.level}.`)
+    : `Not passed yet: level ${D.level} needs 9 of 10 right${ev.accuracyOk ? '' : ` (you had ${ev.correct})`} and a median time within ${ev.target} s${ev.speedOk ? '' : ` (yours: ${ev.medianSec} s)`}.`;
+  return `<section class="card stack"><p class="eyebrow">Drill · ${esc(sk.name)} · level ${D.level}</p><h1>${ev.correct} of ${ev.n} right · median ${ev.medianSec} s</h1>
+    <p class="msg ${ev.passed ? 'good' : 'info'}">${esc(verdict)}</p>
+    ${misses.length ? `<div class="box scroll"><table class="tbl"><thead><tr><th>Question</th><th>You wrote</th><th>Answer</th><th>Tip</th></tr></thead><tbody>${misses.map(({ r, it }) => `<tr><td>${inline(it.prompt, 'Quant')}</td><td class="mono">${esc(r.input)}</td><td class="mono">${esc(DR.show(it))}</td><td>${inline(it.tip, 'Quant')}</td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">No mistakes.</p>'}
+    <div class="row"><button class="btn ${ev.passed ? '' : 'primary'}" data-act="startdrill" data-arg="${esc(D.skill)}|${D.level}">Again</button>${nx ? `<button class="btn ${ev.passed ? 'primary' : ''}" data-act="startdrill" data-arg="${esc(nx.skill)}">Next drill: ${esc(nx.name)} · level ${nx.level}</button>` : ''}<button class="btn ghost" data-act="drillquit">Back to drills</button></div></section>`;
+}
+VIEWS.drills = function(){
+  if (!DR) return '<section><h1>Drills</h1><p class="banner">The drills could not be loaded. Reload the page.</p></section>';
+  const prog = drillProgress(), info = drillPlanInfo(), d = S.profile.drills || {};
+  const dots = n => Array.from({ length: DR.LEVELS }, (_, i) => `<span class="lvl ${i < n ? 'on' : ''}" aria-hidden="true"></span>`).join('');
+  const card = s => {
+    const p = prog[s.id] || {}, passed = Math.min(DR.LEVELS, p.passed || 0), cur = Math.min(DR.LEVELS, passed + 1), last = (p.runs || []).slice(-1)[0];
+    return `<div class="card block"><p class="eyebrow"><span class="lvls">${dots(passed)}</span> ${passed >= DR.LEVELS ? 'Mastered' : `Level ${cur} of ${DR.LEVELS}`}</p><h2>${esc(s.name)}</h2><p class="muted">${esc(s.text)}</p>
+      <p class="spec">${last ? `Last: ${last.correct}/${last.n}, median ${last.medianSec} s at level ${last.level} (${fmtDate(last.date)})` : 'Not tried yet'} · targets ${s.targets.map(t => t + ' s').join(' / ')}</p>
+      <div class="row"><button class="btn small primary" data-act="startdrill" data-arg="${esc(s.id)}|${cur}">Level ${cur}</button>${Array.from({ length: cur - 1 }, (_, i) => `<button class="btn small" data-act="startdrill" data-arg="${esc(s.id)}|${i + 1}">Level ${i + 1}</button>`).join('')}${s.topic && lessonOf(s.topic) ? `<button class="btn small ghost" data-act="lesson" data-arg="${esc(s.topic)}">Theory</button>` : ''}</div></div>`;
+  };
+  return `<section><h1>Drills</h1><p class="muted" style="max-width:72ch">Five minutes a day on the basics the GMAT takes for granted. Type each answer and press Enter. A level is passed with 9 of 10 right and a median time within the target: on the exam these steps must be automatic, so speed counts as much as accuracy.</p></section>
+    <section class="card next stack"><p class="eyebrow">Today’s drill${info && info.doneToday ? ' · done today ✓' : ''}</p>
+      ${info && !info.allMastered ? `<h2>${esc(info.name)} · level ${info.level}</h2><p class="muted">Drills go through every skill at level 1 first, then level 2, then level 3, so no basic is left behind.</p><div class="row"><button class="btn primary" data-act="startdrill" data-arg="${esc(info.skill)}">Start · about 5 min</button><span class="fine mono">${Math.round((d.totalSec || 0) / 60)} min of drills so far</span></div>`
+        : '<h2>Every drill mastered</h2><p class="muted">Keep them sharp with a drill a week at level 3.</p>'}</section>
+    <section class="blocks">${DR.skills().map(card).join('')}</section>`;
+};
+
 /* ------------------------------------------------------------------ knowledge base: lessons and guides in knowledge/*.json */
 function loadKnowledge(){
   const get = f => fetch('knowledge/' + f, { cache:'no-cache' }).then(r => { if (!r.ok) throw 0; return r.json(); });
-  get('index.json').then(ix => Promise.all([Promise.all(ix.lessons.map(get)), get(ix.guides)]))
-    .then(([files, guides]) => { const byTopic = {}; for (const l of files.flat()) byTopic[l.topic] = l; S.kb = { byTopic, guides }; if (!S.run) render(); })
+  get('index.json').then(ix => Promise.all([Promise.all(ix.lessons.map(get)), get(ix.guides), ix.glossary ? get(ix.glossary).catch(() => []) : []]))
+    .then(([files, guides, glossary]) => { const byTopic = {}; for (const l of files.flat()) byTopic[l.topic] = l; S.kb = { byTopic, guides, glossary }; GL = buildGloss(glossary); if (!S.run && !S.drill) render(); })
     .catch(() => { S.kb = { byTopic: {}, guides: [], error: true }; if (!S.run && S.tab === 'learn') render(); });
 }
 function lessonOf(topic){ return S.kb && S.kb.byTopic[topic] || null; }
 VIEWS.learn = function(){
   if (!S.kb) return `<section><h1>Learn</h1><p class="muted">Loading the lessons…</p></section>`;
   if (S.kb.error) return `<section><h1>Learn</h1><p class="banner">The lessons could not be loaded. Check your connection and reload the page.</p></section>`;
+  if (S.ui.lesson === 'glossary') return glossaryView();
   if (S.ui.lesson) return S.ui.lesson.startsWith('guide:') ? guideView(S.ui.lesson.slice(6)) : lessonView(S.ui.lesson);
   const diagDone = BLOCKS.every(b => blockDone(b.key));
   const row = l => { const m = mastery(l.topic); return `<li data-kb="${esc((l.topic + ' ' + l.summary + ' ' + l.ideas.join(' ') + ' ' + l.traps.join(' ')).toLowerCase())}"><button class="lrow" data-act="lesson" data-arg="${esc(l.topic)}"><span><span class="status st${m.status}"></span><b>${esc(l.topic)}</b></span><span class="fine">${inline(l.summary)}</span></button></li>`; };
   return `<section><h1>Learn</h1><p class="muted" style="max-width:70ch">Theory, methods and traps for every topic of the GMAT Focus, plus how the exam works. Written once and always here: no AI needed. The dot shows your mastery of each topic.</p>
     ${diagDone ? '' : '<p class="banner">Tip: take the diagnostic before studying the lessons, so it measures where you really start.</p>'}
     <div style="max-width:420px"><label class="lab" for="kb-search">Search</label><input id="kb-search" type="text" autocomplete="off" placeholder="e.g. remainder, assumption, median"></div></section>
+    <section><h2>English–Italian glossary</h2><ul class="lessons"><li><button class="lrow" data-act="lesson" data-arg="glossary"><span><b>${(S.kb.glossary || []).length} GMAT words and phrases</b></span><span class="fine">From “at least” and “remainder” to “assumption” and “only if”, with the Italian and the traps. ${S.ui.gloss === false ? 'Underlining is off.' : 'Tap an underlined word in a question to see it.'}</span></button></li></ul></section>
     <section><h2>How the exam works</h2><ul class="lessons">${S.kb.guides.map(g => `<li data-kb="${esc((g.title + ' ' + g.points.join(' ')).toLowerCase())}"><button class="lrow" data-act="lesson" data-arg="guide:${esc(g.id)}"><span><b>${esc(g.title)}</b></span><span class="fine">${esc(g.points[0])}</span></button></li>`).join('')}</ul></section>
     ${SECTIONS.map(sec => `<section><h2>${sec}</h2><ul class="lessons">${SYLLABUS[sec].map(t => lessonOf(t)).filter(Boolean).map(row).join('')}</ul></section>`).join('')}`;
 };
@@ -1575,9 +1845,9 @@ function lessonView(topic){
   if (!L){ S.ui.lesson = null; return VIEWS.learn(); }
   const all = SECTIONS.flatMap(sec => SYLLABUS[sec]).filter(t => lessonOf(t)), i = all.indexOf(topic);
   const m = mastery(topic), avail = practicePool().filter(q => q.topic === topic).length + genPool(topic).filter(q => q.topic === topic).length;
-  const list = (title, arr, tag) => arr && arr.length ? `<div class="stack" style="gap:6px"><h3>${title}</h3><${tag} class="answer">${arr.map(x => `<li>${inline(x)}</li>`).join('')}</${tag}></div>` : '';
+  const list = (title, arr, tag) => arr && arr.length ? `<div class="stack" style="gap:6px"><h3>${title}</h3><${tag} class="answer">${arr.map(x => `<li>${inline(x, L.section)}</li>`).join('')}</${tag}></div>` : '';
   return `<section class="stack"><div class="row"><button class="btn small ghost" data-act="lessonback">← All lessons</button></div>
-    <p class="eyebrow">${esc(L.section)}</p><h1>${esc(L.topic)}</h1><p class="muted" style="max-width:70ch">${inline(L.summary)}</p>
+    <p class="eyebrow">${esc(L.section)}</p><h1>${esc(L.topic)}</h1><p class="muted" style="max-width:70ch">${inline(L.summary, L.section)}</p>
     <p class="fine"><span class="status st${m.status}"></span>${STATUS[m.status]}${m.n ? ` · ${pct(m.acc)} right in ${m.n} question${m.n === 1 ? '' : 's'}` : ''}</p></section>
   <section class="card stack" style="max-width:820px">
     ${list('Key ideas', L.ideas, 'ul')}
@@ -1585,10 +1855,19 @@ function lessonView(topic){
     ${list('Method', L.method, 'ol')}
     ${list('Traps', L.traps, 'ul')}
     ${list('Shortcuts', L.shortcuts, 'ul')}
-    ${L.example ? `<div class="panel stack"><p class="eyebrow">Example</p><p>${inline(L.example.q)}</p><details class="more"><summary>Show the solution</summary><p style="margin-top:8px">${inline(L.example.a)}</p></details></div>` : ''}
+    ${L.example ? `<div class="panel stack"><p class="eyebrow">Example</p><p>${inline(L.example.q, L.section)}</p><details class="more"><summary>Show the solution</summary><p style="margin-top:8px">${inline(L.example.a, L.section)}</p></details></div>` : ''}
   </section>
   <section class="row">${avail ? `<button class="btn primary" data-act="startsmart" data-arg="learn|${esc(topic)}|${Math.min(5, avail)}">Practice ${esc(topic)}</button>` : `<span class="fine">${BLOCKS.some(b => b.section === L.section && !blockDone(b.key)) ? `Practice on this topic opens when you finish the ${esc(L.section)} diagnostic block.` : 'No practice questions on this topic yet: the daily review adds them.'}</span>`}
     ${i > 0 ? `<button class="btn ghost" data-act="lesson" data-arg="${esc(all[i - 1])}">← ${esc(all[i - 1])}</button>` : ''}${i < all.length - 1 ? `<button class="btn ghost" data-act="lesson" data-arg="${esc(all[i + 1])}">${esc(all[i + 1])} →</button>` : ''}</section>`;
+}
+const GLOSS_GROUPS = [['quant', 'Quant'], ['di', 'Data Insights'], ['verbal', 'Verbal'], ['exam', 'The exam']];
+function glossaryView(){
+  const list = (S.kb.glossary || []).slice().sort((a, b) => a.term.localeCompare(b.term));
+  return `<section class="stack"><div class="row"><button class="btn small ghost" data-act="lessonback">← All lessons</button></div><p class="eyebrow">Learn</p><h1>English–Italian glossary</h1>
+      <p class="muted" style="max-width:72ch">The words and phrases that decide GMAT questions. Many errors come from reading them wrong, not from the maths.</p>
+      <label class="checks"><input type="checkbox" id="gl-toggle" ${S.ui.gloss === false ? '' : 'checked'}> Underline these words in practice questions, solutions, lessons and drills; tap one to see the Italian. Never in mocks or while a diagnostic block runs, as on the real exam.</label>
+      <div style="max-width:420px"><label class="lab" for="gl-search">Search, in English or Italian</label><input id="gl-search" type="text" autocomplete="off" placeholder="e.g. remainder, almeno, assumption"></div></section>
+    ${GLOSS_GROUPS.map(([k, name]) => { const l = list.filter(e => e.area === k); return l.length ? `<section><h2>${name}</h2><div class="box scroll"><table class="tbl gloss"><thead><tr><th>English</th><th>Italiano</th><th>Note</th></tr></thead><tbody>${l.map(e => `<tr data-glrow="${esc((e.term + ' ' + (e.forms || []).join(' ') + ' ' + e.it + ' ' + (e.note || '')).toLowerCase())}"><td lang="en"><b>${esc(e.term)}</b></td><td lang="it">${esc(e.it)}</td><td class="fine" lang="it">${esc(e.note || '')}</td></tr>`).join('')}</tbody></table></div></section>` : ''; }).join('')}`;
 }
 function guideView(id){
   const g = S.kb.guides.find(x => x.id === id);
@@ -1596,8 +1875,11 @@ function guideView(id){
   return `<section class="stack"><div class="row"><button class="btn small ghost" data-act="lessonback">← All lessons</button></div><p class="eyebrow">How the exam works</p><h1>${esc(g.title)}</h1></section>
     <section class="card" style="max-width:820px"><ul class="answer">${g.points.map(x => `<li>${inline(x)}</li>`).join('')}</ul></section>`;
 }
+window.addEventListener('scroll', hideGloss, { passive: true });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') hideGloss(); });
 function boot(){
   const h = location.hash.slice(1); if (VIEWS[h]) S.tab = h;
+  try { if (localStorage.getItem('gmatlab.gloss') === 'off') S.ui.gloss = false; } catch(e){}
   loadKnowledge();
   GMATStore.onStatus(onSyncStatus);
   render();

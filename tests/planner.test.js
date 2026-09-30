@@ -199,3 +199,15 @@ test('generated questions fill in, but written questions at the same level come 
   // with the written ones used up, a long topic set keeps going on generated questions
   const used = ['b1', 'b2']; for (let i = 0; i < 15; i++){ const id = P.nextAdaptive(ctx({ pool }), { n: 20, topic: 'Probability', level: 4, used }, { rng }); assert.ok(id && !used.includes(id)); used.push(id); }
 });
+
+test('the daily drill and Official Guide retests enter the plan', () => {
+  const drill = { skill: 'fractions', name: 'Fractions', level: 2, doneToday: false, allMastered: false };
+  const ids = over => P.plan(ctx({ minutes: 45, ...over })).items.map(i => i.id);
+  assert.ok(ids({ drill }).includes('drill'));
+  assert.ok(!ids({ drill: { ...drill, doneToday: true } }).includes('drill'), 'once a day');
+  assert.ok(!ids({ drill: { ...drill, allMastered: true } }).includes('drill'));
+  const it = P.plan(ctx({ minutes: 45, drill })).items.find(i => i.id === 'drill');
+  assert.equal(it.act, 'startdrill'); assert.equal(it.arg, 'fractions');
+  assert.ok(ids({ ogDue: 2 }).includes('ogretests'));
+  assert.ok(!ids({ ogDue: 0 }).includes('ogretests'));
+});

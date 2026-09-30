@@ -4,5 +4,6 @@
   "di.json",
   "verbal.json"
  ],
- "guides": "guides.json"
+ "guides": "guides.json",
+ "glossary": "glossary.json"
 }

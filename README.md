@@ -20,6 +20,12 @@ The **Coach** tab answers "What should I study today?", "What is my main weaknes
 
 **Error diagnosis.** Every wrong option of every question carries a note on the mistake that leads to it. After a miss, the review shows why your answer was tempting and pre-selects the error type for the error log.
 
+**Drills** (Drills tab, and five minutes a day in the plan) train the basics the GMAT takes for granted: mental arithmetic, signs, fractions, decimals and percents, percents, ratios, powers, equations, divisibility, averages and rates, three levels each. You type the answer; a level is passed with 9 of 10 right within a target time.
+
+**Glossary.** In practice questions, solutions, lessons and drills, the GMAT's key English words are underlined: tap one to see the Italian and the trap it hides ("at least", "percentage point", "only if"…). The full list, with search, is in Learn. Never in mocks or while a diagnostic block runs, as on the real exam.
+
+**Official Guide tracker** (Practice tab): log the official questions you do in the books by number, with result, time and, for a miss, the cause. They count in Mastery, the Error log, the ability estimate and the plan, and a miss comes back in Retests to redo in the book. The app never stores the question itself.
+
 The **Learn** tab holds the GMAT knowledge built into the app: a lesson for each of the 40 topics (key ideas, formulas, method, traps, shortcuts and a worked example) and guides on the exam format, pacing, bookmarks and answer changes, reading arguments and passages, and Data Sufficiency. The same theory opens inside every solution and next to weak topics in the plan. No chatbot, no AI calls: it is written into the app (`knowledge/`).
 
 **Coach sets** (from the plan, or "Let the coach pick" in Practice) are adaptive: weak topics come up most and strong ones now and then, and each question is harder after a right answer and easier after a wrong one.
@@ -47,7 +53,7 @@ The exam is described in one file, `exam-spec.js`: sections, timing, rules, blue
 
 - **Daily review.** Every night Claude reads your synced progress, writes a review with the week's focus (on the Coach tab), and adds new questions on your weak topics and for the Verbal mocks. It uses your Claude subscription, not an API key. The procedure is in [CLAUDE.md](CLAUDE.md).
   - It runs in GitHub Actions (`Daily review` workflow) once two repository secrets exist (**Settings → Secrets and variables → Actions**): `CLAUDE_CODE_OAUTH_TOKEN`, from `claude setup-token` on a computer with Claude Code (Pro or Max plan), and `PROGRESS_REPO_TOKEN`, a fine-grained token with **Contents: Read and write** on the progress repository (the one you use for sync in the app works). Claude only edits files; the workflow checks the questions, publishes them and saves the review. Without the secrets it stops with a notice. **Actions → Daily review → Run workflow** starts it by hand.
-  - A Claude Code routine runs the same review at 05:56 as a backup; if the night run already did the work, it stops.
+  - A Claude Code routine runs the same review every morning at 8:56 (Italian time), in a new session each time; if the night run already did the work, it stops.
 
 ## Questions
 
@@ -64,10 +70,11 @@ The exam is described in one file, `exam-spec.js`: sections, timing, rules, blue
 | `app.js` | Views, test engine, review flow, analytics |
 | `planner.js` | Rule-based coach: daily plan, topic weights, coach sets |
 | `exam-spec.js` | The exam being simulated: sections, timing, rules, blueprint, scoring, modes |
+| `drills.js` | Foundations drills: ten skills, three levels, exact answer checking |
 | `exam-engine.js` | Mock engine: blueprint, adaptive selection, scoring, analysis, ability model, examiner, readiness |
 | `generators.js` | Question templates: unlimited Quant and Data Insights practice |
 | `store.js` | Browser storage, backups, GitHub sync |
 | `questions/` | Question bank |
-| `knowledge/` | Lessons for every topic and exam guides |
+| `knowledge/` | Lessons for every topic, exam guides and the English–Italian glossary |
 | `tools/validate-questions.js` | Question file checks |
 | `tests/` | Unit tests: `node --test tests/*.test.js` |
