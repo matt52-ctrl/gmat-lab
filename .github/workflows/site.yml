@@ -23,7 +23,7 @@ jobs:
           node-version: 22
       - name: JavaScript syntax
         run: |
-          for f in app.js store.js planner.js generators.js tools/validate-questions.js; do node --check "$f"; done
+          for f in app.js store.js planner.js generators.js exam-spec.js exam-engine.js tools/validate-questions.js; do node --check "$f"; done
       - name: Question files
         run: node tools/validate-questions.js
       - name: Unit tests
@@ -44,10 +44,11 @@ jobs:
       - name: Collect the site files
         run: |
           mkdir _site
-          cp -r index.html app.js store.js planner.js generators.js questions knowledge _site/
+          cp -r index.html app.js store.js planner.js generators.js exam-spec.js exam-engine.js questions knowledge _site/
           # a version on each script URL, so browsers never mix old and new files after a deploy
-          sed -i -E "s#src=\"([a-z]+)\.js\"#src=\"\1.js?v=${GITHUB_SHA::8}\"#g" _site/index.html
+          sed -i -E "s#src=\"([a-z-]+)\.js\"#src=\"\1.js?v=${GITHUB_SHA::8}\"#g" _site/index.html
           grep -q "app.js?v=" _site/index.html
+          grep -q "exam-engine.js?v=" _site/index.html
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5
         with:

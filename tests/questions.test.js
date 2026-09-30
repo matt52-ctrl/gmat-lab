@@ -55,3 +55,9 @@ test('every wrong option needs a diagnosis with a known error type', () => {
     assert.ok(p.some(x => re.test(x)), JSON.stringify(patch) + ' → ' + p.join('; '));
   }
 });
+
+test('optional mock-engine metadata is checked when present', () => {
+  assert.deepEqual(checkQuestion({ ...good(), irt: { a: 1.2, b: 0.4, c: 0.2 }, difficultyScore: 0.55, officialLike: true, tags: ['rates'], prerequisites: ['Linear equations'] }, SYL), []);
+  for (const [patch, re] of [[{ irt: { a: 9 } }, /irt\.a/], [{ irt: { d: 1 } }, /irt must be/], [{ difficultyScore: 1.4 }, /difficultyScore/], [{ officialLike: 'yes' }, /officialLike/], [{ tags: [''] }, /tags/]])
+    assert.ok(checkQuestion({ ...good(), ...patch }, SYL).some(p => re.test(p)), JSON.stringify(patch));
+});
